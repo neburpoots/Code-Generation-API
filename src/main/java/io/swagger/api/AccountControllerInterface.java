@@ -5,7 +5,7 @@
  */
 package io.swagger.api;
 
-import io.swagger.model.Account;
+import io.swagger.model.entity.Account;
 import io.swagger.model.AccountPatchDTO;
 import io.swagger.model.AccountPostDTO;
 import io.swagger.model.Error;
