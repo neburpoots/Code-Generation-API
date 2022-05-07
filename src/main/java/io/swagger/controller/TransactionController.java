@@ -1,4 +1,4 @@
-package io.swagger.api;
+package io.swagger.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.model.entity.Transaction;

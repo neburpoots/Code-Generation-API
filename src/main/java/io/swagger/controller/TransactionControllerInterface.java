@@ -3,12 +3,11 @@
  * https://github.com/swagger-api/swagger-codegen
  * Do not edit the class manually.
  */
-package io.swagger.api;
+package io.swagger.controller;
 
-import io.swagger.model.entity.Account;
-import io.swagger.model.AccountPatchDTO;
-import io.swagger.model.AccountPostDTO;
 import io.swagger.model.Error;
+import io.swagger.model.entity.Transaction;
+import io.swagger.model.TransactionPostDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -27,16 +26,17 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
+import javax.validation.constraints.*;
 import java.util.List;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-05T18:12:07.854Z[GMT]")
 @Validated
-public interface AccountControllerInterface {
+public interface TransactionControllerInterface {
 
-    @Operation(summary = "Creates a primary and savings Account for provided user_id", description = "Creates a primary and savings account for provided user_id.", security = {
-            @SecurityRequirement(name = "bearerAuth")    }, tags={ "accounts" })
+    @Operation(summary = "Make a Transaction", description = "Makes a transaction.", security = {
+            @SecurityRequirement(name = "bearerAuth")    }, tags={ "transactions" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AccountControllerInterface.class))),
+            @ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Transaction.class))),
 
             @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
 
@@ -49,17 +49,17 @@ public interface AccountControllerInterface {
             @ApiResponse(responseCode = "409", description = "There was a conflict processing your request.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
 
             @ApiResponse(responseCode = "500", description = "Internal server error.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))) })
-    @RequestMapping(value = "/api/accounts",
+    @RequestMapping(value = "/api/transactions",
             produces = { "application/json" },
             consumes = { "application/json" },
             method = RequestMethod.POST)
-    ResponseEntity<Account> createAccounts(@Parameter(in = ParameterIn.DEFAULT, description = "Created User object", required=true, schema=@Schema()) @Valid @RequestBody AccountPostDTO body);
+    ResponseEntity<Transaction> addTransaction(@Parameter(in = ParameterIn.DEFAULT, description = "Created Transaction object", required=true, schema=@Schema()) @Valid @RequestBody TransactionPostDTO body);
 
 
-    @Operation(summary = "Alters limit or status of Account", description = "", security = {
-            @SecurityRequirement(name = "bearerAuth")    }, tags={ "accounts" })
+    @Operation(summary = "Finds a Transaction based on id", description = "Returns transaction information matching the provided id.", security = {
+            @SecurityRequirement(name = "bearerAuth")    }, tags={ "transactions" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Successfully saved changes to account."),
+            @ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Transaction.class))),
 
             @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
 
@@ -70,36 +70,16 @@ public interface AccountControllerInterface {
             @ApiResponse(responseCode = "404", description = "Resource not found.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
 
             @ApiResponse(responseCode = "500", description = "Internal server error.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))) })
-    @RequestMapping(value = "/api/accounts/{iban}",
-            produces = { "application/json" },
-            consumes = { "application/json" },
-            method = RequestMethod.PATCH)
-    ResponseEntity<Void> editAccount(@Parameter(in = ParameterIn.PATH, description = "Iban of account", required=true, schema=@Schema()) @PathVariable("iban") String iban, @Parameter(in = ParameterIn.DEFAULT, description = "Edit information", required=true, schema=@Schema()) @Valid @RequestBody AccountPatchDTO body);
-
-    @Operation(summary = "Finds an Account based on iban", description = "Returns an account matching the provided iban.", security = {
-            @SecurityRequirement(name = "bearerAuth")    }, tags={ "accounts" })
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AccountControllerInterface.class))),
-
-            @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
-
-            @ApiResponse(responseCode = "401", description = "Credentials invalid or missing.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
-
-            @ApiResponse(responseCode = "403", description = "You are not authorized to make this request.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
-
-            @ApiResponse(responseCode = "404", description = "Resource not found.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
-
-            @ApiResponse(responseCode = "500", description = "Internal server error.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))) })
-    @RequestMapping(value = "/api/accounts/{iban}",
+    @RequestMapping(value = "/api/transactions/{id}",
             produces = { "application/json" },
             method = RequestMethod.GET)
-    ResponseEntity<Account> getAccountByIban(@Parameter(in = ParameterIn.PATH, description = "Iban of account", required=true, schema=@Schema()) @PathVariable("iban") String iban);
+    ResponseEntity<Transaction> getTransactionById(@Parameter(in = ParameterIn.PATH, description = "Id of transaction", required=true, schema=@Schema()) @PathVariable("id") String id);
 
 
-    @Operation(summary = "Finds own Account by default, otherwise by provided user_id", description = "Returns a list of accounts, optionally filtered by parameters.", security = {
-            @SecurityRequirement(name = "bearerAuth")    }, tags={ "accounts" })
+    @Operation(summary = "Finds Transactions by date, user, iban or by amount", description = "Returns a list of Transactions, filtered by parameters and pagination.", security = {
+            @SecurityRequirement(name = "bearerAuth")    }, tags={ "transactions" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = AccountControllerInterface.class)))),
+            @ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Object.class)))),
 
             @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
 
@@ -110,10 +90,9 @@ public interface AccountControllerInterface {
             @ApiResponse(responseCode = "404", description = "Resource not found.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
 
             @ApiResponse(responseCode = "500", description = "Internal server error.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))) })
-    @RequestMapping(value = "/api/accounts",
+    @RequestMapping(value = "/api/transactions",
             produces = { "application/json" },
             method = RequestMethod.GET)
-    ResponseEntity<List<Account>> getAccounts(@Parameter(in = ParameterIn.QUERY, description = "This query will get both accounts that belong to the matching user id." ,schema=@Schema()) @Valid @RequestParam(value = "user_id", required = false) String userId, @Parameter(in = ParameterIn.QUERY, description = "This query will filter either the 'primary' or 'savings' account." ,schema=@Schema(allowableValues={ "primary", "savings" }
-    )) @Valid @RequestParam(value = "type", required = false) List<String> type);
+    ResponseEntity<List<Object>> getTransactions(@NotNull @Parameter(in = ParameterIn.QUERY, description = "Page number for pagination" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "page", required = true) Integer page, @Parameter(in = ParameterIn.QUERY, description = "Date value that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "date", required = false) String date, @Parameter(in = ParameterIn.QUERY, description = "User value that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "user_id", required = false) String userId, @Parameter(in = ParameterIn.QUERY, description = "From IBAN account that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "from_iban", required = false) String fromIban, @Parameter(in = ParameterIn.QUERY, description = "To IBAN account that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "to_iban", required = false) String toIban, @Parameter(in = ParameterIn.QUERY, description = "Equals given amount that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "as_eq", required = false) String asEq, @Parameter(in = ParameterIn.QUERY, description = "Less than given amount that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "as_lt", required = false) String asLt, @Parameter(in = ParameterIn.QUERY, description = "More than given amount that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "as_mt", required = false) String asMt);
 }
 

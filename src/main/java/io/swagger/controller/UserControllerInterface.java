@@ -3,7 +3,7 @@
  * https://github.com/swagger-api/swagger-codegen
  * Do not edit the class manually.
  */
-package io.swagger.api;
+package io.swagger.controller;
 
 import io.swagger.model.Error;
 import io.swagger.model.entity.User;
