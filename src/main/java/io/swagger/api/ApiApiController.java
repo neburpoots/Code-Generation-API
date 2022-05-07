@@ -1,5 +1,6 @@
 package io.swagger.api;
 
+import io.swagger.annotations.Api;
 import io.swagger.model.Account;
 import io.swagger.model.AccountPatchDTO;
 import io.swagger.model.AccountPostDTO;
@@ -44,6 +45,7 @@ import java.util.Map;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-05T18:12:07.854Z[GMT]")
 @RestController
+@Api(tags = {"users", "accounts", "transactions"})
 public class ApiApiController implements ApiApi {
 
     private static final Logger log = LoggerFactory.getLogger(ApiApiController.class);
