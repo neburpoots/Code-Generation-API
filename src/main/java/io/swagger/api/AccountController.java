@@ -48,7 +48,7 @@ import java.util.Map;
 @Api(tags = {"accounts"})
 public class AccountController implements AccountControllerInterface {
 
-    private static final Logger log = LoggerFactory.getLogger(ApiApiController.class);
+    private static final Logger log = LoggerFactory.getLogger(AccountController.class);
 
     private final ObjectMapper objectMapper;
 

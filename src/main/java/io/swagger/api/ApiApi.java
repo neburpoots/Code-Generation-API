@@ -43,29 +43,6 @@ import java.util.Map;
 @Validated
 public interface ApiApi {
 
-    @Operation(summary = "Make a Transaction", description = "Makes a transaction.", security = {
-        @SecurityRequirement(name = "bearerAuth")    }, tags={ "transactions" })
-    @ApiResponses(value = { 
-        @ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Transaction.class))),
-        
-        @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
-        
-        @ApiResponse(responseCode = "401", description = "Credentials invalid or missing.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
-        
-        @ApiResponse(responseCode = "403", description = "You are not authorized to make this request.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
-        
-        @ApiResponse(responseCode = "404", description = "Resource not found.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
-        
-        @ApiResponse(responseCode = "409", description = "There was a conflict processing your request.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
-        
-        @ApiResponse(responseCode = "500", description = "Internal server error.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))) })
-    @RequestMapping(value = "/api/transactions",
-        produces = { "application/json" }, 
-        consumes = { "application/json" }, 
-        method = RequestMethod.POST)
-    ResponseEntity<Transaction> addTransaction(@Parameter(in = ParameterIn.DEFAULT, description = "Created Transaction object", required=true, schema=@Schema()) @Valid @RequestBody TransactionPostDTO body);
-
-
     @Operation(summary = "User registration", description = "Returns a list of Users, filtered by parameters and pagination.", tags={ "users" })
     @ApiResponses(value = { 
         @ApiResponse(responseCode = "201", description = "Created", content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))),
@@ -128,45 +105,6 @@ public interface ApiApi {
         consumes = { "application/json" }, 
         method = RequestMethod.PATCH)
     ResponseEntity<Void> editUserById(@Parameter(in = ParameterIn.PATH, description = "Id of the user you want to edit", required=true, schema=@Schema()) @PathVariable("id") String id, @Parameter(in = ParameterIn.DEFAULT, description = "Created User object", required=true, schema=@Schema()) @Valid @RequestBody UserPatchDTO body);
-
-    @Operation(summary = "Finds a Transaction based on id", description = "Returns transaction information matching the provided id.", security = {
-        @SecurityRequirement(name = "bearerAuth")    }, tags={ "transactions" })
-    @ApiResponses(value = { 
-        @ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Transaction.class))),
-        
-        @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
-        
-        @ApiResponse(responseCode = "401", description = "Credentials invalid or missing.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
-        
-        @ApiResponse(responseCode = "403", description = "You are not authorized to make this request.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
-        
-        @ApiResponse(responseCode = "404", description = "Resource not found.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
-        
-        @ApiResponse(responseCode = "500", description = "Internal server error.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))) })
-    @RequestMapping(value = "/api/transactions/{id}",
-        produces = { "application/json" }, 
-        method = RequestMethod.GET)
-    ResponseEntity<Transaction> getTransactionById(@Parameter(in = ParameterIn.PATH, description = "Id of transaction", required=true, schema=@Schema()) @PathVariable("id") String id);
-
-
-    @Operation(summary = "Finds Transactions by date, user, iban or by amount", description = "Returns a list of Transactions, filtered by parameters and pagination.", security = {
-        @SecurityRequirement(name = "bearerAuth")    }, tags={ "transactions" })
-    @ApiResponses(value = { 
-        @ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Object.class)))),
-        
-        @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
-        
-        @ApiResponse(responseCode = "401", description = "Credentials invalid or missing.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
-        
-        @ApiResponse(responseCode = "403", description = "You are not authorized to make this request.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
-        
-        @ApiResponse(responseCode = "404", description = "Resource not found.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
-        
-        @ApiResponse(responseCode = "500", description = "Internal server error.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))) })
-    @RequestMapping(value = "/api/transactions",
-        produces = { "application/json" }, 
-        method = RequestMethod.GET)
-    ResponseEntity<List<Object>> getTransactions(@NotNull @Parameter(in = ParameterIn.QUERY, description = "Page number for pagination" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "page", required = true) Integer page, @Parameter(in = ParameterIn.QUERY, description = "Date value that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "date", required = false) String date, @Parameter(in = ParameterIn.QUERY, description = "User value that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "user_id", required = false) String userId, @Parameter(in = ParameterIn.QUERY, description = "From IBAN account that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "from_iban", required = false) String fromIban, @Parameter(in = ParameterIn.QUERY, description = "To IBAN account that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "to_iban", required = false) String toIban, @Parameter(in = ParameterIn.QUERY, description = "Equals given amount that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "as_eq", required = false) String asEq, @Parameter(in = ParameterIn.QUERY, description = "Less than given amount that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "as_lt", required = false) String asLt, @Parameter(in = ParameterIn.QUERY, description = "More than given amount that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "as_mt", required = false) String asMt);
 
 
     @Operation(summary = "Find a User by id", description = "", security = {
