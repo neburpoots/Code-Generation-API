@@ -48,7 +48,7 @@ import java.util.Map;
 @Api(tags = {"transactions"})
 public class TransactionController implements TransactionControllerInterface {
 
-    private static final Logger log = LoggerFactory.getLogger(ApiApiController.class);
+    private static final Logger log = LoggerFactory.getLogger(TransactionController.class);
 
     private final ObjectMapper objectMapper;
 

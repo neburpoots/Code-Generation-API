@@ -46,16 +46,16 @@ import java.util.Map;
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-05T18:12:07.854Z[GMT]")
 @RestController
 @Api(tags = {"users"})
-public class ApiApiController implements ApiApi {
+public class UserController implements UserControllerInterface {
 
-    private static final Logger log = LoggerFactory.getLogger(ApiApiController.class);
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
     private final ObjectMapper objectMapper;
 
     private final HttpServletRequest request;
 
     @org.springframework.beans.factory.annotation.Autowired
-    public ApiApiController(ObjectMapper objectMapper, HttpServletRequest request) {
+    public UserController(ObjectMapper objectMapper, HttpServletRequest request) {
         this.objectMapper = objectMapper;
         this.request = request;
     }
