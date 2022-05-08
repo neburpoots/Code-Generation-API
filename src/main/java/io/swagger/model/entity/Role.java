@@ -3,6 +3,7 @@ package io.swagger.model.entity;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -19,6 +20,11 @@ public class Role {
         this.name = name;
     }
 
-    @ManyToMany(mappedBy = "Roles")
-    Set<User> Users;
+
+    @ManyToMany(fetch = FetchType.EAGER,
+            cascade = {
+                    CascadeType.MERGE,
+            },
+            mappedBy = "roles")
+    private Set<User> users = new HashSet<>();
 }

@@ -1,48 +1,58 @@
 package io.swagger.model.entity;
 
-import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.validation.annotation.Validated;
+import lombok.*;
 
 import javax.persistence.*;
-import javax.validation.Valid;
+import javax.transaction.Transactional;
 
-/**
- * User
- */
 
 @Entity
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
-public class User   {
+@RequiredArgsConstructor
+public class User {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private UUID user_id;
 
+  @NonNull
   private String firstname;
 
+  @NonNull
   private String lastname;
 
+  @NonNull
+  @Column(name = "email", unique = true)
   private String email;
 
-  private BigDecimal transactionLimit;
+  @NonNull
+  private Integer transactionLimit;
 
+  @NonNull
   private BigDecimal dailyLimit;
 
-  @ManyToMany
-  @JoinTable(
-          name = "user_role",
-          joinColumns = @JoinColumn(name = "user_id"),
-          inverseJoinColumns = @JoinColumn(name = "role_id"))
-  Set<Role> Roles;
+  @NonNull
+  private String password;
+
+  public void setRolesForUser(List<Role> roles) {
+    Set<Role> newRoles = new HashSet<>(roles);
+    this.setRoles(newRoles);
+  }
+
+  @ManyToMany(fetch = FetchType.EAGER,
+          cascade = {
+                  CascadeType.MERGE
+          })
+  @JoinTable(name = "user_role",
+          joinColumns = { @JoinColumn(name = "user_id") },
+          inverseJoinColumns = { @JoinColumn(name = "role_id") })
+  private Set<Role> roles = new HashSet<>();
+
 }
