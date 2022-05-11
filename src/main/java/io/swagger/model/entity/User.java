@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -19,6 +20,7 @@ import javax.transaction.Transactional;
 public class User {
 
   @Id
+  @Column(name = "user_id", unique = true)
   @GeneratedValue(strategy = GenerationType.AUTO)
   private UUID user_id;
 
@@ -55,4 +57,7 @@ public class User {
           inverseJoinColumns = { @JoinColumn(name = "role_id") })
   private Set<Role> roles = new HashSet<>();
 
+  @OneToMany(mappedBy="user")
+  @JsonIgnore
+  private Set<Account> accounts = new HashSet<>();
 }

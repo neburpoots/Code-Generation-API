@@ -7,6 +7,7 @@ import io.swagger.model.UserPasswordDTO;
 import io.swagger.model.UserPatchDTO;
 import io.swagger.model.UserPostDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -36,10 +37,13 @@ public class UserController implements UserControllerInterface {
 
     private final HttpServletRequest request;
 
+    private final UserService userService;
+
     @org.springframework.beans.factory.annotation.Autowired
-    public UserController(ObjectMapper objectMapper, HttpServletRequest request) {
+    public UserController(ObjectMapper objectMapper, HttpServletRequest request, UserService userService) {
         this.objectMapper = objectMapper;
         this.request = request;
+        this.userService = userService;
     }
 
     public ResponseEntity<User> addUser(@Parameter(in = ParameterIn.DEFAULT, description = "Created User object", required=true, schema=@Schema()) @Valid @RequestBody UserPostDTO body) {
@@ -80,18 +84,9 @@ public class UserController implements UserControllerInterface {
         return new ResponseEntity<User>(HttpStatus.NOT_IMPLEMENTED);
     }
 
-    public ResponseEntity<List<Object>> getUsers(@NotNull @Parameter(in = ParameterIn.QUERY, description = "Page number for pagination" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "page", required = true) Integer page,@Parameter(in = ParameterIn.QUERY, description = "Name value that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "name", required = false) String name,@Parameter(in = ParameterIn.QUERY, description = "IBAN value that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "iban", required = false) String iban) {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<List<Object>>(objectMapper.readValue("[ \"\", \"\" ]", List.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                log.error("Couldn't serialize response for content type application/json", e);
-                return new ResponseEntity<List<Object>>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
+    public ResponseEntity<List<User>> getUsers(@NotNull @Parameter(in = ParameterIn.QUERY, description = "Page number for pagination" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "page", required = true) Integer page,@Parameter(in = ParameterIn.QUERY, description = "Name value that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "name", required = false) String name,@Parameter(in = ParameterIn.QUERY, description = "IBAN value that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "iban", required = false) String iban) {
 
-        return new ResponseEntity<List<Object>>(HttpStatus.NOT_IMPLEMENTED);
+        return new ResponseEntity<List<User>>(this.userService.getUsers(), HttpStatus.OK);
     }
 
     public ResponseEntity<User> loginUser(@Parameter(in = ParameterIn.DEFAULT, description = "Login credentials", required=true, schema=@Schema()) @Valid @RequestBody UserLoginDTO body) {
