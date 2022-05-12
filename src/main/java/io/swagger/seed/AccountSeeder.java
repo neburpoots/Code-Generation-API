@@ -8,6 +8,7 @@ import io.swagger.repository.AccountRepository;
 import io.swagger.repository.RoleRepository;
 import io.swagger.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
@@ -26,10 +27,11 @@ public class AccountSeeder {
         this.accountRepo = accountRepo;
     }
 
-
     public List<Account> seed(List<User> users) {
         Account account1 = new Account(new BigDecimal(500), new BigDecimal(500), AccountType.PRIMARY, true);
         Account account2 = new Account(new BigDecimal(500), new BigDecimal(500), AccountType.SAVINGS, true);
+
+        Account account3 = new Account(new BigDecimal(500), new BigDecimal(500), AccountType.SAVINGS, true);
 
         account1.setUser(users.get(0));
         account2.setUser(users.get(1));

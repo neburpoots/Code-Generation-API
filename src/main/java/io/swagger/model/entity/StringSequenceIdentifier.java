@@ -1,5 +1,8 @@
 package io.swagger.model.entity;
 
+import io.swagger.repository.AccountRepository;
+import io.swagger.repository.RoleRepository;
+import io.swagger.repository.UserRepository;
 import org.hibernate.MappingException;
 import org.hibernate.Session;
 import org.hibernate.dialect.Dialect;
@@ -12,11 +15,16 @@ import org.hibernate.id.enhanced.SequenceStyleGenerator;
 import org.hibernate.internal.util.config.ConfigurationHelper;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.type.Type;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.io.Serializable;
 import java.util.Properties;
+import java.util.Random;
 
-
+@Component
+@EnableTransactionManagement
 public class StringSequenceIdentifier implements
         IdentifierGenerator, Configurable {
 
@@ -92,21 +100,15 @@ public class StringSequenceIdentifier implements
             SharedSessionContractImplementor session,
             Object obj) {
 
-        if (obj instanceof Identifiable) {
-            Identifiable identifiable = (Identifiable) obj;
-            Serializable id = identifiable.getId();
-
-            if (id != null) {
-                return id;
-            }
-        }
-
         long seqValue = ((Number)
                 Session.class.cast(session)
                         .createNativeQuery(sequenceCallSyntax)
                         .uniqueResult()
         ).longValue();
 
-        return sequencePrefix + String.format("%011d%s", 0 ,seqValue);
+        StringBuilder iban = new StringBuilder(sequencePrefix + "SWAG");
+        iban.append(String.format("%09d%s", 0, seqValue));
+
+        return iban.toString();
     }
 }

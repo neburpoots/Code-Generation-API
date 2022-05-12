@@ -20,11 +20,28 @@ import javax.persistence.*;
 @Data
 @NoArgsConstructor
 @RequiredArgsConstructor
-public class Account   {
+public class Account implements Identifiable<String>  {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
-  private UUID account_id;
+  @GenericGenerator(
+          name = "assigned-sequence",
+          strategy = "io.swagger.model.entity.StringSequenceIdentifier",
+          parameters = {
+            @org.hibernate.annotations.Parameter(
+                    name = "sequence_name", value = "hibernate_sequence"),
+            @org.hibernate.annotations.Parameter(
+                    name = "sequence_prefix", value = "NL69")
+      }
+  )
+  @GeneratedValue(
+          generator = "assigned-sequence",
+          strategy = GenerationType.SEQUENCE)
+  private String account_id;
+
+  @Override
+  public String getId() {
+    return account_id;
+  }
 
   @NonNull
   private BigDecimal balance;
