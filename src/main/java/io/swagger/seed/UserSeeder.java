@@ -31,13 +31,14 @@ public class UserSeeder {
     public List<User> seed(List<Role> roles) {
         User ruben = new User("Ruben", "Stoop", "670240@student.inholland.nl", 50, new BigDecimal(25000), "Welkom!");
         User tim = new User("Tim", "Roffelsen", "123456@student.inholland.nl", 50, new BigDecimal(25000), "Welkom!");
+        User test = new User("test", "test", "test@student.inholland.nl", 50, new BigDecimal(25000), "Welkom!");
 
-//            Gets all the roles for the users
+////            Gets all the roles for the users
         ruben.setRolesForUser(roles);
         tim.setRolesForUser(roles);
 
         return (List<User>)this.userRepo.saveAll(
-                List.of(ruben, tim)
+                List.of(ruben, tim, test)
         );
 
 

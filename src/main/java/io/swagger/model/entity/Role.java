@@ -8,14 +8,16 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter
+@Setter
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer role_id;
     private String name;
+
+    public Role() {
+    }
 
     public Role(String name) {
         this.name = name;

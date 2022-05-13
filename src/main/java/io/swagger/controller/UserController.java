@@ -1,6 +1,9 @@
 package io.swagger.controller;
 
 import io.swagger.annotations.Api;
+import io.swagger.exception.InternalServerErrorException;
+import io.swagger.exception.ResourceNotFoundException;
+import io.swagger.exception.testException;
 import io.swagger.model.entity.User;
 import io.swagger.model.UserLoginDTO;
 import io.swagger.model.UserPasswordDTO;
@@ -24,6 +27,7 @@ import javax.validation.constraints.*;
 import javax.validation.Valid;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.nio.file.ReadOnlyFileSystemException;
 import java.util.List;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-05T18:12:07.854Z[GMT]")
@@ -46,7 +50,7 @@ public class UserController implements UserControllerInterface {
         this.userService = userService;
     }
 
-    public ResponseEntity<User> addUser(@Parameter(in = ParameterIn.DEFAULT, description = "Created User object", required=true, schema=@Schema()) @Valid @RequestBody UserPostDTO body) {
+    public ResponseEntity<User> addUser(@Parameter(in = ParameterIn.DEFAULT, description = "Created User object", required = true, schema = @Schema()) @Valid @RequestBody UserPostDTO body) {
         String accept = request.getHeader("Accept");
         if (accept != null && accept.contains("application/json")) {
             try {
@@ -60,17 +64,17 @@ public class UserController implements UserControllerInterface {
         return new ResponseEntity<User>(HttpStatus.NOT_IMPLEMENTED);
     }
 
-    public ResponseEntity<Void> editPassword(@Parameter(in = ParameterIn.DEFAULT, description = "Password information", required=true, schema=@Schema()) @Valid @RequestBody UserPasswordDTO body) {
+    public ResponseEntity<Void> editPassword(@Parameter(in = ParameterIn.DEFAULT, description = "Password information", required = true, schema = @Schema()) @Valid @RequestBody UserPasswordDTO body) {
         String accept = request.getHeader("Accept");
         return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
     }
 
-    public ResponseEntity<Void> editUserById(@Parameter(in = ParameterIn.PATH, description = "Id of the user you want to edit", required=true, schema=@Schema()) @PathVariable("id") String id,@Parameter(in = ParameterIn.DEFAULT, description = "Created User object", required=true, schema=@Schema()) @Valid @RequestBody UserPatchDTO body) {
+    public ResponseEntity<Void> editUserById(@Parameter(in = ParameterIn.PATH, description = "Id of the user you want to edit", required = true, schema = @Schema()) @PathVariable("id") String id, @Parameter(in = ParameterIn.DEFAULT, description = "Created User object", required = true, schema = @Schema()) @Valid @RequestBody UserPatchDTO body) {
         String accept = request.getHeader("Accept");
         return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
     }
 
-    public ResponseEntity<User> getUserById(@Parameter(in = ParameterIn.PATH, description = "Id of the user you want to get", required=true, schema=@Schema()) @PathVariable("id") String id) {
+    public ResponseEntity<User> getUserById(@Parameter(in = ParameterIn.PATH, description = "Id of the user you want to get", required = true, schema = @Schema()) @PathVariable("id") String id) {
         String accept = request.getHeader("Accept");
         if (accept != null && accept.contains("application/json")) {
             try {
@@ -84,12 +88,11 @@ public class UserController implements UserControllerInterface {
         return new ResponseEntity<User>(HttpStatus.NOT_IMPLEMENTED);
     }
 
-    public ResponseEntity<List<User>> getUsers(@NotNull @Parameter(in = ParameterIn.QUERY, description = "Page number for pagination" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "page", required = true) Integer page,@Parameter(in = ParameterIn.QUERY, description = "Name value that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "name", required = false) String name,@Parameter(in = ParameterIn.QUERY, description = "IBAN value that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "iban", required = false) String iban) {
-
+    public ResponseEntity<List<User>> getUsers(@NotNull @Parameter(in = ParameterIn.QUERY, description = "Page number for pagination", required = true, schema = @Schema()) @Valid @RequestParam(value = "page", required = true) Integer page, @Parameter(in = ParameterIn.QUERY, description = "Name value that needs to be considered for filter", schema = @Schema()) @Valid @RequestParam(value = "name", required = false) String name, @Parameter(in = ParameterIn.QUERY, description = "IBAN value that needs to be considered for filter", schema = @Schema()) @Valid @RequestParam(value = "iban", required = false) String iban) {
         return new ResponseEntity<List<User>>(this.userService.getUsers(), HttpStatus.OK);
     }
 
-    public ResponseEntity<User> loginUser(@Parameter(in = ParameterIn.DEFAULT, description = "Login credentials", required=true, schema=@Schema()) @Valid @RequestBody UserLoginDTO body) {
+    public ResponseEntity<User> loginUser(@Parameter(in = ParameterIn.DEFAULT, description = "Login credentials", required = true, schema = @Schema()) @Valid @RequestBody UserLoginDTO body) {
         String accept = request.getHeader("Accept");
         if (accept != null && accept.contains("application/json")) {
             try {

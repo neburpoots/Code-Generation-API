@@ -14,33 +14,24 @@ import javax.transaction.Transactional;
 
 
 @Entity
-@Data
-@NoArgsConstructor
-@RequiredArgsConstructor
+@Getter
+@Setter
 public class User {
 
   @Id
-  @Column(name = "user_id", unique = true)
   @GeneratedValue(strategy = GenerationType.AUTO)
   private UUID user_id;
 
-  @NonNull
   private String firstname;
 
-  @NonNull
   private String lastname;
 
-  @NonNull
-  @Column(name = "email", unique = true)
   private String email;
 
-  @NonNull
   private Integer transactionLimit;
 
-  @NonNull
   private BigDecimal dailyLimit;
 
-  @NonNull
   private String password;
 
   @Override
@@ -53,16 +44,22 @@ public class User {
     this.setRoles(newRoles);
   }
 
-  @ManyToMany(fetch = FetchType.EAGER,
-          cascade = {
-                  CascadeType.MERGE
-          })
-  @JoinTable(name = "user_role",
-          joinColumns = { @JoinColumn(name = "user_id") },
-          inverseJoinColumns = { @JoinColumn(name = "role_id") })
+  public void setRoles(Set<Role> roles) {
+    this.roles = roles;
+  }
+
+  @ManyToMany
   private Set<Role> roles = new HashSet<>();
 
-  @OneToMany(mappedBy="user")
-  @JsonIgnore
-  private Set<Account> accounts = new HashSet<>();
+  public User(String firstname, String lastname, String email, Integer transactionLimit, BigDecimal dailyLimit, String password) {
+    this.firstname = firstname;
+    this.lastname = lastname;
+    this.email = email;
+    this.transactionLimit = transactionLimit;
+    this.dailyLimit = dailyLimit;
+    this.password = password;
+  }
+
+  public User() {
+  }
 }
