@@ -2,7 +2,7 @@ package io.swagger.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.model.entity.Transaction;
-import io.swagger.model.TransactionPostDTO;
+import io.swagger.model.transaction.TransactionPostDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;

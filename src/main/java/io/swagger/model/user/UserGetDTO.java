@@ -1,21 +1,24 @@
-package io.swagger.model;
+package io.swagger.model.user;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
+import io.swagger.model.utils.DTOEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.UUID;
 import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
-import javax.validation.constraints.*;
 
 /**
- * UserPostDTO
+ * UserGetDTO
  */
 @Validated
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-05T18:12:07.854Z[GMT]")
 
 
-public class UserPostDTO   {
+public class UserGetDTO implements DTOEntity {
+  @JsonProperty("id")
+  private UUID id = null;
+
   @JsonProperty("firstname")
   private String firstname = null;
 
@@ -25,7 +28,30 @@ public class UserPostDTO   {
   @JsonProperty("email")
   private String email = null;
 
-  public UserPostDTO firstname(String firstname) {
+  @JsonProperty("iban")
+  private String iban = null;
+
+  public UserGetDTO id(UUID id) {
+    this.id = id;
+    return this;
+  }
+
+  /**
+   * Get id
+   * @return id
+   **/
+  @Schema(example = "123e4567-e89b-12d3-a456-426614174000", description = "")
+  
+    @Valid
+    public UUID getId() {
+    return id;
+  }
+
+  public void setId(UUID id) {
+    this.id = id;
+  }
+
+  public UserGetDTO firstname(String firstname) {
     this.firstname = firstname;
     return this;
   }
@@ -44,7 +70,7 @@ public class UserPostDTO   {
     this.firstname = firstname;
   }
 
-  public UserPostDTO lastname(String lastname) {
+  public UserGetDTO lastname(String lastname) {
     this.lastname = lastname;
     return this;
   }
@@ -63,7 +89,7 @@ public class UserPostDTO   {
     this.lastname = lastname;
   }
 
-  public UserPostDTO email(String email) {
+  public UserGetDTO email(String email) {
     this.email = email;
     return this;
   }
@@ -82,6 +108,25 @@ public class UserPostDTO   {
     this.email = email;
   }
 
+  public UserGetDTO iban(String iban) {
+    this.iban = iban;
+    return this;
+  }
+
+  /**
+   * Get iban
+   * @return iban
+   **/
+  @Schema(example = "NL41INHO0546284337", description = "")
+  
+    public String getIban() {
+    return iban;
+  }
+
+  public void setIban(String iban) {
+    this.iban = iban;
+  }
+
 
   @Override
   public boolean equals(java.lang.Object o) {
@@ -91,25 +136,29 @@ public class UserPostDTO   {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    UserPostDTO userPostDTO = (UserPostDTO) o;
-    return Objects.equals(this.firstname, userPostDTO.firstname) &&
-        Objects.equals(this.lastname, userPostDTO.lastname) &&
-        Objects.equals(this.email, userPostDTO.email);
+    UserGetDTO userGetDTO = (UserGetDTO) o;
+    return Objects.equals(this.id, userGetDTO.id) &&
+        Objects.equals(this.firstname, userGetDTO.firstname) &&
+        Objects.equals(this.lastname, userGetDTO.lastname) &&
+        Objects.equals(this.email, userGetDTO.email) &&
+        Objects.equals(this.iban, userGetDTO.iban);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(firstname, lastname, email);
+    return Objects.hash(id, firstname, lastname, email, iban);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class UserPostDTO {\n");
+    sb.append("class UserGetDTO {\n");
     
+    sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    firstname: ").append(toIndentedString(firstname)).append("\n");
     sb.append("    lastname: ").append(toIndentedString(lastname)).append("\n");
     sb.append("    email: ").append(toIndentedString(email)).append("\n");
+    sb.append("    iban: ").append(toIndentedString(iban)).append("\n");
     sb.append("}");
     return sb.toString();
   }

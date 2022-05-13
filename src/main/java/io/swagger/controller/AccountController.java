@@ -2,8 +2,8 @@ package io.swagger.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.model.entity.Account;
-import io.swagger.model.AccountPatchDTO;
-import io.swagger.model.AccountPostDTO;
+import io.swagger.model.account.AccountPatchDTO;
+import io.swagger.model.account.AccountPostDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.model.entity.AccountType;
 import io.swagger.model.entity.User;

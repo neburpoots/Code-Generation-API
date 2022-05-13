@@ -1,8 +1,9 @@
-package io.swagger.model;
+package io.swagger.model.user;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.model.entity.UserRole;
+import io.swagger.model.utils.DTOEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import org.springframework.validation.annotation.Validated;
@@ -15,7 +16,7 @@ import javax.validation.Valid;
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-05T18:12:07.854Z[GMT]")
 
 
-public class UserPatchDTO   {
+public class UserPatchDTO implements DTOEntity {
   @JsonProperty("firstname")
   private String firstname = null;
 

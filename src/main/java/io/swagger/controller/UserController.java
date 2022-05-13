@@ -1,14 +1,11 @@
 package io.swagger.controller;
 
 import io.swagger.annotations.Api;
-import io.swagger.exception.InternalServerErrorException;
-import io.swagger.exception.ResourceNotFoundException;
-import io.swagger.exception.testException;
 import io.swagger.model.entity.User;
-import io.swagger.model.UserLoginDTO;
-import io.swagger.model.UserPasswordDTO;
-import io.swagger.model.UserPatchDTO;
-import io.swagger.model.UserPostDTO;
+import io.swagger.model.user.UserLoginDTO;
+import io.swagger.model.user.UserPasswordDTO;
+import io.swagger.model.user.UserPatchDTO;
+import io.swagger.model.user.UserPostDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -27,7 +24,6 @@ import javax.validation.constraints.*;
 import javax.validation.Valid;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.nio.file.ReadOnlyFileSystemException;
 import java.util.List;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-05T18:12:07.854Z[GMT]")

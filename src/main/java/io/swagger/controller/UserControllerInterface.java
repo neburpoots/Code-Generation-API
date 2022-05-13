@@ -5,12 +5,12 @@
  */
 package io.swagger.controller;
 
-import io.swagger.model.Error;
+import io.swagger.model.utils.Error;
 import io.swagger.model.entity.User;
-import io.swagger.model.UserLoginDTO;
-import io.swagger.model.UserPasswordDTO;
-import io.swagger.model.UserPatchDTO;
-import io.swagger.model.UserPostDTO;
+import io.swagger.model.user.UserLoginDTO;
+import io.swagger.model.user.UserPasswordDTO;
+import io.swagger.model.user.UserPatchDTO;
+import io.swagger.model.user.UserPostDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;

@@ -6,9 +6,9 @@
 package io.swagger.controller;
 
 import io.swagger.model.entity.Account;
-import io.swagger.model.AccountPatchDTO;
-import io.swagger.model.AccountPostDTO;
-import io.swagger.model.Error;
+import io.swagger.model.account.AccountPatchDTO;
+import io.swagger.model.account.AccountPostDTO;
+import io.swagger.model.utils.Error;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;

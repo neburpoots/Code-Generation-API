@@ -1,19 +1,18 @@
-package io.swagger.model;
+package io.swagger.model.user;
 
 import java.util.Objects;
-import io.swagger.model.entity.Transaction;
 import java.util.ArrayList;
 
 import org.springframework.validation.annotation.Validated;
 
 /**
- * Transactions
+ * Users
  */
 @Validated
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-05T18:12:07.854Z[GMT]")
 
 
-public class Transactions extends ArrayList<Transaction>  {
+public class Users extends ArrayList<UserGetDTO>  {
 
   @Override
   public boolean equals(java.lang.Object o) {
@@ -34,7 +33,7 @@ public class Transactions extends ArrayList<Transaction>  {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class Transactions {\n");
+    sb.append("class Users {\n");
     sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("}");
     return sb.toString();

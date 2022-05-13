@@ -1,21 +1,19 @@
-package io.swagger.model;
+package io.swagger.model.transaction;
 
 import java.util.Objects;
-import io.swagger.model.UserGetDTO;
+import io.swagger.model.entity.Transaction;
 import java.util.ArrayList;
-import java.util.List;
+
 import org.springframework.validation.annotation.Validated;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
 
 /**
- * Users
+ * Transactions
  */
 @Validated
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-05T18:12:07.854Z[GMT]")
 
 
-public class Users extends ArrayList<UserGetDTO>  {
+public class Transactions extends ArrayList<Transaction>  {
 
   @Override
   public boolean equals(java.lang.Object o) {
@@ -36,7 +34,7 @@ public class Users extends ArrayList<UserGetDTO>  {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class Users {\n");
+    sb.append("class Transactions {\n");
     sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("}");
     return sb.toString();
