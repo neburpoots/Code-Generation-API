@@ -50,7 +50,7 @@ public class Account implements Identifiable<String>  {
   private BigDecimal absoluteLimit;
 
   @NonNull
-  private AccountType type;
+  private AccountType accountType;
 
   @NonNull
   private Boolean status;

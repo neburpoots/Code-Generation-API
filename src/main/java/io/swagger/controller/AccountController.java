@@ -1,6 +1,9 @@
 package io.swagger.controller;
 
 import io.swagger.annotations.Api;
+import io.swagger.exception.BadRequestException;
+import io.swagger.exception.InternalServerErrorException;
+import io.swagger.exception.testException;
 import io.swagger.model.entity.Account;
 import io.swagger.model.account.AccountPatchDTO;
 import io.swagger.model.account.AccountPostDTO;
@@ -9,9 +12,11 @@ import io.swagger.model.entity.AccountType;
 import io.swagger.model.entity.User;
 import io.swagger.service.AccountService;
 import io.swagger.service.UserService;
+import io.swagger.utils.DtoUtils;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,12 +57,25 @@ public class AccountController implements AccountControllerInterface {
         this.accountService = accountService;
     }
 
-    public ResponseEntity<Account> createAccount(@Parameter(in = ParameterIn.DEFAULT, description = "Created User object", required=true, schema=@Schema()) @Valid @RequestBody AccountPostDTO body) {
-        Account account2 = new Account(new BigDecimal(500), new BigDecimal(500), AccountType.SAVINGS, true);
+    public ResponseEntity<Account> createAccount(@Parameter(in = ParameterIn.DEFAULT, description = "Created User object", required=true, schema=@Schema()) @Valid @RequestBody AccountPostDTO body)
+    {
+        try {
+            if(body.getAccountType() == null) {
+                throw new BadRequestException("Account type not present");
+            }
 
-        List<User> Allusers = userService.getUsers();
-        account2.setUser(Allusers.get(1));
-        return new ResponseEntity<Account>(accountService.createAccount(account2), HttpStatus.OK);
+            if(body.getUser_Id() == null) {
+                throw new ApiException(422, "Unprocessable entity");
+            }
+
+
+            Account account = (Account)new DtoUtils().convertToEntity(new Account(), body);
+
+            return new ResponseEntity<Account>(accountService.createAccount(account, body), HttpStatus.OK);
+        } catch(Exception exception) {
+//            throw new InternalServerErrorException();
+            throw new testException(exception.getMessage());
+        }
     }
 
     public ResponseEntity<Void> editAccount(@Parameter(in = ParameterIn.PATH, description = "Iban of account", required=true, schema=@Schema()) @PathVariable("iban") String iban,@Parameter(in = ParameterIn.DEFAULT, description = "Edit information", required=true, schema=@Schema()) @Valid @RequestBody AccountPatchDTO body) {

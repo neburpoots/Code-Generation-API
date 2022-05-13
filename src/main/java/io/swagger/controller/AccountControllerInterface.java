@@ -5,6 +5,7 @@
  */
 package io.swagger.controller;
 
+import io.swagger.exception.BadRequestException;
 import io.swagger.model.entity.Account;
 import io.swagger.model.account.AccountPatchDTO;
 import io.swagger.model.account.AccountPostDTO;
@@ -53,7 +54,7 @@ public interface AccountControllerInterface {
             produces = { "application/json" },
             consumes = { "application/json" },
             method = RequestMethod.POST)
-    ResponseEntity<Account> createAccount(@Parameter(in = ParameterIn.DEFAULT, description = "Created User object", required=true, schema=@Schema()) @Valid @RequestBody AccountPostDTO body);
+    ResponseEntity<Account> createAccount(@Parameter(in = ParameterIn.DEFAULT, description = "Created User object", required=true, schema=@Schema()) @Valid @RequestBody AccountPostDTO body) throws Exception;
 
 
     @Operation(summary = "Alters limit or status of Account", description = "", security = {

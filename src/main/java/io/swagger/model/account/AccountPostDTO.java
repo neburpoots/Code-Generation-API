@@ -6,6 +6,8 @@ import io.swagger.model.entity.AccountType;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
+
+import lombok.NoArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 
