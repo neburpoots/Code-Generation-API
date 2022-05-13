@@ -43,6 +43,11 @@ public class User {
   @NonNull
   private String password;
 
+  @Override
+  public int hashCode(){
+    return user_id.hashCode() * firstname.hashCode() * lastname.hashCode();
+  }
+
   public void setRolesForUser(List<Role> roles) {
     Set<Role> newRoles = new HashSet<>(roles);
     this.setRoles(newRoles);

@@ -1,5 +1,6 @@
 package io.swagger.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -20,11 +21,11 @@ public class Role {
         this.name = name;
     }
 
-
     @ManyToMany(fetch = FetchType.EAGER,
             cascade = {
                     CascadeType.MERGE,
             },
             mappedBy = "roles")
+    @JsonIgnore
     private Set<User> users = new HashSet<>();
 }

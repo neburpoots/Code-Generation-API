@@ -23,6 +23,9 @@ import java.io.Serializable;
 import java.util.Properties;
 import java.util.Random;
 
+
+//THIS CLASS GENERATES IBANS AS THE PRIMARY KEY FOR ACCOUNT
+//
 @Component
 @EnableTransactionManagement
 public class StringSequenceIdentifier implements

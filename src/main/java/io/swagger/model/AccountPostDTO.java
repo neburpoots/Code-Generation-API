@@ -3,6 +3,7 @@ package io.swagger.model;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import io.swagger.model.entity.AccountType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import org.springframework.validation.annotation.Validated;
@@ -18,28 +19,31 @@ import javax.validation.constraints.*;
 
 public class AccountPostDTO   {
   @JsonProperty("user_id")
-  private String userId = null;
+  private String user_id = null;
 
   @JsonProperty("absolute_limit")
   private BigDecimal absoluteLimit = null;
 
-  public AccountPostDTO userId(String userId) {
-    this.userId = userId;
+  @JsonProperty("account_type")
+  private AccountType accountType = null;
+
+  public AccountPostDTO user_id(String user_id) {
+    this.user_id = user_id;
     return this;
   }
 
   /**
-   * Get userId
-   * @return userId
+   * Get user_id
+   * @return user_id
    **/
   @Schema(example = "123e4567-e89b-12d3-a456-426614174000", description = "")
   
-    public String getUserId() {
-    return userId;
+    public String getUser_Id() {
+    return user_id;
   }
 
-  public void setUserId(String userId) {
-    this.userId = userId;
+  public void setUser_Id(String userId) {
+    this.user_id = user_id;
   }
 
   public AccountPostDTO absoluteLimit(BigDecimal absoluteLimit) {
@@ -62,6 +66,21 @@ public class AccountPostDTO   {
     this.absoluteLimit = absoluteLimit;
   }
 
+  /**
+   * Get account type
+   * @return account type
+   **/
+  @Schema(example = "PRIMARY", description = "")
+
+  @Valid
+  public AccountType getAccountType() {
+    return accountType;
+  }
+
+  public void setAccountType(AccountType accountType) {
+    this.accountType = accountType;
+  }
+
 
   @Override
   public boolean equals(java.lang.Object o) {
@@ -72,13 +91,13 @@ public class AccountPostDTO   {
       return false;
     }
     AccountPostDTO accountPostDTO = (AccountPostDTO) o;
-    return Objects.equals(this.userId, accountPostDTO.userId) &&
+    return Objects.equals(this.user_id, accountPostDTO.user_id) &&
         Objects.equals(this.absoluteLimit, accountPostDTO.absoluteLimit);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(userId, absoluteLimit);
+    return Objects.hash(user_id, absoluteLimit, accountType);
   }
 
   @Override
@@ -86,8 +105,9 @@ public class AccountPostDTO   {
     StringBuilder sb = new StringBuilder();
     sb.append("class AccountPostDTO {\n");
     
-    sb.append("    userId: ").append(toIndentedString(userId)).append("\n");
+    sb.append("    user_id: ").append(toIndentedString(user_id)).append("\n");
     sb.append("    absoluteLimit: ").append(toIndentedString(absoluteLimit)).append("\n");
+    sb.append("    account_type: ").append(toIndentedString(accountType)).append("\n");
     sb.append("}");
     return sb.toString();
   }

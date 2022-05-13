@@ -31,12 +31,11 @@ public class AccountSeeder {
         Account account1 = new Account(new BigDecimal(500), new BigDecimal(500), AccountType.PRIMARY, true);
         Account account2 = new Account(new BigDecimal(500), new BigDecimal(500), AccountType.SAVINGS, true);
 
-        Account account3 = new Account(new BigDecimal(500), new BigDecimal(500), AccountType.SAVINGS, true);
 
         account1.setUser(users.get(0));
         account2.setUser(users.get(1));
 
-        return (List<Account>)this.accountRepo.saveAll(
+        return this.accountRepo.saveAll(
                 List.of(account1, account2)
         );
     }
