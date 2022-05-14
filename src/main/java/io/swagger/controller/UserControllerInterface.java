@@ -5,6 +5,7 @@
  */
 package io.swagger.controller;
 
+import io.swagger.model.utils.DTOEntity;
 import io.swagger.model.utils.Error;
 import io.swagger.model.entity.User;
 import io.swagger.model.user.UserLoginDTO;
@@ -55,7 +56,7 @@ public interface UserControllerInterface {
             produces = { "application/json" },
             consumes = { "application/json" },
             method = RequestMethod.POST)
-    ResponseEntity<User> addUser(@Parameter(in = ParameterIn.DEFAULT, description = "Created User object", required=true, schema=@Schema()) @Valid @RequestBody UserPostDTO body);
+    ResponseEntity<DTOEntity> addUser(@Parameter(in = ParameterIn.DEFAULT, description = "Created User object", required=true, schema=@Schema()) @Valid @RequestBody UserPostDTO body);
 
 
     @Operation(summary = "Changes password of the logged in User", description = "", security = {

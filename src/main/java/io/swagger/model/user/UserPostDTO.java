@@ -23,6 +23,9 @@ public class UserPostDTO implements DTOEntity {
   @JsonProperty("email")
   private String email = null;
 
+  @JsonProperty("password")
+  private String password = null;
+
   public UserPostDTO firstname(String firstname) {
     this.firstname = firstname;
     return this;
@@ -78,6 +81,25 @@ public class UserPostDTO implements DTOEntity {
 
   public void setEmail(String email) {
     this.email = email;
+  }
+
+  public UserPostDTO password(String password) {
+    this.password = password;
+    return this;
+  }
+
+  /**
+   * Get password
+   * @return password
+   **/
+  @Schema(example = "secret123", description = "")
+
+  public String getPassword() {
+    return password;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
   }
 
 

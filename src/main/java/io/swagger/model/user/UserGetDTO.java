@@ -16,8 +16,8 @@ import javax.validation.Valid;
 
 
 public class UserGetDTO implements DTOEntity {
-  @JsonProperty("id")
-  private UUID id = null;
+  @JsonProperty("user_id")
+  private UUID user_id = null;
 
   @JsonProperty("firstname")
   private String firstname = null;
@@ -28,27 +28,24 @@ public class UserGetDTO implements DTOEntity {
   @JsonProperty("email")
   private String email = null;
 
-  @JsonProperty("iban")
-  private String iban = null;
-
-  public UserGetDTO id(UUID id) {
-    this.id = id;
+  public UserGetDTO user_id(UUID user_id) {
+    this.user_id = user_id;
     return this;
   }
 
   /**
-   * Get id
-   * @return id
+   * Get user_id
+   * @return user_id
    **/
   @Schema(example = "123e4567-e89b-12d3-a456-426614174000", description = "")
   
     @Valid
-    public UUID getId() {
-    return id;
+    public UUID getUser_id() {
+    return user_id;
   }
 
-  public void setId(UUID id) {
-    this.id = id;
+  public void setUser_id(UUID user_id) {
+    this.user_id = user_id;
   }
 
   public UserGetDTO firstname(String firstname) {
@@ -108,26 +105,6 @@ public class UserGetDTO implements DTOEntity {
     this.email = email;
   }
 
-  public UserGetDTO iban(String iban) {
-    this.iban = iban;
-    return this;
-  }
-
-  /**
-   * Get iban
-   * @return iban
-   **/
-  @Schema(example = "NL41INHO0546284337", description = "")
-  
-    public String getIban() {
-    return iban;
-  }
-
-  public void setIban(String iban) {
-    this.iban = iban;
-  }
-
-
   @Override
   public boolean equals(java.lang.Object o) {
     if (this == o) {
@@ -137,16 +114,15 @@ public class UserGetDTO implements DTOEntity {
       return false;
     }
     UserGetDTO userGetDTO = (UserGetDTO) o;
-    return Objects.equals(this.id, userGetDTO.id) &&
+    return Objects.equals(this.user_id, userGetDTO.user_id) &&
         Objects.equals(this.firstname, userGetDTO.firstname) &&
         Objects.equals(this.lastname, userGetDTO.lastname) &&
-        Objects.equals(this.email, userGetDTO.email) &&
-        Objects.equals(this.iban, userGetDTO.iban);
+        Objects.equals(this.email, userGetDTO.email);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, firstname, lastname, email, iban);
+    return Objects.hash(user_id, firstname, lastname, email);
   }
 
   @Override
@@ -154,11 +130,10 @@ public class UserGetDTO implements DTOEntity {
     StringBuilder sb = new StringBuilder();
     sb.append("class UserGetDTO {\n");
     
-    sb.append("    id: ").append(toIndentedString(id)).append("\n");
+    sb.append("    user_id: ").append(toIndentedString(user_id)).append("\n");
     sb.append("    firstname: ").append(toIndentedString(firstname)).append("\n");
     sb.append("    lastname: ").append(toIndentedString(lastname)).append("\n");
     sb.append("    email: ").append(toIndentedString(email)).append("\n");
-    sb.append("    iban: ").append(toIndentedString(iban)).append("\n");
     sb.append("}");
     return sb.toString();
   }
