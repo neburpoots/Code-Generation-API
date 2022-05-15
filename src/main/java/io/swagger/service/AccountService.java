@@ -29,7 +29,7 @@ public class AccountService {
         account.setBalance(new BigDecimal(0));
         account.setStatus(true);
 
-        Optional<User> user = userService.getUserById(UUID.fromString(body.getUser_Id()));
+        Optional<User> user = userService.getUserObjectById(UUID.fromString(body.getUser_Id()));
 
         user.ifPresent(account::setUser);
 

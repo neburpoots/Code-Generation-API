@@ -118,7 +118,7 @@ public interface UserControllerInterface {
     @RequestMapping(value = "/api/users/{id}",
             produces = { "application/json" },
             method = RequestMethod.GET)
-    ResponseEntity<User> getUserById(@Parameter(in = ParameterIn.PATH, description = "Id of the user you want to get", required=true, schema=@Schema()) @PathVariable("id") String id);
+    ResponseEntity<DTOEntity> getUserById(@Parameter(in = ParameterIn.PATH, description = "Id of the user you want to get", required=true, schema=@Schema()) @PathVariable("id") String id);
 
 
     @Operation(summary = "Finds Users by name and/or iban", description = "Returns a list of Users, filtered by parameters and pagination.", security = {

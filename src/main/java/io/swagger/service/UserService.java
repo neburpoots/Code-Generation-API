@@ -1,9 +1,6 @@
 package io.swagger.service;
 
-import io.swagger.exception.BadRequestException;
-import io.swagger.exception.ConflictException;
-import io.swagger.exception.ResourceNotFoundException;
-import io.swagger.exception.UnauthorizedException;
+import io.swagger.exception.*;
 import io.swagger.model.entity.User;
 import io.swagger.model.user.UserGetDTO;
 import io.swagger.model.user.UserLoginDTO;
@@ -112,10 +109,19 @@ public class UserService {
     }
 
     public List<DTOEntity> getUsers() {
-        return new DtoUtils().convertListToDto(this.userRepo.findAll(), new UserGetDTO());
+        try {
+            return new DtoUtils().convertListToDto(this.userRepo.findAll(), new UserGetDTO());
+        } catch (Exception e) {
+            throw new InternalServerErrorException();
+        }
     }
 
-    public Optional<User> getUserById(UUID id) {
+    public DTOEntity getUserById(UUID id) {
+        User user = this.userRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("User with id: " + id + " not found"));
+        return new DtoUtils().convertToDto(user, new UserGetDTO());
+    }
+
+    public Optional<User> getUserObjectById(UUID id) {
         return this.userRepo.findById(id);
     }
 }
