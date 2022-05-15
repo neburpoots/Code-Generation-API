@@ -1,10 +1,13 @@
 package io.swagger.model.user;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.UUID;
+
+import lombok.NonNull;
 import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 
@@ -27,6 +30,12 @@ public class UserGetDTO implements DTOEntity {
 
   @JsonProperty("email")
   private String email = null;
+
+  @JsonProperty("transactionLimit")
+  private BigDecimal transactionLimit;
+
+  @JsonProperty("dailyLimit")
+  private BigDecimal dailyLimit;
 
   public UserGetDTO user_id(UUID user_id) {
     this.user_id = user_id;
@@ -103,6 +112,44 @@ public class UserGetDTO implements DTOEntity {
 
   public void setEmail(String email) {
     this.email = email;
+  }
+
+  public UserGetDTO transactionLimit(BigDecimal transactionLimit) {
+    this.transactionLimit = transactionLimit;
+    return this;
+  }
+
+  /**
+   * Get transactionLimit
+   * @return transactionLimit
+   **/
+  @Schema(example = "150", description = "")
+
+    public BigDecimal getTransactionLimit() {
+    return transactionLimit;
+  }
+
+  public void setTransactionLimit(BigDecimal transactionLimit) {
+    this.transactionLimit = transactionLimit;
+  }
+
+  public UserGetDTO dailyLimit(BigDecimal dailyLimit) {
+    this.dailyLimit = dailyLimit;
+    return this;
+  }
+
+  /**
+   * Get dailyLimit
+   * @return dailyLimit
+   **/
+  @Schema(example = "2500", description = "")
+
+    public BigDecimal getDailyLimit() {
+    return dailyLimit;
+  }
+
+  public void setDailyLimit(BigDecimal dailyLimit) {
+    this.dailyLimit = dailyLimit;
   }
 
   @Override

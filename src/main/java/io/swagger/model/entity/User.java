@@ -30,6 +30,7 @@ public class User {
   private String lastname;
 
   @NonNull
+  @Column(unique=true)
   private String email;
 
   @NonNull

@@ -26,6 +26,7 @@ public class UserService {
     }
 
     public DTOEntity addUser(UserPostDTO userPostDTO) {
+        userPostDTO.setEmail(userPostDTO.getEmail().toLowerCase(Locale.ROOT));
         List<String> checks = checkPostFields(userPostDTO);
         if (!checks.isEmpty()){
             throw new BadRequestException(String.join(";", checks));
@@ -73,7 +74,7 @@ public class UserService {
         Pattern regex =
                 Pattern.compile("^(?=.*[0-9])"
                         + "(?=.*[a-z])(?=.*[A-Z])"
-                        + "(?=.*[@#$%^&+=])"
+                        + "(?=.*[!@#$%^&+=])"
                         + "(?=\\S+$).{8,20}$");
         Matcher matcher = regex.matcher(password);
         return matcher.find();
@@ -92,8 +93,8 @@ public class UserService {
         }
     }
 
-    public List<User> getUsers() {
-        return this.userRepo.findAll(); // overwrite in repo
+    public List<DTOEntity> getUsers() {
+        return new DtoUtils().convertListToDto(this.userRepo.findAll(), new UserGetDTO());
     }
 
     public Optional<User> getUserById(UUID id) {

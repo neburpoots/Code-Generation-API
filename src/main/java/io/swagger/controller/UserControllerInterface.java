@@ -138,7 +138,7 @@ public interface UserControllerInterface {
     @RequestMapping(value = "/api/users",
             produces = { "application/json" },
             method = RequestMethod.GET)
-    ResponseEntity<List<User>> getUsers(@NotNull @Parameter(in = ParameterIn.QUERY, description = "Page number for pagination" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "page", required = true) Integer page, @Parameter(in = ParameterIn.QUERY, description = "Name value that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "name", required = false) String name, @Parameter(in = ParameterIn.QUERY, description = "IBAN value that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "iban", required = false) String iban);
+    ResponseEntity<List<DTOEntity>> getUsers(@NotNull @Parameter(in = ParameterIn.QUERY, description = "Page number for pagination" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "page", required = true) Integer page, @Parameter(in = ParameterIn.QUERY, description = "Name value that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "name", required = false) String name, @Parameter(in = ParameterIn.QUERY, description = "IBAN value that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "iban", required = false) String iban);
 
 
     @Operation(summary = "Logs User into the system", description = "", tags={ "users" })
