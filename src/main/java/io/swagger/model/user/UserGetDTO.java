@@ -164,12 +164,14 @@ public class UserGetDTO implements DTOEntity {
     return Objects.equals(this.user_id, userGetDTO.user_id) &&
         Objects.equals(this.firstname, userGetDTO.firstname) &&
         Objects.equals(this.lastname, userGetDTO.lastname) &&
-        Objects.equals(this.email, userGetDTO.email);
+        Objects.equals(this.email, userGetDTO.email) &&
+        Objects.equals(this.transactionLimit, userGetDTO.transactionLimit) &&
+        Objects.equals(this.dailyLimit, userGetDTO.dailyLimit);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(user_id, firstname, lastname, email);
+    return Objects.hash(user_id, firstname, lastname, email, transactionLimit, dailyLimit);
   }
 
   @Override
@@ -181,6 +183,8 @@ public class UserGetDTO implements DTOEntity {
     sb.append("    firstname: ").append(toIndentedString(firstname)).append("\n");
     sb.append("    lastname: ").append(toIndentedString(lastname)).append("\n");
     sb.append("    email: ").append(toIndentedString(email)).append("\n");
+    sb.append("    transactionLimit: ").append(toIndentedString(transactionLimit)).append("\n");
+    sb.append("    dailyLimit: ").append(toIndentedString(dailyLimit)).append("\n");
     sb.append("}");
     return sb.toString();
   }

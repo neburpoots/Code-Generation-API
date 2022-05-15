@@ -158,7 +158,7 @@ public interface UserControllerInterface {
             produces = { "application/json" },
             consumes = { "application/json" },
             method = RequestMethod.POST)
-    ResponseEntity<User> loginUser(@Parameter(in = ParameterIn.DEFAULT, description = "Login credentials", required=true, schema=@Schema()) @Valid @RequestBody UserLoginDTO body);
+    ResponseEntity<DTOEntity> loginUser(@Parameter(in = ParameterIn.DEFAULT, description = "Login credentials", required=true, schema=@Schema()) @Valid @RequestBody UserLoginDTO body);
 
 }
 

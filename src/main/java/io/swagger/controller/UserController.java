@@ -89,18 +89,12 @@ public class UserController implements UserControllerInterface {
         }
     }
 
-    public ResponseEntity<User> loginUser(@Parameter(in = ParameterIn.DEFAULT, description = "Login credentials", required = true, schema = @Schema()) @Valid @RequestBody UserLoginDTO body) {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<User>(objectMapper.readValue("{\n  \"firstname\" : \"Kiana\",\n  \"role\" : {\n    \"name\" : \"Employee\",\n    \"id\" : 1\n  },\n  \"transaction_limit\" : 100,\n  \"id\" : \"123e4567-e89b-12d3-a456-426614174000\",\n  \"email\" : \"Kiana.Padilla@gmail.com\",\n  \"daily_limit\" : 25000,\n  \"lastname\" : \"Padilla\"\n}", User.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                log.error("Couldn't serialize response for content type application/json", e);
-                return new ResponseEntity<User>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
+    public ResponseEntity<DTOEntity> loginUser(@Parameter(in = ParameterIn.DEFAULT, description = "Login credentials", required = true, schema = @Schema()) @Valid @RequestBody UserLoginDTO body) {
+        try {
+            return new ResponseEntity<DTOEntity>(this.userService.login(body), HttpStatus.OK);
+        } catch (Exception exception) {
+            throw exception;
         }
-
-        return new ResponseEntity<User>(HttpStatus.NOT_IMPLEMENTED);
     }
 
 }
