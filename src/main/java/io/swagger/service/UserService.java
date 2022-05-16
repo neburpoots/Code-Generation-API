@@ -141,8 +141,12 @@ public class UserService {
         }
         if (userPatchDTO.getEmail() != null && !userPatchDTO.getEmail().isEmpty()) {
             if (verifyEmail(userPatchDTO.getEmail())) {
-                user.setEmail(userPatchDTO.getEmail());
-                edit = true;
+                if (findUserByEmail(userPatchDTO.getEmail()) == null) {
+                    user.setEmail(userPatchDTO.getEmail());
+                    edit = true;
+                } else {
+                    throw new ConflictException("Email is already in use");
+                }
             } else {
                 throw new BadRequestException("Email is invalid");
             }
