@@ -2,7 +2,6 @@ package io.swagger.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.exception.InternalServerErrorException;
-import io.swagger.model.entity.User;
 import io.swagger.model.user.UserLoginDTO;
 import io.swagger.model.user.UserPasswordDTO;
 import io.swagger.model.user.UserPatchDTO;
@@ -10,7 +9,6 @@ import io.swagger.model.user.UserPostDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.service.UserService;
-import io.swagger.utils.DtoUtils;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -28,9 +26,7 @@ import javax.annotation.Generated;
 import javax.validation.constraints.*;
 import javax.validation.Valid;
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
 
 @Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-05T18:12:07.854Z[GMT]")
 @RestController
@@ -61,20 +57,31 @@ public class UserController implements UserControllerInterface {
     }
 
     public ResponseEntity<Void> editPassword(@Parameter(in = ParameterIn.DEFAULT, description = "Password information", required = true, schema = @Schema()) @Valid @RequestBody UserPasswordDTO body) {
-        String accept = request.getHeader("Accept");
-        return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
+        try {
+            if (this.userService.editPassword(body)) {
+                return new ResponseEntity<Void>(HttpStatus.OK);
+            } else {
+                throw new InternalServerErrorException();
+            }
+        } catch (Exception exception) {
+            throw exception;
+        }
     }
 
     public ResponseEntity<Void> editUserById(@Parameter(in = ParameterIn.PATH, description = "Id of the user you want to edit", required = true, schema = @Schema()) @PathVariable("id") String id, @Parameter(in = ParameterIn.DEFAULT, description = "Created User object", required = true, schema = @Schema()) @Valid @RequestBody UserPatchDTO body) {
-        String accept = request.getHeader("Accept");
-        return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
+        try {
+            this.userService.editUserById(body, id);
+            return new ResponseEntity<Void>(HttpStatus.OK);
+        } catch (Exception exception) {
+            throw exception;
+        }
     }
 
     public ResponseEntity<DTOEntity> getUserById(@Parameter(in = ParameterIn.PATH, description = "Id of the user you want to get", required = true, schema = @Schema()) @PathVariable("id") String id) {
         try {
-            return new ResponseEntity<DTOEntity>(this.userService.getUserById(UUID.fromString(id)), HttpStatus.OK);
-        } catch (Exception e) {
-            throw new InternalServerErrorException();
+            return new ResponseEntity<DTOEntity>(this.userService.getUserById(id), HttpStatus.OK);
+        } catch (Exception exception) {
+            throw exception;
         }
     }
 

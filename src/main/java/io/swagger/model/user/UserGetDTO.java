@@ -31,10 +31,10 @@ public class UserGetDTO implements DTOEntity {
   @JsonProperty("email")
   private String email = null;
 
-  @JsonProperty("transactionLimit")
+  @JsonProperty("transaction_limit")
   private BigDecimal transactionLimit;
 
-  @JsonProperty("dailyLimit")
+  @JsonProperty("daily_limit")
   private BigDecimal dailyLimit;
 
   public UserGetDTO user_id(UUID user_id) {

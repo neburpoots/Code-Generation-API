@@ -2,19 +2,19 @@ package io.swagger.service;
 
 import io.swagger.exception.*;
 import io.swagger.model.entity.User;
-import io.swagger.model.user.UserGetDTO;
-import io.swagger.model.user.UserLoginDTO;
-import io.swagger.model.user.UserPostDTO;
+import io.swagger.model.user.*;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.repository.UserRepository;
 import io.swagger.utils.DtoUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 @Service
 public class UserService {
@@ -108,6 +108,70 @@ public class UserService {
         }
     }
 
+    public boolean editPassword(UserPasswordDTO userPasswordDTO) {
+        if (userPasswordDTO.getCurrentPassword() != null || userPasswordDTO.getNewPassword() != null) {
+            User user = getUserObjectById("ID_FROM_JWT");
+            if (verifyPassword(userPasswordDTO.getCurrentPassword(), user.getPassword())) {
+                if (verifyPasswordComplexity(userPasswordDTO.getNewPassword())) {
+                    throw new BadRequestException("New password not complex enough");
+                }
+                user.setPassword(userPasswordDTO.getNewPassword());
+
+                this.userRepo.save(user);
+            } else {
+                throw new UnauthorizedException("Invalid password");
+            }
+        } else {
+            throw new BadRequestException();
+        }
+        return true;
+    }
+
+    public void editUserById(UserPatchDTO userPatchDTO, String id) {
+        boolean edit = false;
+        User user = getUserObjectById(id);
+
+        if (userPatchDTO.getFirstname() != null && !userPatchDTO.getFirstname().isEmpty()) {
+            user.setFirstname(userPatchDTO.getFirstname());
+            edit = true;
+        }
+        if (userPatchDTO.getLastname() != null && !userPatchDTO.getLastname().isEmpty()) {
+            user.setLastname(userPatchDTO.getLastname());
+            edit = true;
+        }
+        if (userPatchDTO.getEmail() != null && !userPatchDTO.getEmail().isEmpty()) {
+            if (verifyEmail(userPatchDTO.getEmail())) {
+                user.setEmail(userPatchDTO.getEmail());
+                edit = true;
+            } else {
+                throw new BadRequestException("Email is invalid");
+            }
+        }
+        if (userPatchDTO.getTransactionLimit() != null && userPatchDTO.getTransactionLimit().compareTo(new BigDecimal(0)) >= 0) {
+            user.setTransactionLimit(userPatchDTO.getTransactionLimit());
+            edit = true;
+        }
+        if (userPatchDTO.getDailyLimit() != null && userPatchDTO.getDailyLimit().compareTo(new BigDecimal(0)) >= 0) {
+            user.setDailyLimit(userPatchDTO.getDailyLimit());
+            edit = true;
+        }
+        this.userRepo.save(user);
+
+        if (!edit) {
+            throw new BadRequestException("Nothing changed, please recheck request");
+        }
+    }
+
+    private UUID convertToUUID(String id) {
+        UUID uuid;
+        try {
+            uuid = UUID.fromString(id);
+        } catch (Exception e) {
+            throw new BadRequestException("Invalid UUID string: " + id);
+        }
+        return uuid;
+    }
+
     public List<DTOEntity> getUsers() {
         try {
             return new DtoUtils().convertListToDto(this.userRepo.findAll(), new UserGetDTO());
@@ -116,12 +180,11 @@ public class UserService {
         }
     }
 
-    public DTOEntity getUserById(UUID id) {
-        User user = this.userRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("User with id: " + id + " not found"));
-        return new DtoUtils().convertToDto(user, new UserGetDTO());
+    public DTOEntity getUserById(String id) {
+        return new DtoUtils().convertToDto(getUserObjectById(id), new UserGetDTO());
     }
 
-    public Optional<User> getUserObjectById(UUID id) {
-        return this.userRepo.findById(id);
+    public User getUserObjectById(String id) {
+        return this.userRepo.findById(convertToUUID(id)).orElseThrow(() -> new ResourceNotFoundException("User with id: '" + id + "' not found"));
     }
 }
