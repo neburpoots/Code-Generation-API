@@ -5,19 +5,32 @@ import io.swagger.model.entity.User;
 import io.swagger.model.user.*;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.repository.UserRepository;
+import io.swagger.security.JwtTokenProvider;
+import io.swagger.security.WebSecurityConfig;
 import io.swagger.utils.DtoUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 @Service
 public class UserService {
+
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private WebSecurityConfig webSecurityConfig;
 
     private final UserRepository userRepo;
     private final DtoUtils dtoUtils;
@@ -36,7 +49,13 @@ public class UserService {
             throw new BadRequestException("Password missing");
         }
         if (verifyPassword(userLoginDTO.getPassword(), user.getPassword())) {
-            return findUserByEmail(userLoginDTO.getEmail());
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
+
+            String jwt = jwtTokenProvider.createToken(user.getEmail(), userRepo.findByEmail(user.getEmail()).getRoles());
+            UserLoginReturnDTO userLoginReturnDTO = (UserLoginReturnDTO) dtoUtils.convertToDto(user, new UserLoginReturnDTO());
+            userLoginReturnDTO.setAccessToken(jwt);
+
+            return userLoginReturnDTO;
         }
         throw new UnauthorizedException("Invalid login credentials");
     }
@@ -94,11 +113,11 @@ public class UserService {
     }
 
     private String hashPassword(String password) {
-        return new BCryptPasswordEncoder().encode(password);
+        return webSecurityConfig.passwordEncoder().encode(password);
     }
 
     private boolean verifyPassword(String password, String hash) {
-        return new BCryptPasswordEncoder().matches(password, hash);
+        return webSecurityConfig.passwordEncoder().matches(password, hash);
     }
 
     public DTOEntity findUserByEmail(String email) {
@@ -143,7 +162,7 @@ public class UserService {
         }
         if (userPatchDTO.getEmail() != null && !userPatchDTO.getEmail().isEmpty()) {
             if (verifyEmail(userPatchDTO.getEmail())) {
-                if (findUserByEmail(userPatchDTO.getEmail()) == null) {
+                if (userRepo.existsByEmail(userPatchDTO.getEmail())) {
                     user.setEmail(userPatchDTO.getEmail());
                     edit = true;
                 } else {
@@ -178,7 +197,7 @@ public class UserService {
         return uuid;
     }
 
-    public List<DTOEntity> getUsers() {
+    public List<DTOEntity> getUsers(String firstname, String lastname, String iban) {
         try {
             return dtoUtils.convertListToDto(this.userRepo.findAll(), new UserGetDTO());
         } catch (Exception e) {

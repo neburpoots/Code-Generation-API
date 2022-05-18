@@ -1,13 +1,11 @@
 package io.swagger.model.entity;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import org.hibernate.annotations.Formula;
 
 import javax.persistence.*;
 import javax.transaction.Transactional;
@@ -42,22 +40,26 @@ public class User {
   @NonNull
   private String password;
 
+  public String getFullName() {
+    return getFirstname().concat(" ").concat(getLastname());
+  }
+
   @Override
   public int hashCode(){
     return user_id.hashCode() * firstname.hashCode() * lastname.hashCode();
   }
 
   public void setRolesForUser(List<Role> roles) {
-    Set<Role> newRoles = new HashSet<>(roles);
+    List<Role> newRoles = new ArrayList<>(roles);
     this.setRoles(newRoles);
   }
 
-  public void setRoles(Set<Role> roles) {
+  public void setRoles(List<Role> roles) {
     this.roles = roles;
   }
 
-  @ManyToMany
-  private Set<Role> roles = new HashSet<>();
+  @ManyToMany(fetch = FetchType.EAGER)
+  private List<Role> roles = new ArrayList<>();
 
   public User(String firstname, String lastname, String email, BigDecimal transactionLimit, BigDecimal dailyLimit, String password) {
     this.firstname = firstname;

@@ -16,9 +16,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-@SpringBootApplication(exclude = SecurityAutoConfiguration.class) // disable authentication until it's implemented
+@SpringBootApplication
 @EnableOpenApi
-@ComponentScan(basePackages = { "io.swagger", "io.swagger.controller", "io.swagger.configuration"})
+@ComponentScan(basePackages = { "io.swagger", "io.swagger.controller" , "io.swagger.configuration"})
 public class Swagger2SpringBoot implements CommandLineRunner {
 
     @Override

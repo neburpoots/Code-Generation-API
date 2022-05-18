@@ -1,8 +1,10 @@
 package io.swagger.model.user;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.model.entity.Role;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.UUID;
@@ -36,6 +38,9 @@ public class UserGetDTO implements DTOEntity {
 
   @JsonProperty("daily_limit")
   private BigDecimal dailyLimit;
+
+  @JsonProperty("role")
+  private List<Role> roles;
 
   public UserGetDTO user_id(UUID user_id) {
     this.user_id = user_id;
@@ -152,6 +157,25 @@ public class UserGetDTO implements DTOEntity {
     this.dailyLimit = dailyLimit;
   }
 
+  public UserGetDTO role(List<Role> roles) {
+    this.roles = roles;
+    return this;
+  }
+
+  /**
+   * Get roles
+   * @return roles
+   **/
+  @Schema(example = "", description = "")
+
+  public List<Role> getRoles() {
+    return roles;
+  }
+
+  public void setRoles(List<Role> roles) {
+    this.roles = roles;
+  }
+
   @Override
   public boolean equals(java.lang.Object o) {
     if (this == o) {
@@ -166,12 +190,13 @@ public class UserGetDTO implements DTOEntity {
         Objects.equals(this.lastname, userGetDTO.lastname) &&
         Objects.equals(this.email, userGetDTO.email) &&
         Objects.equals(this.transactionLimit, userGetDTO.transactionLimit) &&
-        Objects.equals(this.dailyLimit, userGetDTO.dailyLimit);
+        Objects.equals(this.dailyLimit, userGetDTO.dailyLimit) &&
+        Objects.equals(this.roles, userGetDTO.roles);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(user_id, firstname, lastname, email, transactionLimit, dailyLimit);
+    return Objects.hash(user_id, firstname, lastname, email, transactionLimit, dailyLimit, roles);
   }
 
   @Override
@@ -185,6 +210,7 @@ public class UserGetDTO implements DTOEntity {
     sb.append("    email: ").append(toIndentedString(email)).append("\n");
     sb.append("    transactionLimit: ").append(toIndentedString(transactionLimit)).append("\n");
     sb.append("    dailyLimit: ").append(toIndentedString(dailyLimit)).append("\n");
+    sb.append("    roles: ").append(toIndentedString(roles)).append("\n");
     sb.append("}");
     return sb.toString();
   }
