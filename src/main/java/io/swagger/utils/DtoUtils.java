@@ -2,10 +2,13 @@ package io.swagger.utils;
 
 import io.swagger.model.utils.DTOEntity;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Component
 public class DtoUtils
 {
     public DTOEntity convertToDto(Object obj, DTOEntity mapper)
