@@ -29,9 +29,8 @@ public class AccountService {
         account.setBalance(new BigDecimal(0));
         account.setStatus(true);
 
-        Optional<User> user = userService.getUserById(UUID.fromString(body.getUser_Id()));
-
-        user.ifPresent(account::setUser);
+        User user = userService.getUserObjectById(body.getUser_Id());
+        account.setUser(user);
 
         return accountRepo.save(account);
     }

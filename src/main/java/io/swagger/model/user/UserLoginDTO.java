@@ -20,9 +20,6 @@ public class UserLoginDTO implements DTOEntity {
   @JsonProperty("password")
   private String password = null;
 
-  @JsonProperty("repeat_password")
-  private String repeatPassword = null;
-
   public UserLoginDTO email(String email) {
     this.email = email;
     return this;
@@ -61,26 +58,6 @@ public class UserLoginDTO implements DTOEntity {
     this.password = password;
   }
 
-  public UserLoginDTO repeatPassword(String repeatPassword) {
-    this.repeatPassword = repeatPassword;
-    return this;
-  }
-
-  /**
-   * Get repeatPassword
-   * @return repeatPassword
-   **/
-  @Schema(example = "Padilla123", description = "")
-  
-    public String getRepeatPassword() {
-    return repeatPassword;
-  }
-
-  public void setRepeatPassword(String repeatPassword) {
-    this.repeatPassword = repeatPassword;
-  }
-
-
   @Override
   public boolean equals(java.lang.Object o) {
     if (this == o) {
@@ -91,13 +68,12 @@ public class UserLoginDTO implements DTOEntity {
     }
     UserLoginDTO userLoginDTO = (UserLoginDTO) o;
     return Objects.equals(this.email, userLoginDTO.email) &&
-        Objects.equals(this.password, userLoginDTO.password) &&
-        Objects.equals(this.repeatPassword, userLoginDTO.repeatPassword);
+        Objects.equals(this.password, userLoginDTO.password);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(email, password, repeatPassword);
+    return Objects.hash(email, password);
   }
 
   @Override
@@ -107,7 +83,6 @@ public class UserLoginDTO implements DTOEntity {
     
     sb.append("    email: ").append(toIndentedString(email)).append("\n");
     sb.append("    password: ").append(toIndentedString(password)).append("\n");
-    sb.append("    repeatPassword: ").append(toIndentedString(repeatPassword)).append("\n");
     sb.append("}");
     return sb.toString();
   }

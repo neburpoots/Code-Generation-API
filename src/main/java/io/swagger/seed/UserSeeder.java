@@ -1,7 +1,5 @@
 package io.swagger.seed;
 
-import io.swagger.model.entity.Account;
-import io.swagger.model.entity.AccountType;
 import io.swagger.model.entity.Role;
 import io.swagger.model.entity.User;
 import io.swagger.repository.AccountRepository;
@@ -29,9 +27,9 @@ public class UserSeeder {
 
 
     public List<User> seed(List<Role> roles) {
-        User ruben = new User("Ruben", "Stoop", "670240@student.inholland.nl", 50, new BigDecimal(25000), "Welkom!");
-        User tim = new User("Tim", "Roffelsen", "123456@student.inholland.nl", 50, new BigDecimal(25000), "Welkom!");
-        User test = new User("test", "test", "test@student.inholland.nl", 50, new BigDecimal(25000), "Welkom!");
+        User ruben = new User("Ruben", "Stoop", "670240@student.inholland.nl", new BigDecimal(50), new BigDecimal(25000), "Welkom!");
+        User tim = new User("Tim", "Roffelsen", "123456@student.inholland.nl", new BigDecimal(50), new BigDecimal(25000), "Welkom!");
+        User test = new User("test", "test", "test@student.inholland.nl", new BigDecimal(50), new BigDecimal(25000), "Welkom!");
 
 ////            Gets all the roles for the users
         ruben.setRolesForUser(roles);

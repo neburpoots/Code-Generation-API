@@ -20,18 +20,26 @@ public class User {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
+  @NonNull
   private UUID user_id;
 
+  @NonNull
   private String firstname;
 
+  @NonNull
   private String lastname;
 
+  @NonNull
+  @Column(unique=true)
   private String email;
 
-  private Integer transactionLimit;
+  @NonNull
+  private BigDecimal transactionLimit;
 
+  @NonNull
   private BigDecimal dailyLimit;
 
+  @NonNull
   private String password;
 
   @Override
@@ -51,7 +59,7 @@ public class User {
   @ManyToMany
   private Set<Role> roles = new HashSet<>();
 
-  public User(String firstname, String lastname, String email, Integer transactionLimit, BigDecimal dailyLimit, String password) {
+  public User(String firstname, String lastname, String email, BigDecimal transactionLimit, BigDecimal dailyLimit, String password) {
     this.firstname = firstname;
     this.lastname = lastname;
     this.email = email;

@@ -20,9 +20,6 @@ public class UserPasswordDTO implements DTOEntity {
   @JsonProperty("newPassword")
   private String newPassword = null;
 
-  @JsonProperty("newPasswordConfirm")
-  private String newPasswordConfirm = null;
-
   public UserPasswordDTO currentPassword(String currentPassword) {
     this.currentPassword = currentPassword;
     return this;
@@ -61,26 +58,6 @@ public class UserPasswordDTO implements DTOEntity {
     this.newPassword = newPassword;
   }
 
-  public UserPasswordDTO newPasswordConfirm(String newPasswordConfirm) {
-    this.newPasswordConfirm = newPasswordConfirm;
-    return this;
-  }
-
-  /**
-   * Get newPasswordConfirm
-   * @return newPasswordConfirm
-   **/
-  @Schema(example = "Padilla123", description = "")
-  
-    public String getNewPasswordConfirm() {
-    return newPasswordConfirm;
-  }
-
-  public void setNewPasswordConfirm(String newPasswordConfirm) {
-    this.newPasswordConfirm = newPasswordConfirm;
-  }
-
-
   @Override
   public boolean equals(java.lang.Object o) {
     if (this == o) {
@@ -91,13 +68,12 @@ public class UserPasswordDTO implements DTOEntity {
     }
     UserPasswordDTO userPasswordDTO = (UserPasswordDTO) o;
     return Objects.equals(this.currentPassword, userPasswordDTO.currentPassword) &&
-        Objects.equals(this.newPassword, userPasswordDTO.newPassword) &&
-        Objects.equals(this.newPasswordConfirm, userPasswordDTO.newPasswordConfirm);
+        Objects.equals(this.newPassword, userPasswordDTO.newPassword);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(currentPassword, newPassword, newPasswordConfirm);
+    return Objects.hash(currentPassword, newPassword);
   }
 
   @Override
@@ -107,7 +83,6 @@ public class UserPasswordDTO implements DTOEntity {
     
     sb.append("    currentPassword: ").append(toIndentedString(currentPassword)).append("\n");
     sb.append("    newPassword: ").append(toIndentedString(newPassword)).append("\n");
-    sb.append("    newPasswordConfirm: ").append(toIndentedString(newPasswordConfirm)).append("\n");
     sb.append("}");
     return sb.toString();
   }
