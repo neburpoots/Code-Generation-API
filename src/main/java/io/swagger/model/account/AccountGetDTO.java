@@ -3,6 +3,7 @@ package io.swagger.model.account;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.model.entity.AccountType;
 import io.swagger.model.user.UserGetDTO;
+import io.swagger.model.utils.DTOEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.NonNull;
 
@@ -11,7 +12,7 @@ import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.UUID;
 
-public class AccountGetDTO {
+public class AccountGetDTO implements DTOEntity {
 
     @JsonProperty("account_id")
     private String account_id = null;

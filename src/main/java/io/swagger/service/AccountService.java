@@ -1,14 +1,19 @@
 package io.swagger.service;
 
+import io.swagger.model.account.AccountGetDTO;
 import io.swagger.model.account.AccountPostDTO;
 import io.swagger.model.entity.Account;
 import io.swagger.model.entity.User;
+import io.swagger.model.user.UserGetDTO;
+import io.swagger.model.utils.DTOEntity;
 import io.swagger.repository.AccountRepository;
 import io.swagger.repository.UserRepository;
+import io.swagger.utils.DtoUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -35,7 +40,7 @@ public class AccountService {
         return accountRepo.save(account);
     }
 
-    public List<Account> getAccounts() {
-        return this.accountRepo.findAll();
+    public List<DTOEntity> getAccounts() {
+        return new DtoUtils().convertListToDto(this.accountRepo.findAll(), new AccountGetDTO());
     }
 }
