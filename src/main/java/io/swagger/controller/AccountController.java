@@ -68,7 +68,6 @@ public class AccountController implements AccountControllerInterface {
                 throw new ApiException(422, "Unprocessable entity");
             }
 
-
             Account account = (Account)new DtoUtils().convertToEntity(new Account(), body);
 
             return new ResponseEntity<Account>(accountService.createAccount(account, body), HttpStatus.OK);
