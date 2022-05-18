@@ -5,6 +5,7 @@
  */
 package io.swagger.controller;
 
+import io.swagger.exception.BadRequestException;
 import io.swagger.model.utils.Error;
 import io.swagger.model.entity.Transaction;
 import io.swagger.model.transaction.TransactionPostDTO;
@@ -61,7 +62,7 @@ public interface TransactionControllerInterface {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Transaction.class))),
 
-            @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class))),
 
             @ApiResponse(responseCode = "401", description = "Credentials invalid or missing.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
 

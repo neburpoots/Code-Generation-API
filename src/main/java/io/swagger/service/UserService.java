@@ -20,9 +20,11 @@ import java.util.stream.Stream;
 public class UserService {
 
     private final UserRepository userRepo;
+    private final DtoUtils dtoUtils;
 
-    public UserService(UserRepository userRepo) {
+    public UserService(UserRepository userRepo, DtoUtils dtoUtils) {
         this.userRepo = userRepo;
+        this.dtoUtils = dtoUtils;
     }
 
     public DTOEntity login(UserLoginDTO userLoginDTO) {
@@ -46,12 +48,12 @@ public class UserService {
             throw new BadRequestException(String.join(";", checks));
         }
         if (findUserByEmail(userPostDTO.getEmail()) == null) {
-            User user = (User) new DtoUtils().convertToEntity(new User(), userPostDTO);
+            User user = (User) dtoUtils.convertToEntity(new User(), userPostDTO);
             user.setPassword(hashPassword(userPostDTO.getPassword()));
             user.setDailyLimit(new BigDecimal(2500));
             user.setTransactionLimit(new BigDecimal(50));
 
-            return new DtoUtils().convertToDto(this.userRepo.save(user), new UserGetDTO());
+            return dtoUtils.convertToDto(this.userRepo.save(user), new UserGetDTO());
         } else {
             throw new ConflictException("This email is already in use");
         }
@@ -102,7 +104,7 @@ public class UserService {
     public DTOEntity findUserByEmail(String email) {
         User user = userRepo.findByEmail(email);
         if (user != null) {
-            return new DtoUtils().convertToDto(user, new UserGetDTO());
+            return dtoUtils.convertToDto(user, new UserGetDTO());
         } else {
             return null;
         }
@@ -178,14 +180,14 @@ public class UserService {
 
     public List<DTOEntity> getUsers() {
         try {
-            return new DtoUtils().convertListToDto(this.userRepo.findAll(), new UserGetDTO());
+            return dtoUtils.convertListToDto(this.userRepo.findAll(), new UserGetDTO());
         } catch (Exception e) {
             throw new InternalServerErrorException();
         }
     }
 
     public DTOEntity getUserById(String id) {
-        return new DtoUtils().convertToDto(getUserObjectById(id), new UserGetDTO());
+        return dtoUtils.convertToDto(getUserObjectById(id), new UserGetDTO());
     }
 
     public User getUserObjectById(String id) {
