@@ -63,12 +63,12 @@ public class AccountController implements AccountControllerInterface {
     @PreAuthorize("hasRole('EMPLOYEE')")
     public ResponseEntity<Account> createAccount(@Parameter(in = ParameterIn.DEFAULT, description = "Created User object", required=true, schema=@Schema()) @Valid @RequestBody AccountPostDTO body)
     {
-//        try {
+        try {
             return new ResponseEntity<Account>(accountService.createAccount(body), HttpStatus.CREATED);
-//        } catch(Exception exception) {
-////            throw new InternalServerErrorException();
-//            throw new testException(exception.getMessage());
-//        }
+        } catch(Exception exception) {
+//            throw new InternalServerErrorException();
+            throw new testException(exception.getMessage());
+        }
     }
 
     public ResponseEntity<Void> editAccount(@Parameter(in = ParameterIn.PATH, description = "Iban of account", required=true, schema=@Schema()) @PathVariable("iban") String iban,@Parameter(in = ParameterIn.DEFAULT, description = "Edit information", required=true, schema=@Schema()) @Valid @RequestBody AccountPatchDTO body) {

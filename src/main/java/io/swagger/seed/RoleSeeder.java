@@ -19,9 +19,9 @@ public class RoleSeeder {
     }
 
     public List<Role> seed() {
-        Role pending = new Role("Pending");
-        Role customer = new Role("Customer");
-        Role employee = new Role("Employee");
+        Role pending = new Role("ROLE_PENDING");
+        Role customer = new Role("ROLE_CUSTOMER");
+        Role employee = new Role("ROLE_EMPLOYEE");
 
         roleRepo.save(pending);
         return (List<Role>)roleRepo.saveAll(
