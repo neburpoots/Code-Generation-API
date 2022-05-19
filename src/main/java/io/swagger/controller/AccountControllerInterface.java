@@ -35,7 +35,7 @@ import java.util.List;
 @Validated
 public interface AccountControllerInterface {
 
-    @Operation(summary = "Creates a primary and savings Account for provided user_id", description = "Creates a primary and savings account for provided user_id.", security = {
+    @Operation(summary = "Creates a primary or secondary account", description = "Creates a primary or savings account for provided user_id.", security = {
             @SecurityRequirement(name = "bearerAuth")    }, tags={ "accounts" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AccountControllerInterface.class))),
@@ -55,7 +55,7 @@ public interface AccountControllerInterface {
             produces = { "application/json" },
             consumes = { "application/json" },
             method = RequestMethod.POST)
-    ResponseEntity<Account> createAccount(@Parameter(in = ParameterIn.DEFAULT, description = "Created User object", required=true, schema=@Schema()) @Valid @RequestBody AccountPostDTO body) throws Exception;
+    ResponseEntity<DTOEntity> createAccount(@Parameter(in = ParameterIn.DEFAULT, description = "Created User object", required=true, schema=@Schema()) @Valid @RequestBody AccountPostDTO body) throws Exception;
 
 
     @Operation(summary = "Alters limit or status of Account", description = "", security = {

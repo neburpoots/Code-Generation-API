@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -61,13 +62,12 @@ public class AccountController implements AccountControllerInterface {
     }
 
     @PreAuthorize("hasRole('EMPLOYEE')")
-    public ResponseEntity<Account> createAccount(@Parameter(in = ParameterIn.DEFAULT, description = "Created User object", required=true, schema=@Schema()) @Valid @RequestBody AccountPostDTO body)
+    public ResponseEntity<DTOEntity> createAccount(@Parameter(in = ParameterIn.DEFAULT, description = "Created User object", required=true, schema=@Schema()) @Valid @RequestBody AccountPostDTO body)
     {
         try {
-            return new ResponseEntity<Account>(accountService.createAccount(body), HttpStatus.CREATED);
+            return new ResponseEntity<DTOEntity>(accountService.createAccount(body), HttpStatus.CREATED);
         } catch(Exception exception) {
-//            throw new InternalServerErrorException();
-            throw new testException(exception.getMessage());
+            throw exception;
         }
     }
 

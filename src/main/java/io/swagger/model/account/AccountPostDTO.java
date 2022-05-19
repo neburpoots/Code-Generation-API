@@ -6,10 +6,12 @@ import io.swagger.model.entity.AccountType;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
+import java.util.UUID;
 
 import lombok.NoArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
+import javax.validation.constraints.*;
 
 /**
  * AccountPostDTO
@@ -20,15 +22,21 @@ import javax.validation.Valid;
 
 public class AccountPostDTO implements DTOEntity {
   @JsonProperty("user_id")
-  private String user_id = null;
+  @NotNull
+  private UUID user_id = null;
 
   @JsonProperty("absolute_limit")
+  @NotNull
+  @DecimalMin(value = "-10000.01", inclusive = false)
+  @DecimalMax(value = "0.01", inclusive = false)
+  @Digits(integer=5, fraction=2)
   private BigDecimal absoluteLimit = null;
 
   @JsonProperty("account_type")
+  @NotNull
   private AccountType accountType = null;
 
-  public AccountPostDTO user_id(String user_id) {
+  public AccountPostDTO user_id(UUID user_id) {
     this.user_id = user_id;
     return this;
   }
@@ -39,11 +47,11 @@ public class AccountPostDTO implements DTOEntity {
    **/
   @Schema(example = "123e4567-e89b-12d3-a456-426614174000", description = "")
   
-    public String getUser_Id() {
+    public UUID getUser_Id() {
     return user_id;
   }
 
-  public void setUser_Id(String userId) {
+  public void setUser_Id(UUID userId) {
     this.user_id = user_id;
   }
 

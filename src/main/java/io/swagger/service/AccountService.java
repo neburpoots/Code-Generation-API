@@ -2,10 +2,13 @@ package io.swagger.service;
 
 import io.swagger.controller.ApiException;
 import io.swagger.exception.BadRequestException;
+import io.swagger.exception.ConflictException;
+import io.swagger.exception.InternalServerErrorException;
 import io.swagger.exception.UnProcessableEntityException;
 import io.swagger.model.account.AccountGetDTO;
 import io.swagger.model.account.AccountPostDTO;
 import io.swagger.model.entity.Account;
+import io.swagger.model.entity.AccountType;
 import io.swagger.model.entity.User;
 import io.swagger.model.user.UserGetDTO;
 import io.swagger.model.utils.DTOEntity;
@@ -34,19 +37,44 @@ public class AccountService {
         this.userService = userService;
     }
 
-    public Account createAccount(AccountPostDTO body)
+    public DTOEntity createAccount(AccountPostDTO accountPostDTO)
     {
+        //Converts dto to account object
+        Account account = (Account)new DtoUtils().convertToEntity(new Account(), accountPostDTO);
 
-        Account account = (Account)new DtoUtils().convertToEntity(new Account(), body);
+        // Checks if the user exists and sets it for account
+        User user = userService.getUserObjectById(accountPostDTO.getUser_Id().toString());
+        account.setUser(user);
+
+        List<Account> existingAccounts = accountRepo.findByUser(user);
+
+        if(existingAccounts.size() >= 2) {
+            throw new ConflictException("Customer already has a primary and savings account ");
+        } else if(existingAccounts.size() == 1) {
+
+            switch (account.getAccountType()) {
+                case PRIMARY:
+                    if(existingAccounts.get(0).getAccountType() == AccountType.PRIMARY) {
+                        throw new ConflictException("Customer already has a primary account");
+                    }
+                    break;
+                case SAVINGS:
+                    if(existingAccounts.get(0).getAccountType() == AccountType.SAVINGS) {
+                        throw new ConflictException("Customer already has a savings account");
+                    }
+                    break;
+                case BANK:
+                    throw new UnProcessableEntityException("Creating a account with type bank is not possible.");
+
+            }
+        }
 
         account.setBalance(new BigDecimal(0));
         account.setStatus(true);
 
-        User user = userService.getUserObjectById(body.getUser_Id());
-        account.setUser(user);
-
-        return accountRepo.save(account);
+        return new DtoUtils().convertToDto(accountRepo.save(account), new AccountGetDTO());
     }
+
 
     public List<DTOEntity> getAccounts() {
         return new DtoUtils().convertListToDto(this.accountRepo.findAll(), new AccountGetDTO());
