@@ -1,12 +1,17 @@
 package io.swagger.service;
 
 import io.swagger.exception.*;
+import io.swagger.model.entity.Role;
 import io.swagger.model.entity.User;
 import io.swagger.model.user.*;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.repository.UserRepository;
+import io.swagger.security.JwtTokenProvider;
 import io.swagger.utils.DtoUtils;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
@@ -20,25 +25,41 @@ import java.util.stream.Stream;
 public class UserService {
 
     private final UserRepository userRepo;
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final PasswordEncoder passwordEncoder;
     private final DtoUtils dtoUtils;
 
-    public UserService(UserRepository userRepo, DtoUtils dtoUtils) {
+    public UserService(UserRepository userRepo, AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider, PasswordEncoder passwordEncoder, DtoUtils dtoUtils) {
         this.userRepo = userRepo;
+        this.authenticationManager = authenticationManager;
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.passwordEncoder = passwordEncoder;
         this.dtoUtils = dtoUtils;
     }
 
     public DTOEntity login(UserLoginDTO userLoginDTO) {
-        User user = userRepo.findByEmail(userLoginDTO.getEmail());
-        if (user == null) {
-            throw new ResourceNotFoundException("No account found with given email");
+        try {
+            User user = userRepo.findByEmail(userLoginDTO.getEmail());
+            if (user == null) {
+                throw new ResourceNotFoundException("No account found with given email");
+            }
+            if (userLoginDTO.getPassword() == null) {
+                throw new BadRequestException("Password missing");
+            }
+            if (verifyPassword(userLoginDTO.getPassword(), user.getPassword())) {
+                System.out.println(jwtTokenProvider.createToken(user.getEmail(), new ArrayList<Role>()));
+                System.out.println(authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userLoginDTO.getEmail(), userLoginDTO.getPassword())));
+                String jwt = jwtTokenProvider.createToken(user.getEmail(), new ArrayList<Role>());
+                UserLoginReturnDTO userLoginReturnDTO = (UserLoginReturnDTO) dtoUtils.convertToDto(user, new UserLoginReturnDTO());
+                userLoginReturnDTO.setAccessToken(jwt);
+
+                return userLoginReturnDTO;
+            }
+            throw new UnauthorizedException("Invalid login credentials");
+        } catch (Exception ae) {
+            throw new testException(ae.getMessage());
         }
-        if (userLoginDTO.getPassword() == null) {
-            throw new BadRequestException("Password missing");
-        }
-        if (verifyPassword(userLoginDTO.getPassword(), user.getPassword())) {
-            return findUserByEmail(userLoginDTO.getEmail());
-        }
-        throw new UnauthorizedException("Invalid login credentials");
     }
 
     public DTOEntity addUser(UserPostDTO userPostDTO) {
@@ -168,16 +189,6 @@ public class UserService {
         }
     }
 
-    private UUID convertToUUID(String id) {
-        UUID uuid;
-        try {
-            uuid = UUID.fromString(id);
-        } catch (Exception e) {
-            throw new BadRequestException("Invalid UUID string: " + id);
-        }
-        return uuid;
-    }
-
     public List<DTOEntity> getUsers() {
         try {
             return dtoUtils.convertListToDto(this.userRepo.findAll(), new UserGetDTO());
@@ -191,6 +202,6 @@ public class UserService {
     }
 
     public User getUserObjectById(String id) {
-        return this.userRepo.findById(convertToUUID(id)).orElseThrow(() -> new ResourceNotFoundException("User with id: '" + id + "' not found"));
+        return this.userRepo.findById(dtoUtils.convertToUUID(id)).orElseThrow(() -> new ResourceNotFoundException("User with id: '" + id + "' not found"));
     }
 }

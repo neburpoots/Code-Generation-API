@@ -56,7 +56,7 @@ public class User {
     this.roles = roles;
   }
 
-  @ManyToMany
+  @ManyToMany(fetch = FetchType.EAGER)
   private Set<Role> roles = new HashSet<>();
 
   public User(String firstname, String lastname, String email, BigDecimal transactionLimit, BigDecimal dailyLimit, String password) {

@@ -50,6 +50,7 @@ public class UserController implements UserControllerInterface {
 
     public ResponseEntity<DTOEntity> addUser(@Parameter(in = ParameterIn.DEFAULT, description = "Created User object", required = true, schema = @Schema()) @Valid @RequestBody UserPostDTO body) {
         try {
+            System.out.println("what4");
             return new ResponseEntity<DTOEntity>(this.userService.addUser(body), HttpStatus.OK);
         } catch (Exception exception) {
             throw exception;
@@ -58,6 +59,7 @@ public class UserController implements UserControllerInterface {
 
     public ResponseEntity<Void> editPassword(@Parameter(in = ParameterIn.DEFAULT, description = "Password information", required = true, schema = @Schema()) @Valid @RequestBody UserPasswordDTO body) {
         try {
+            System.out.println("what3");
             if (this.userService.editPassword(body)) {
                 return new ResponseEntity<Void>(HttpStatus.OK);
             } else {
@@ -70,6 +72,7 @@ public class UserController implements UserControllerInterface {
 
     public ResponseEntity<Void> editUserById(@Parameter(in = ParameterIn.PATH, description = "Id of the user you want to edit", required = true, schema = @Schema()) @PathVariable("id") String id, @Parameter(in = ParameterIn.DEFAULT, description = "Created User object", required = true, schema = @Schema()) @Valid @RequestBody UserPatchDTO body) {
         try {
+            System.out.println("what2");
             this.userService.editUserById(body, id);
             return new ResponseEntity<Void>(HttpStatus.OK);
         } catch (Exception exception) {
@@ -79,6 +82,7 @@ public class UserController implements UserControllerInterface {
 
     public ResponseEntity<DTOEntity> getUserById(@Parameter(in = ParameterIn.PATH, description = "Id of the user you want to get", required = true, schema = @Schema()) @PathVariable("id") String id) {
         try {
+            System.out.println("what1");
             return new ResponseEntity<DTOEntity>(this.userService.getUserById(id), HttpStatus.OK);
         } catch (Exception exception) {
             throw exception;

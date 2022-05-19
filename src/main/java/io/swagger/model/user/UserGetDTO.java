@@ -1,8 +1,10 @@
 package io.swagger.model.user;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.model.entity.Role;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.UUID;
@@ -37,6 +39,9 @@ public class UserGetDTO implements DTOEntity {
   @JsonProperty("daily_limit")
   private BigDecimal dailyLimit;
 
+  @JsonProperty("role")
+  private List<Role> roles;
+
   public UserGetDTO user_id(UUID user_id) {
     this.user_id = user_id;
     return this;
@@ -47,9 +52,9 @@ public class UserGetDTO implements DTOEntity {
    * @return user_id
    **/
   @Schema(example = "123e4567-e89b-12d3-a456-426614174000", description = "")
-  
-    @Valid
-    public UUID getUser_id() {
+
+  @Valid
+  public UUID getUser_id() {
     return user_id;
   }
 
@@ -67,8 +72,8 @@ public class UserGetDTO implements DTOEntity {
    * @return firstname
    **/
   @Schema(example = "Kiana", description = "")
-  
-    public String getFirstname() {
+
+  public String getFirstname() {
     return firstname;
   }
 
@@ -86,8 +91,8 @@ public class UserGetDTO implements DTOEntity {
    * @return lastname
    **/
   @Schema(example = "Padilla", description = "")
-  
-    public String getLastname() {
+
+  public String getLastname() {
     return lastname;
   }
 
@@ -105,8 +110,8 @@ public class UserGetDTO implements DTOEntity {
    * @return email
    **/
   @Schema(example = "Kiana.Padilla@gmail.com", description = "")
-  
-    public String getEmail() {
+
+  public String getEmail() {
     return email;
   }
 
@@ -125,7 +130,7 @@ public class UserGetDTO implements DTOEntity {
    **/
   @Schema(example = "150", description = "")
 
-    public BigDecimal getTransactionLimit() {
+  public BigDecimal getTransactionLimit() {
     return transactionLimit;
   }
 
@@ -144,12 +149,31 @@ public class UserGetDTO implements DTOEntity {
    **/
   @Schema(example = "2500", description = "")
 
-    public BigDecimal getDailyLimit() {
+  public BigDecimal getDailyLimit() {
     return dailyLimit;
   }
 
   public void setDailyLimit(BigDecimal dailyLimit) {
     this.dailyLimit = dailyLimit;
+  }
+
+  public UserGetDTO role(List<Role> roles) {
+    this.roles = roles;
+    return this;
+  }
+
+  /**
+   * Get roles
+   * @return roles
+   **/
+  @Schema(example = "", description = "")
+
+  public List<Role> getRoles() {
+    return roles;
+  }
+
+  public void setRoles(List<Role> roles) {
+    this.roles = roles;
   }
 
   @Override
@@ -162,29 +186,31 @@ public class UserGetDTO implements DTOEntity {
     }
     UserGetDTO userGetDTO = (UserGetDTO) o;
     return Objects.equals(this.user_id, userGetDTO.user_id) &&
-        Objects.equals(this.firstname, userGetDTO.firstname) &&
-        Objects.equals(this.lastname, userGetDTO.lastname) &&
-        Objects.equals(this.email, userGetDTO.email) &&
-        Objects.equals(this.transactionLimit, userGetDTO.transactionLimit) &&
-        Objects.equals(this.dailyLimit, userGetDTO.dailyLimit);
+            Objects.equals(this.firstname, userGetDTO.firstname) &&
+            Objects.equals(this.lastname, userGetDTO.lastname) &&
+            Objects.equals(this.email, userGetDTO.email) &&
+            Objects.equals(this.transactionLimit, userGetDTO.transactionLimit) &&
+            Objects.equals(this.dailyLimit, userGetDTO.dailyLimit) &&
+            Objects.equals(this.roles, userGetDTO.roles);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(user_id, firstname, lastname, email, transactionLimit, dailyLimit);
+    return Objects.hash(user_id, firstname, lastname, email, transactionLimit, dailyLimit, roles);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class UserGetDTO {\n");
-    
+
     sb.append("    user_id: ").append(toIndentedString(user_id)).append("\n");
     sb.append("    firstname: ").append(toIndentedString(firstname)).append("\n");
     sb.append("    lastname: ").append(toIndentedString(lastname)).append("\n");
     sb.append("    email: ").append(toIndentedString(email)).append("\n");
     sb.append("    transactionLimit: ").append(toIndentedString(transactionLimit)).append("\n");
     sb.append("    dailyLimit: ").append(toIndentedString(dailyLimit)).append("\n");
+    sb.append("    roles: ").append(toIndentedString(roles)).append("\n");
     sb.append("}");
     return sb.toString();
   }
