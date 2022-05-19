@@ -5,33 +5,40 @@ import io.swagger.model.entity.Role;
 import io.swagger.model.entity.User;
 import io.swagger.model.user.*;
 import io.swagger.model.utils.DTOEntity;
+import io.swagger.repository.RoleRepository;
 import io.swagger.repository.UserRepository;
 import io.swagger.security.JwtTokenProvider;
+import io.swagger.security.MyUserDetailsService;
 import io.swagger.utils.DtoUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Field;
+import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepo;
+    private final RoleRepository roleRepo;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
     private final DtoUtils dtoUtils;
 
-    public UserService(UserRepository userRepo, AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider, PasswordEncoder passwordEncoder, DtoUtils dtoUtils) {
+    public UserService(UserRepository userRepo, RoleRepository roleRepo, AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider, PasswordEncoder passwordEncoder, DtoUtils dtoUtils) {
         this.userRepo = userRepo;
+        this.roleRepo = roleRepo;
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
         this.passwordEncoder = passwordEncoder;
@@ -48,9 +55,7 @@ public class UserService {
                 throw new BadRequestException("Password missing");
             }
             if (verifyPassword(userLoginDTO.getPassword(), user.getPassword())) {
-                System.out.println(jwtTokenProvider.createToken(user.getEmail(), new ArrayList<Role>()));
-                System.out.println(authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userLoginDTO.getEmail(), userLoginDTO.getPassword())));
-                String jwt = jwtTokenProvider.createToken(user.getEmail(), new ArrayList<Role>());
+                String jwt = jwtTokenProvider.createToken(user.getEmail(), new ArrayList<Role>(), user.getUser_id());
                 UserLoginReturnDTO userLoginReturnDTO = (UserLoginReturnDTO) dtoUtils.convertToDto(user, new UserLoginReturnDTO());
                 userLoginReturnDTO.setAccessToken(jwt);
 
@@ -73,6 +78,7 @@ public class UserService {
             user.setPassword(hashPassword(userPostDTO.getPassword()));
             user.setDailyLimit(new BigDecimal(2500));
             user.setTransactionLimit(new BigDecimal(50));
+            user.setRolesForUser(List.of(roleRepo.findById(1).orElse(null)));
 
             return dtoUtils.convertToDto(this.userRepo.save(user), new UserGetDTO());
         } else {
@@ -131,14 +137,15 @@ public class UserService {
         }
     }
 
-    public boolean editPassword(UserPasswordDTO userPasswordDTO) {
+    public boolean editPassword(UserPasswordDTO userPasswordDTO, HttpServletRequest req) {
+        String token = jwtTokenProvider.resolveToken(req);
         if (userPasswordDTO.getCurrentPassword() != null || userPasswordDTO.getNewPassword() != null) {
-            User user = getUserObjectById("ID_FROM_JWT");
+            User user = getUserObjectById(jwtTokenProvider.getAudience(token));
             if (verifyPassword(userPasswordDTO.getCurrentPassword(), user.getPassword())) {
-                if (verifyPasswordComplexity(userPasswordDTO.getNewPassword())) {
+                if (!verifyPasswordComplexity(userPasswordDTO.getNewPassword())) {
                     throw new BadRequestException("New password not complex enough");
                 }
-                user.setPassword(userPasswordDTO.getNewPassword());
+                user.setPassword(hashPassword(userPasswordDTO.getNewPassword()));
 
                 this.userRepo.save(user);
             } else {
@@ -197,7 +204,16 @@ public class UserService {
         }
     }
 
-    public DTOEntity getUserById(String id) {
+    public DTOEntity getUserById(String id, HttpServletRequest req) {
+        String token = jwtTokenProvider.resolveToken(req);
+
+        if (!id.equals(jwtTokenProvider.getAudience(token))) {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (!auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"))) {
+                return dtoUtils.convertToDto(getUserObjectById(id), new UserSearchDTO());
+            }
+        }
+
         return dtoUtils.convertToDto(getUserObjectById(id), new UserGetDTO());
     }
 

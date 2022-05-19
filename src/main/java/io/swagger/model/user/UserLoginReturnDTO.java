@@ -13,7 +13,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * UserGetDTO
+ * UserLoginReturnDTO
  */
 @Validated
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-05T18:12:07.854Z[GMT]")

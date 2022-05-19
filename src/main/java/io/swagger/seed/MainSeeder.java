@@ -22,14 +22,12 @@ public class MainSeeder {
         this.roleSeeder = roleSeeder;
         this.userSeeder = userSeeder;
         this.accountSeeder = accountSeeder;
-
-
     }
 
     @EventListener
     public void seed(ContextRefreshedEvent event) {
-        List<Role> roles = roleSeeder.seed();
-        List<User> users = userSeeder.seed(roles);
-        List<Account> accounts = accountSeeder.seed(users);
+        roleSeeder.seed();
+        List<User> users = userSeeder.seed();
+        accountSeeder.seed(users);
     }
 }
