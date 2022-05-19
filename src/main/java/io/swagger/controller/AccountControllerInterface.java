@@ -9,6 +9,7 @@ import io.swagger.exception.BadRequestException;
 import io.swagger.model.entity.Account;
 import io.swagger.model.account.AccountPatchDTO;
 import io.swagger.model.account.AccountPostDTO;
+import io.swagger.model.utils.DTOEntity;
 import io.swagger.model.utils.Error;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -114,7 +115,6 @@ public interface AccountControllerInterface {
     @RequestMapping(value = "/api/accounts",
             produces = { "application/json" },
             method = RequestMethod.GET)
-    ResponseEntity<List<Account>> getAccounts(@Parameter(in = ParameterIn.QUERY, description = "This query will get both accounts that belong to the matching user id." ,schema=@Schema()) @Valid @RequestParam(value = "user_id", required = false) String userId, @Parameter(in = ParameterIn.QUERY, description = "This query will filter either the 'primary' or 'savings' account." ,schema=@Schema(allowableValues={ "primary", "savings" }
+    ResponseEntity<List<DTOEntity>> getAccounts(@Parameter(in = ParameterIn.QUERY, description = "This query will get both accounts that belong to the matching user id." ,schema=@Schema()) @Valid @RequestParam(value = "user_id", required = false) String userId, @Parameter(in = ParameterIn.QUERY, description = "This query will filter either the 'primary' or 'savings' account." ,schema=@Schema(allowableValues={ "primary", "savings" }
     )) @Valid @RequestParam(value = "type", required = false) List<String> type);
 }
-

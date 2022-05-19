@@ -4,12 +4,14 @@ import io.swagger.annotations.Api;
 import io.swagger.exception.BadRequestException;
 import io.swagger.exception.InternalServerErrorException;
 import io.swagger.exception.testException;
+import io.swagger.model.account.AccountGetDTO;
 import io.swagger.model.entity.Account;
 import io.swagger.model.account.AccountPatchDTO;
 import io.swagger.model.account.AccountPostDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.model.entity.AccountType;
 import io.swagger.model.entity.User;
+import io.swagger.model.utils.DTOEntity;
 import io.swagger.service.AccountService;
 import io.swagger.service.UserService;
 import io.swagger.utils.DtoUtils;
@@ -96,9 +98,9 @@ public class AccountController implements AccountControllerInterface {
         return new ResponseEntity<Account>(HttpStatus.NOT_IMPLEMENTED);
     }
 
-    public ResponseEntity<List<Account>> getAccounts(@Parameter(in = ParameterIn.QUERY, description = "This query will get both accounts that belong to the matching user id." ,schema=@Schema()) @Valid @RequestParam(value = "user_id", required = false) String userId,@Parameter(in = ParameterIn.QUERY, description = "This query will filter either the 'primary' or 'savings' account." ,schema=@Schema(allowableValues={ "primary", "savings" }
+    public ResponseEntity<List<DTOEntity>> getAccounts(@Parameter(in = ParameterIn.QUERY, description = "This query will get both accounts that belong to the matching user id." ,schema=@Schema()) @Valid @RequestParam(value = "user_id", required = false) String userId, @Parameter(in = ParameterIn.QUERY, description = "This query will filter either the 'primary' or 'savings' account." ,schema=@Schema(allowableValues={ "primary", "savings" }
     )) @Valid @RequestParam(value = "type", required = false) List<String> type) {
 
-        return new ResponseEntity<List<Account>>(accountService.getAccounts(), HttpStatus.OK);
+        return new ResponseEntity<List<DTOEntity>>(accountService.getAccounts(), HttpStatus.OK);
     }
 }
