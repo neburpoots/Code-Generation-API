@@ -1,5 +1,8 @@
 package io.swagger.service;
 
+import io.swagger.controller.ApiException;
+import io.swagger.exception.BadRequestException;
+import io.swagger.exception.UnProcessableEntityException;
 import io.swagger.model.account.AccountGetDTO;
 import io.swagger.model.account.AccountPostDTO;
 import io.swagger.model.entity.Account;
@@ -10,6 +13,7 @@ import io.swagger.repository.AccountRepository;
 import io.swagger.repository.UserRepository;
 import io.swagger.utils.DtoUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -30,7 +34,11 @@ public class AccountService {
         this.userService = userService;
     }
 
-    public Account createAccount(Account account, AccountPostDTO body) {
+    public Account createAccount(AccountPostDTO body)
+    {
+
+        Account account = (Account)new DtoUtils().convertToEntity(new Account(), body);
+
         account.setBalance(new BigDecimal(0));
         account.setStatus(true);
 

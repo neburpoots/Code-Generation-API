@@ -61,6 +61,16 @@ public class ControllerExceptionHandler
                 ex.getMessage());
     }
 
+    @ExceptionHandler(UnProcessableEntityException.class)
+    @ResponseStatus(value = HttpStatus.UNPROCESSABLE_ENTITY)
+    public ErrorMessage unProcessableEntityException(Exception ex, WebRequest request)
+    {
+        return new ErrorMessage(
+                HttpStatus.UNPROCESSABLE_ENTITY.value(),
+                new Date(),
+                ex.getMessage());
+    }
+
     @ExceptionHandler(InternalServerErrorException.class)
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorMessage globalExceptionHandler(Exception ex, WebRequest request)

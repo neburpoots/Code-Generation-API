@@ -35,9 +35,14 @@ public class UserSeeder {
         User tim = new User("Tim", "Roffelsen", "123456@student.inholland.nl", new BigDecimal(50), new BigDecimal(25000), webSecurityConfig.passwordEncoder().encode("Secret123!"));
         User test = new User("test", "test", "test@student.inholland.nl", new BigDecimal(50), new BigDecimal(25000), webSecurityConfig.passwordEncoder().encode("Secret123!"));
 
-////            Gets all the roles for the users
+        // Sets all the roles for the employee users
         ruben.setRolesForUser(roles);
         tim.setRolesForUser(roles);
+
+        // Sets the role for a normal customer
+        List<Role> customerRole = roles;
+        customerRole.remove(1);
+        test.setRolesForUser(customerRole);
 
         return (List<User>)this.userRepo.saveAll(
                 List.of(ruben, tim, test)

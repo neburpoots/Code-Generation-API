@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -59,24 +60,15 @@ public class AccountController implements AccountControllerInterface {
         this.accountService = accountService;
     }
 
+    @PreAuthorize("hasRole('EMPLOYEE')")
     public ResponseEntity<Account> createAccount(@Parameter(in = ParameterIn.DEFAULT, description = "Created User object", required=true, schema=@Schema()) @Valid @RequestBody AccountPostDTO body)
     {
-        try {
-            if(body.getAccountType() == null) {
-                throw new BadRequestException("Account type not present");
-            }
-
-            if(body.getUser_Id() == null) {
-                throw new ApiException(422, "Unprocessable entity");
-            }
-
-            Account account = (Account)new DtoUtils().convertToEntity(new Account(), body);
-
-            return new ResponseEntity<Account>(accountService.createAccount(account, body), HttpStatus.OK);
-        } catch(Exception exception) {
-//            throw new InternalServerErrorException();
-            throw new testException(exception.getMessage());
-        }
+//        try {
+            return new ResponseEntity<Account>(accountService.createAccount(body), HttpStatus.CREATED);
+//        } catch(Exception exception) {
+////            throw new InternalServerErrorException();
+//            throw new testException(exception.getMessage());
+//        }
     }
 
     public ResponseEntity<Void> editAccount(@Parameter(in = ParameterIn.PATH, description = "Iban of account", required=true, schema=@Schema()) @PathVariable("iban") String iban,@Parameter(in = ParameterIn.DEFAULT, description = "Edit information", required=true, schema=@Schema()) @Valid @RequestBody AccountPatchDTO body) {
