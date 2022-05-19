@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-import lombok.NoArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
@@ -21,6 +20,7 @@ import javax.validation.constraints.*;
 
 
 public class AccountPostDTO implements DTOEntity {
+
   @JsonProperty("user_id")
   @NotNull
   private UUID user_id = null;
@@ -46,7 +46,8 @@ public class AccountPostDTO implements DTOEntity {
    * @return user_id
    **/
   @Schema(example = "123e4567-e89b-12d3-a456-426614174000", description = "")
-  
+
+  @Valid
     public UUID getUser_Id() {
     return user_id;
   }
@@ -101,6 +102,7 @@ public class AccountPostDTO implements DTOEntity {
     }
     AccountPostDTO accountPostDTO = (AccountPostDTO) o;
     return Objects.equals(this.user_id, accountPostDTO.user_id) &&
+            Objects.equals(this.accountType, accountPostDTO.accountType) &&
         Objects.equals(this.absoluteLimit, accountPostDTO.absoluteLimit);
   }
 

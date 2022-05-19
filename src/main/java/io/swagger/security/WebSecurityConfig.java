@@ -23,6 +23,32 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         this.jwtTokenFilter = jwtTokenFilter;
     }
 
+
+    private static final String[] AUTH_WHITELIST = {
+            // -- Swagger UI v2
+            "/v2/api-docs",
+            "/swagger-resources",
+            "/swagger-resources/**",
+            "/configuration/ui",
+            "/configuration/security",
+            "/swagger-ui.html",
+            "/webjars/**",
+            // -- Swagger UI v3 (OpenAPI)
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/api-docs",
+            "/api-docs/**",
+            "/api-docs/**/**",
+            "/api-docs/components/schemas/**",
+            "/api-docs#",
+            "/api-docs#/**",
+            "/api-docs#/**/**",
+            "/api-docs#/**/**/**",
+            "/api-docs#/components/schemas/**",
+
+            // other public endpoints of your API may be appended to this array
+    };
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable();
@@ -31,6 +57,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
                 .antMatchers("/api/users/login").permitAll()
                 .antMatchers("/h2/**/**").permitAll()
+                .antMatchers(AUTH_WHITELIST).permitAll()
                 .anyRequest()
                 .authenticated();
 
@@ -39,7 +66,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity web) throws Exception {
-        web.ignoring().antMatchers("/h2/**/**");
+        web.ignoring()
+                .antMatchers("/h2/**/**")
+                .antMatchers("/")
+                .antMatchers(AUTH_WHITELIST);
     }
 
     @Bean
