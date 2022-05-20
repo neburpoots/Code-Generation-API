@@ -1,10 +1,13 @@
 package io.swagger.model.transaction;
 
+import java.time.LocalDate;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
+
+import lombok.NonNull;
 import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 
@@ -24,6 +27,9 @@ public class TransactionPostDTO implements DTOEntity {
 
   @JsonProperty("amount")
   private BigDecimal amount = null;
+
+  @JsonProperty("timestamp")
+  private LocalDate timestamp = LocalDate.now();
 
   @JsonProperty("type")
   private Integer type = null;

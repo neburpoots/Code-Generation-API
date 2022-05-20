@@ -1,10 +1,13 @@
 package io.swagger.model.transaction;
 
+import java.time.LocalDate;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
+
+import lombok.NonNull;
 import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 
@@ -21,6 +24,9 @@ public class TransactionGetDTO implements DTOEntity {
 
     @JsonProperty("fromAccount")
     private String fromAccount = null;
+
+    @JsonProperty("timestamp")
+    private LocalDate timestamp = LocalDate.now();
 
     @JsonProperty("amount")
     private BigDecimal amount = null;
@@ -113,18 +119,6 @@ public class TransactionGetDTO implements DTOEntity {
         return Objects.hash(toAccount, fromAccount, amount, type);
     }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("class TransactionPostDTO {\n");
-
-        sb.append("    toAccount: ").append(toIndentedString(toAccount)).append("\n");
-        sb.append("    fromAccount: ").append(toIndentedString(fromAccount)).append("\n");
-        sb.append("    amount: ").append(toIndentedString(amount)).append("\n");
-        sb.append("    type: ").append(toIndentedString(type)).append("\n");
-        sb.append("}");
-        return sb.toString();
-    }
 
     /**
      * Convert the given object to string with each line indented by 4 spaces

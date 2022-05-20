@@ -46,7 +46,8 @@ public class TransactionController implements TransactionControllerInterface {
         this.transactionService = transactionService;
     }
 
-    public ResponseEntity<DTOEntity> addTransaction(@Parameter(in = ParameterIn.DEFAULT, description = "Created Transaction object", required = true, schema = @Schema()) @Valid @RequestBody TransactionPostDTO body) {
+    public ResponseEntity<DTOEntity> addTransaction(@Parameter(in = ParameterIn.DEFAULT, description = "Created Transaction object", required = true,
+            schema = @Schema()) @Valid @RequestBody TransactionPostDTO body) {
 
         try {
             return new ResponseEntity<DTOEntity>(this.transactionService.createTransaction(body), HttpStatus.OK);
@@ -66,15 +67,14 @@ public class TransactionController implements TransactionControllerInterface {
     public ResponseEntity<List<DTOEntity>> getTransactions(@NotNull @Parameter(in = ParameterIn.QUERY, description = "Page number for pagination",
             required = true, schema = @Schema()) @Valid @RequestParam(value = "page",
             required = true) Integer page, @Parameter(in = ParameterIn.QUERY, description = "Date value that needs to be considered for filter",
-            schema = @Schema()) @Valid @RequestParam(value = "date", required = false) String date, @Parameter(in = ParameterIn.QUERY, description = "User value that needs to be considered for filter",
-            schema = @Schema()) @Valid @RequestParam(value = "user_id", required = false) String userId, @Parameter(in = ParameterIn.QUERY, description = "From IBAN account that needs to be considered for filter",
+            schema = @Schema()) @Valid @RequestParam(value = "date", required = false) String userId, @Parameter(in = ParameterIn.QUERY, description = "From IBAN account that needs to be considered for filter",
             schema = @Schema()) @Valid @RequestParam(value = "from_iban", required = false) String fromIban, @Parameter(in = ParameterIn.QUERY, description = "To IBAN account that needs to be considered for filter",
             schema = @Schema()) @Valid @RequestParam(value = "to_iban", required = false) String toIban, @Parameter(in = ParameterIn.QUERY, description = "Equals given amount that needs to be considered for filter",
             schema = @Schema()) @Valid @RequestParam(value = "as_eq", required = false) String asEq, @Parameter(in = ParameterIn.QUERY, description = "Less than given amount that needs to be considered for filter",
             schema = @Schema()) @Valid @RequestParam(value = "as_lt", required = false) String asLt, @Parameter(in = ParameterIn.QUERY, description = "More than given amount that needs to be considered for filter",
             schema = @Schema()) @Valid @RequestParam(value = "as_mt", required = false) String asMt) {
             try {
-                return new ResponseEntity<List<DTOEntity>>(this.transactionService.getTransactions(2), HttpStatus.OK);
+                return new ResponseEntity<List<DTOEntity>>(this.transactionService.getTransactions(page), HttpStatus.OK);
             } catch (Exception exception) {
                 throw exception;
             }
