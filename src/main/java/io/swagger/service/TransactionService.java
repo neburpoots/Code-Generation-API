@@ -64,7 +64,22 @@ public class TransactionService {
     }
 
     public List<DTOEntity> getTransactionFromIBAN(String iban){
+        if(this.transactionRepo.findByFromAccount(iban).stream().count() == 0){
+            throw new ResourceNotFoundException("Nothing found for this particular iban: " + iban);
+        }
+        return new DtoUtils().convertListToDto(this.transactionRepo.findByFromAccount(iban), new TransactionGetDTO());
+    }
+    public List<DTOEntity> getTransactionToIBAN(String iban){
+        if(this.transactionRepo.findByToAccount(iban).stream().count() == 0){
+            throw new ResourceNotFoundException("Nothing found for this particular iban: " + iban);
+        }
         return new DtoUtils().convertListToDto(this.transactionRepo.findByToAccount(iban), new TransactionGetDTO());
     }
 
+    public List<DTOEntity> getTransactionsFromAndTo(String toAccount, String fromAccount){
+        if(this.transactionRepo.findByToAccountAndFromAccount(toAccount, fromAccount).stream().count() == 0){
+            throw new ResourceNotFoundException("No transaction matches these iban's.");
+        }
+        return new DtoUtils().convertListToDto(this.transactionRepo.findByToAccountAndFromAccount(toAccount, fromAccount), new TransactionGetDTO());
+    }
 }

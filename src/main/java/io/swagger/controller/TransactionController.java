@@ -76,7 +76,10 @@ public class TransactionController implements TransactionControllerInterface {
             try {
                 if(fromIban.isEmpty()){
                     return new ResponseEntity<List<DTOEntity>>(this.transactionService.getTransactions(page), HttpStatus.OK);
-                }else{
+                }else if(!fromIban.isEmpty() && !toIban.isEmpty()) {
+                    return new ResponseEntity<List<DTOEntity>>(this.transactionService.getTransactionsFromAndTo(toIban, fromIban), HttpStatus.OK);
+                }else
+                {
                     return new ResponseEntity<List<DTOEntity>>(this.transactionService.getTransactionFromIBAN(fromIban), HttpStatus.OK);
                 }
             } catch (Exception exception) {
