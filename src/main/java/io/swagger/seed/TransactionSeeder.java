@@ -24,10 +24,10 @@ public class TransactionSeeder {
     public List <Transaction> seed(){
         List<Account> accounts = this.accountRepo.findAll();
 
-        Transaction t = new Transaction(accounts.get(0), accounts.get(1), new BigDecimal(330), TransactionType.to_primary, "12-12-2022");
-        Transaction t2 = new Transaction(accounts.get(1), accounts.get(1), new BigDecimal(210), TransactionType.withdrawal, "12-12-2022");
-        Transaction t3 = new Transaction(accounts.get(1), accounts.get(0), new BigDecimal(480), TransactionType.to_saving, "12-12-2022");
-        Transaction t4 = new Transaction(accounts.get(1), accounts.get(1), new BigDecimal(80), TransactionType.to_primary, "12-12-2022");
+        Transaction t = new Transaction(accounts.get(0).getAccount_id(), accounts.get(1).getAccount_id(), new BigDecimal(330), 1);
+        Transaction t2 = new Transaction(accounts.get(1).getAccount_id(), accounts.get(1).getAccount_id(), new BigDecimal(210), 2);
+        Transaction t3 = new Transaction(accounts.get(1).getAccount_id(), accounts.get(0).getAccount_id(), new BigDecimal(480), 1);
+        Transaction t4 = new Transaction(accounts.get(1).getAccount_id(), accounts.get(1).getAccount_id(), new BigDecimal(80), 0);
 
         //List<Transaction> transactions
         return (List<Transaction>)this.transactionRepo.saveAll(

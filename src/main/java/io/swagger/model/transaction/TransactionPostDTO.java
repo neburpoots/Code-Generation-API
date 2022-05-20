@@ -16,17 +16,17 @@ import javax.validation.Valid;
 
 
 public class TransactionPostDTO implements DTOEntity {
-  @JsonProperty("to_account")
+  @JsonProperty("toAccount")
   private String toAccount = null;
 
-  @JsonProperty("from_account")
+  @JsonProperty("fromAccount")
   private String fromAccount = null;
 
   @JsonProperty("amount")
   private BigDecimal amount = null;
 
   @JsonProperty("type")
-  private TransactionType type = null;
+  private Integer type = null;
 
   public TransactionPostDTO toAccount(String toAccount) {
     this.toAccount = toAccount;
@@ -86,7 +86,7 @@ public class TransactionPostDTO implements DTOEntity {
     this.amount = amount;
   }
 
-  public TransactionPostDTO type(TransactionType type) {
+  public TransactionPostDTO type(Integer type) {
     this.type = type;
     return this;
   }
@@ -98,11 +98,11 @@ public class TransactionPostDTO implements DTOEntity {
   @Schema(description = "")
   
     @Valid
-    public TransactionType getType() {
+    public Integer getType() {
     return type;
   }
 
-  public void setType(TransactionType type) {
+  public void setType(Integer type) {
     this.type = type;
   }
 

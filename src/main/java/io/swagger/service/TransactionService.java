@@ -10,6 +10,7 @@ import io.swagger.model.utils.DTOEntity;
 import io.swagger.repository.TransactionRepository;
 import io.swagger.utils.DtoUtils;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -37,5 +38,13 @@ public class TransactionService {
             throw new BadRequestException("Invalid UUID string: " + id);
         }
         return uuid;
+    }
+    public DTOEntity createTransaction(TransactionPostDTO body){
+        Transaction transaction = (Transaction) new DtoUtils().convertToEntity(new Transaction(), body);
+
+        transaction.setFromAccount(body.getFromAccount());
+
+
+        return new DtoUtils().convertToDto(this.transactionRepo.save(transaction), new TransactionPostDTO());
     }
 }

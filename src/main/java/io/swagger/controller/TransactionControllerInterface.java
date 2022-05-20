@@ -54,7 +54,7 @@ public interface TransactionControllerInterface {
             produces = { "application/json" },
             consumes = { "application/json" },
             method = RequestMethod.POST)
-    ResponseEntity<Transaction> addTransaction(@Parameter(in = ParameterIn.DEFAULT, description = "Created Transaction object", required=true, schema=@Schema()) @Valid @RequestBody TransactionPostDTO body);
+    ResponseEntity<DTOEntity> addTransaction(@Parameter(in = ParameterIn.DEFAULT, description = "Created Transaction object", required=true, schema=@Schema()) @Valid @RequestBody TransactionPostDTO body);
 
 
     @Operation(summary = "Finds a Transaction based on id", description = "Returns transaction information matching the provided id.", security = {

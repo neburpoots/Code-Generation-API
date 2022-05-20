@@ -1,5 +1,8 @@
 package io.swagger.model.entity;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.model.entity.TransactionType;
@@ -25,31 +28,27 @@ public class Transaction   {
   @NonNull
   private UUID transaction_id;
 
-  @ManyToOne
-  @JoinColumn(name = "to_account_account_id")
   @NonNull
-  private Account toAccount;
+  private String toAccount;
 
-  @ManyToOne
-  @JoinColumn(name = "from_account_account_id")
   @NonNull
-  private Account fromAccount;
+  private String fromAccount;
 
   @NonNull
   private BigDecimal amount;
 
   @NonNull
-  private TransactionType type;
+  private Integer type;
 
   @NonNull
-  private String timestamp;
+  private LocalDate timestamp;
 
-  public Transaction(Account toAccount, Account fromAccount, BigDecimal amount, TransactionType type, String timestamp){
+  public Transaction(String toAccount, String fromAccount, BigDecimal amount, Integer type){
     this.toAccount = toAccount;
     this.fromAccount = fromAccount;
     this.amount = amount;
     this.type = type;
-    this.timestamp = timestamp;
+    this.timestamp = LocalDate.now();
   }
 
   public Transaction(){

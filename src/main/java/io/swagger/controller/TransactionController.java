@@ -46,18 +46,13 @@ public class TransactionController implements TransactionControllerInterface {
         this.transactionService = transactionService;
     }
 
-    public ResponseEntity<Transaction> addTransaction(@Parameter(in = ParameterIn.DEFAULT, description = "Created Transaction object", required=true, schema=@Schema()) @Valid @RequestBody TransactionPostDTO body) {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<Transaction>(objectMapper.readValue("{\n  \"amount\" : 250,\n  \"from_account\" : \"NL43INHO0348271748\",\n  \"type\" : {\n    \"name\" : \"Primary to savings\",\n    \"id\" : 2\n  },\n  \"to_account\" : \"NL41INHO0546284337\",\n  \"timestamp\" : \"2022-01-19 03:14:07\"\n}", Transaction.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                log.error("Couldn't serialize response for content type application/json", e);
-                return new ResponseEntity<Transaction>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
+    public ResponseEntity<DTOEntity> addTransaction(@Parameter(in = ParameterIn.DEFAULT, description = "Created Transaction object", required=true, schema=@Schema()) @Valid @RequestBody TransactionPostDTO body) {
 
-        return new ResponseEntity<Transaction>(HttpStatus.NOT_IMPLEMENTED);
+        try {
+            return new ResponseEntity<DTOEntity> (this.transactionService.createTransaction(body), HttpStatus.OK);
+        } catch (Exception exception) {
+            throw exception;
+        }
     }
 
     public ResponseEntity<DTOEntity> getTransactionById(@Parameter(in = ParameterIn.PATH, description = "Id of transaction", required=true, schema=@Schema()) @PathVariable("id") String id) {
