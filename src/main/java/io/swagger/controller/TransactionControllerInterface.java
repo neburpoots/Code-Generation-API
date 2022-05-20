@@ -5,7 +5,7 @@
  */
 package io.swagger.controller;
 
-import io.swagger.exception.BadRequestException;
+import io.swagger.model.utils.DTOEntity;
 import io.swagger.model.utils.Error;
 import io.swagger.model.entity.Transaction;
 import io.swagger.model.transaction.TransactionPostDTO;
@@ -54,7 +54,7 @@ public interface TransactionControllerInterface {
             produces = { "application/json" },
             consumes = { "application/json" },
             method = RequestMethod.POST)
-    ResponseEntity<Transaction> addTransaction(@Parameter(in = ParameterIn.DEFAULT, description = "Created Transaction object", required=true, schema=@Schema()) @Valid @RequestBody TransactionPostDTO body);
+    ResponseEntity<DTOEntity> addTransaction(@Parameter(in = ParameterIn.DEFAULT, description = "Created Transaction object", required=true, schema=@Schema()) @Valid @RequestBody TransactionPostDTO body);
 
 
     @Operation(summary = "Finds a Transaction based on id", description = "Returns transaction information matching the provided id.", security = {
@@ -62,7 +62,7 @@ public interface TransactionControllerInterface {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Transaction.class))),
 
-            @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class))),
+            @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
 
             @ApiResponse(responseCode = "401", description = "Credentials invalid or missing.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
 
@@ -74,7 +74,7 @@ public interface TransactionControllerInterface {
     @RequestMapping(value = "/api/transactions/{id}",
             produces = { "application/json" },
             method = RequestMethod.GET)
-    ResponseEntity<Transaction> getTransactionById(@Parameter(in = ParameterIn.PATH, description = "Id of transaction", required=true, schema=@Schema()) @PathVariable("id") String id);
+    ResponseEntity<DTOEntity> getTransactionById(@Parameter(in = ParameterIn.PATH, description = "Id of transaction", required=true, schema=@Schema()) @PathVariable("id") String id);
 
 
     @Operation(summary = "Finds Transactions by date, user, iban or by amount", description = "Returns a list of Transactions, filtered by parameters and pagination.", security = {
@@ -94,6 +94,6 @@ public interface TransactionControllerInterface {
     @RequestMapping(value = "/api/transactions",
             produces = { "application/json" },
             method = RequestMethod.GET)
-    ResponseEntity<List<Object>> getTransactions(@NotNull @Parameter(in = ParameterIn.QUERY, description = "Page number for pagination" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "page", required = true) Integer page, @Parameter(in = ParameterIn.QUERY, description = "Date value that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "date", required = false) String date, @Parameter(in = ParameterIn.QUERY, description = "User value that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "user_id", required = false) String userId, @Parameter(in = ParameterIn.QUERY, description = "From IBAN account that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "from_iban", required = false) String fromIban, @Parameter(in = ParameterIn.QUERY, description = "To IBAN account that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "to_iban", required = false) String toIban, @Parameter(in = ParameterIn.QUERY, description = "Equals given amount that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "as_eq", required = false) String asEq, @Parameter(in = ParameterIn.QUERY, description = "Less than given amount that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "as_lt", required = false) String asLt, @Parameter(in = ParameterIn.QUERY, description = "More than given amount that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "as_mt", required = false) String asMt);
+    ResponseEntity<List<DTOEntity>> getTransactions(@NotNull @Parameter(in = ParameterIn.QUERY, description = "Page number for pagination" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "page", required = true) Integer page, @Parameter(in = ParameterIn.QUERY, description = "Date value that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "date", required = false) String userId, @Parameter(in = ParameterIn.QUERY, description = "From IBAN account that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "from_iban", required = false) String fromIban, @Parameter(in = ParameterIn.QUERY, description = "To IBAN account that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "to_iban", required = false) String toIban, @Parameter(in = ParameterIn.QUERY, description = "Equals given amount that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "as_eq", required = false) String asEq, @Parameter(in = ParameterIn.QUERY, description = "Less than given amount that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "as_lt", required = false) String asLt, @Parameter(in = ParameterIn.QUERY, description = "More than given amount that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "as_mt", required = false) String asMt);
 }
 

@@ -7,10 +7,10 @@ import io.swagger.repository.RoleRepository;
 import io.swagger.repository.UserRepository;
 import io.swagger.security.WebSecurityConfig;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -30,22 +30,23 @@ public class UserSeeder {
     @Autowired
     private WebSecurityConfig webSecurityConfig;
 
-    public List<User> seed(List<Role> roles) {
-        User ruben = new User("Ruben", "Stoop", "670240@student.inholland.nl", new BigDecimal(50), new BigDecimal(25000), webSecurityConfig.passwordEncoder().encode("Secret123!"));
-        User tim = new User("Tim", "Roffelsen", "123456@student.inholland.nl", new BigDecimal(50), new BigDecimal(25000), webSecurityConfig.passwordEncoder().encode("Secret123!"));
-        User test = new User("test", "test", "test@student.inholland.nl", new BigDecimal(50), new BigDecimal(25000), webSecurityConfig.passwordEncoder().encode("Secret123!"));
+    public List<User> seed() {
+        User ruben = new User("Ruben", "Stoop", "ruben@student.inholland.nl", new BigDecimal(50), new BigDecimal(25000), webSecurityConfig.passwordEncoder().encode("Secret123!"));
+        User tim = new User("Tim", "Roffelsen", "tim@student.inholland.nl", new BigDecimal(50), new BigDecimal(25000), webSecurityConfig.passwordEncoder().encode("Secret123!"));
+        User customer = new User("Mr", "Customer", "customer@student.inholland.nl", new BigDecimal(50), new BigDecimal(25000), webSecurityConfig.passwordEncoder().encode("Secret123!"));
+        User noAccount = new User("No", "Account", "noaccount@student.inholland.nl", new BigDecimal(50), new BigDecimal(25000), webSecurityConfig.passwordEncoder().encode("Secret123!"));
 
         // Sets all the roles for the employee users
-        ruben.setRolesForUser(roles);
-        tim.setRolesForUser(roles);
+        ruben.setRolesForUser(List.of(roleRepo.findById(1).orElse(null), roleRepo.findById(2).orElse(null)));
+        tim.setRolesForUser(List.of(roleRepo.findById(1).orElse(null), roleRepo.findById(2).orElse(null)));
 
         // Sets the role for a normal customer
-        List<Role> customerRole = roles;
-        customerRole.remove(1);
-        test.setRolesForUser(customerRole);
+        List<Role> customerRole = new ArrayList<>();
+        customerRole.add(roleRepo.findById(1).orElse(null));
+        customer.setRolesForUser(customerRole);
 
-        return (List<User>)this.userRepo.saveAll(
-                List.of(ruben, tim, test)
+        return this.userRepo.saveAll(
+                List.of(ruben, tim, customer, noAccount)
         );
 
 

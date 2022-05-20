@@ -1,7 +1,5 @@
 package io.swagger.seed;
 
-import io.swagger.model.entity.Account;
-import io.swagger.model.entity.Role;
 import io.swagger.model.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -15,21 +13,22 @@ public class MainSeeder {
     private final RoleSeeder roleSeeder;
     private final UserSeeder userSeeder;
     private final AccountSeeder accountSeeder;
+    private final TransactionSeeder transactionSeeder;
 
 
     @Autowired
-    public MainSeeder(RoleSeeder roleSeeder, UserSeeder userSeeder, AccountSeeder accountSeeder) {
+    public MainSeeder(RoleSeeder roleSeeder, UserSeeder userSeeder, AccountSeeder accountSeeder, TransactionSeeder transactionSeeder) {
         this.roleSeeder = roleSeeder;
         this.userSeeder = userSeeder;
         this.accountSeeder = accountSeeder;
-
-
+        this.transactionSeeder = transactionSeeder;
     }
 
     @EventListener
     public void seed(ContextRefreshedEvent event) {
-        List<Role> roles = roleSeeder.seed();
-        List<User> users = userSeeder.seed(roles);
-        List<Account> accounts = accountSeeder.seed(users);
+        roleSeeder.seed();
+        List<User> users = userSeeder.seed();
+        accountSeeder.seed(users);
+        transactionSeeder.seed();
     }
 }

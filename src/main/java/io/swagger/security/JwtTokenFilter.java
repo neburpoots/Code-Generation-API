@@ -1,5 +1,6 @@
 package io.swagger.security;
 
+import io.swagger.exception.UnauthorizedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -30,9 +31,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (ResponseStatusException rse) {
-            SecurityContextHolder.clearContext();
-            response.sendError(rse.getStatus().value(), rse.getMessage());
-            return;
+            throw new UnauthorizedException();
         }
 
         filterChain.doFilter(request, response);

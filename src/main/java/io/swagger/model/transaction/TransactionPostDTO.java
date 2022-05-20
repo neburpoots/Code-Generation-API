@@ -1,10 +1,14 @@
 package io.swagger.model.transaction;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
+
+import lombok.NonNull;
 import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 
@@ -16,17 +20,20 @@ import javax.validation.Valid;
 
 
 public class TransactionPostDTO implements DTOEntity {
-  @JsonProperty("to_account")
+  @JsonProperty("toAccount")
   private String toAccount = null;
 
-  @JsonProperty("from_account")
+  @JsonProperty("fromAccount")
   private String fromAccount = null;
 
   @JsonProperty("amount")
   private BigDecimal amount = null;
 
+  @JsonProperty("timestamp")
+  private LocalDateTime timestamp = LocalDateTime.now();
+
   @JsonProperty("type")
-  private TransactionType type = null;
+  private Integer type = null;
 
   public TransactionPostDTO toAccount(String toAccount) {
     this.toAccount = toAccount;
@@ -86,7 +93,7 @@ public class TransactionPostDTO implements DTOEntity {
     this.amount = amount;
   }
 
-  public TransactionPostDTO type(TransactionType type) {
+  public TransactionPostDTO type(Integer type) {
     this.type = type;
     return this;
   }
@@ -98,11 +105,11 @@ public class TransactionPostDTO implements DTOEntity {
   @Schema(description = "")
   
     @Valid
-    public TransactionType getType() {
+    public Integer getType() {
     return type;
   }
 
-  public void setType(TransactionType type) {
+  public void setType(Integer type) {
     this.type = type;
   }
 
@@ -127,18 +134,7 @@ public class TransactionPostDTO implements DTOEntity {
     return Objects.hash(toAccount, fromAccount, amount, type);
   }
 
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class TransactionPostDTO {\n");
-    
-    sb.append("    toAccount: ").append(toIndentedString(toAccount)).append("\n");
-    sb.append("    fromAccount: ").append(toIndentedString(fromAccount)).append("\n");
-    sb.append("    amount: ").append(toIndentedString(amount)).append("\n");
-    sb.append("    type: ").append(toIndentedString(type)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
+
 
   /**
    * Convert the given object to string with each line indented by 4 spaces
