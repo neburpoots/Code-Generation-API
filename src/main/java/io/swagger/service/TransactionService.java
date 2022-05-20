@@ -62,4 +62,9 @@ public class TransactionService {
 
         return new DtoUtils().convertListToDto(this.transactionRepo.findAll().subList(start, page), new TransactionGetDTO());
     }
+
+    public List<DTOEntity> getTransactionFromIBAN(String iban){
+        return new DtoUtils().convertListToDto(this.transactionRepo.findByToAccount(iban), new TransactionGetDTO());
+    }
+
 }
