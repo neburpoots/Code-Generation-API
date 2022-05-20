@@ -4,15 +4,18 @@ import io.swagger.exception.BadRequestException;
 import io.swagger.exception.ResourceNotFoundException;
 import io.swagger.model.entity.Transaction;
 import io.swagger.model.entity.User;
+import io.swagger.model.transaction.TransactionGetDTO;
 import io.swagger.model.transaction.TransactionPostDTO;
 import io.swagger.model.user.UserGetDTO;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.repository.TransactionRepository;
 import io.swagger.utils.DtoUtils;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -46,5 +49,9 @@ public class TransactionService {
 
 
         return new DtoUtils().convertToDto(this.transactionRepo.save(transaction), new TransactionPostDTO());
+    }
+
+    public List<DTOEntity> getTransactions(Integer page){
+        return new DtoUtils().convertListToDto(this.transactionRepo.findAll(), new TransactionGetDTO());
     }
 }
