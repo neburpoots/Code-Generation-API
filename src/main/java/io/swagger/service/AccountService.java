@@ -16,14 +16,13 @@ import io.swagger.repository.AccountRepository;
 import io.swagger.repository.UserRepository;
 import io.swagger.utils.DtoUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.CollectionUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class AccountService {
@@ -76,7 +75,31 @@ public class AccountService {
     }
 
 
-    public List<DTOEntity> getAccounts() {
-        return new DtoUtils().convertListToDto(this.accountRepo.findAll(), new AccountGetDTO());
+    public List<DTOEntity> getAccounts(String userId, List<String> type) {
+
+        List<Account> accounts;
+
+        if(userId != null) {
+            User user = userService.getUserObjectById(userId);
+            accounts = accountRepo.findByUser(user);
+        } else {
+            accounts = accountRepo.findAll();
+        }
+
+        if(type != null) {
+            String enumString = type.get(0);
+            enumString = enumString.toUpperCase();
+
+            if(enumString.equals("PRIMARY")) {
+                CollectionUtils.filter(accounts, a -> ((Account) a).getAccountType() == AccountType.PRIMARY);
+            } else if(enumString.equals("SAVINGS")) {
+                CollectionUtils.filter(accounts, a -> ((Account) a).getAccountType() == AccountType.SAVINGS);
+            } else {
+                throw new BadRequestException("Filter type is incorrect.");
+            }
+        }
+
+        return new DtoUtils().convertListToDto(accounts, new AccountGetDTO());
+
     }
 }

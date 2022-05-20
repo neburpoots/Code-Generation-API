@@ -90,9 +90,13 @@ public class AccountController implements AccountControllerInterface {
         return new ResponseEntity<Account>(HttpStatus.NOT_IMPLEMENTED);
     }
 
+    @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<List<DTOEntity>> getAccounts(@Parameter(in = ParameterIn.QUERY, description = "This query will get both accounts that belong to the matching user id." ,schema=@Schema()) @Valid @RequestParam(value = "user_id", required = false) String userId, @Parameter(in = ParameterIn.QUERY, description = "This query will filter either the 'primary' or 'savings' account." ,schema=@Schema(allowableValues={ "primary", "savings" }
     )) @Valid @RequestParam(value = "type", required = false) List<String> type) {
-
-        return new ResponseEntity<List<DTOEntity>>(accountService.getAccounts(), HttpStatus.OK);
+        try {
+            return new ResponseEntity<List<DTOEntity>>(accountService.getAccounts(userId, type), HttpStatus.OK);
+        } catch(Exception exception) {
+            throw exception;
+        }
     }
 }
