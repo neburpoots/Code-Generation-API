@@ -48,13 +48,18 @@ public class TransactionService {
     }
 
     public List<DTOEntity> getTransactions(Integer page){
+        var amountOfTransaction = this.transactionRepo.count();
         if(page > 10){
             throw new BadRequestException("Page query is invalid lower than 10 please");
         }else if(page < 1){
-            throw new BadRequestException("Page query is invalid 1 till 20 please");
+            throw new BadRequestException("Page query is invalid 0 till please");
         }
-        page = page * 2;
+        if((page * 10) > amountOfTransaction){
+            throw new BadRequestException("Page to high valid options: 0 - " + (amountOfTransaction/10) + '.');
+        }
+        var start = (page == 1) ? 0 : 10 * (page-1);
+        page = page * 10;
 
-        return new DtoUtils().convertListToDto(this.transactionRepo.findAll().subList(0, page), new TransactionGetDTO());
+        return new DtoUtils().convertListToDto(this.transactionRepo.findAll().subList(start, page), new TransactionGetDTO());
     }
 }

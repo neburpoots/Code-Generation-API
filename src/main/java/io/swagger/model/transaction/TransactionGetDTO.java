@@ -1,6 +1,7 @@
 package io.swagger.model.transaction;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.model.utils.DTOEntity;
@@ -8,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 
 import lombok.NonNull;
+import org.apache.tomcat.jni.Local;
 import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 
@@ -25,8 +27,16 @@ public class TransactionGetDTO implements DTOEntity {
     @JsonProperty("fromAccount")
     private String fromAccount = null;
 
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
+    }
+
     @JsonProperty("timestamp")
-    private LocalDate timestamp = LocalDate.now();
+    private LocalDateTime timestamp;
 
     @JsonProperty("amount")
     private BigDecimal amount = null;
@@ -112,13 +122,10 @@ public class TransactionGetDTO implements DTOEntity {
         this.type = type;
     }
 
-
-
     @Override
     public int hashCode() {
         return Objects.hash(toAccount, fromAccount, amount, type);
     }
-
 
     /**
      * Convert the given object to string with each line indented by 4 spaces

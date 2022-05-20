@@ -1,6 +1,7 @@
 package io.swagger.model.transaction;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.model.utils.DTOEntity;
@@ -29,7 +30,7 @@ public class TransactionPostDTO implements DTOEntity {
   private BigDecimal amount = null;
 
   @JsonProperty("timestamp")
-  private LocalDate timestamp = LocalDate.now();
+  private LocalDateTime timestamp = LocalDateTime.now();
 
   @JsonProperty("type")
   private Integer type = null;
@@ -133,18 +134,7 @@ public class TransactionPostDTO implements DTOEntity {
     return Objects.hash(toAccount, fromAccount, amount, type);
   }
 
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class TransactionPostDTO {\n");
-    
-    sb.append("    toAccount: ").append(toIndentedString(toAccount)).append("\n");
-    sb.append("    fromAccount: ").append(toIndentedString(fromAccount)).append("\n");
-    sb.append("    amount: ").append(toIndentedString(amount)).append("\n");
-    sb.append("    type: ").append(toIndentedString(type)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
+
 
   /**
    * Convert the given object to string with each line indented by 4 spaces

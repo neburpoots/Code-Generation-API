@@ -1,6 +1,7 @@
 package io.swagger.model.entity;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Objects;
@@ -41,14 +42,14 @@ public class Transaction   {
   private Integer type;
 
   @NonNull
-  private LocalDate timestamp;
+  private LocalDateTime timestamp;
 
   public Transaction(String toAccount, String fromAccount, BigDecimal amount, Integer type){
     this.toAccount = toAccount;
     this.fromAccount = fromAccount;
     this.amount = amount;
     this.type = type;
-    this.timestamp = LocalDate.now();
+    this.timestamp = LocalDateTime.now();
   }
 
   public Transaction(){
