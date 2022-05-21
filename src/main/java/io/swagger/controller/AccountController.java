@@ -71,30 +71,29 @@ public class AccountController implements AccountControllerInterface {
         }
     }
 
-    public ResponseEntity<Void> editAccount(@Parameter(in = ParameterIn.PATH, description = "Iban of account", required=true, schema=@Schema()) @PathVariable("iban") String iban,@Parameter(in = ParameterIn.DEFAULT, description = "Edit information", required=true, schema=@Schema()) @Valid @RequestBody AccountPatchDTO body) {
-        String accept = request.getHeader("Accept");
-        return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
+    @PreAuthorize("hasRole('EMPLOYEE')")
+    public ResponseEntity<DTOEntity> editAccount(@Parameter(in = ParameterIn.PATH, description = "Iban of account", required=true, schema=@Schema()) @PathVariable("iban") String iban,@Parameter(in = ParameterIn.DEFAULT, description = "Edit information", required=true, schema=@Schema()) @Valid @RequestBody AccountPatchDTO body) {
+        try {
+            return new ResponseEntity<DTOEntity>(accountService.editAccount(body, iban), HttpStatus.OK);
+        } catch(Exception exception) {
+            throw exception;
+        }
     }
 
-    public ResponseEntity<Account> getAccountByIban(@Parameter(in = ParameterIn.PATH, description = "Iban of account", required=true, schema=@Schema()) @PathVariable("iban") String iban) {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<Account>(objectMapper.readValue("{\n  \"balance\" : 2042.67,\n  \"user_id\" : \"123e4567-e89b-12d3-a456-426614174000\",\n  \"iban\" : \"NL41INHO0546284337\",\n  \"absolute_limit\" : -1000,\n  \"type\" : {\n    \"name\" : \"Primary\",\n    \"id\" : 0\n  },\n  \"status\" : true\n}", Account.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                log.error("Couldn't serialize response for content type application/json", e);
-                return new ResponseEntity<Account>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ResponseEntity<DTOEntity> getAccountByIban(@Parameter(in = ParameterIn.PATH, description = "Iban of account", required=true, schema=@Schema()) @PathVariable("iban") String iban) {
+        try {
+            return new ResponseEntity<DTOEntity>(accountService.getAccount(iban, request), HttpStatus.OK);
+        } catch(Exception exception) {
+            throw exception;
         }
-
-        return new ResponseEntity<Account>(HttpStatus.NOT_IMPLEMENTED);
     }
 
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<List<DTOEntity>> getAccounts(@Parameter(in = ParameterIn.QUERY, description = "This query will get both accounts that belong to the matching user id." ,schema=@Schema()) @Valid @RequestParam(value = "user_id", required = false) String userId, @Parameter(in = ParameterIn.QUERY, description = "This query will filter either the 'primary' or 'savings' account." ,schema=@Schema(allowableValues={ "primary", "savings" }
     )) @Valid @RequestParam(value = "type", required = false) List<String> type) {
         try {
-            return new ResponseEntity<List<DTOEntity>>(accountService.getAccounts(userId, type), HttpStatus.OK);
+            return new ResponseEntity<List<DTOEntity>>(accountService.getAccounts(userId, type, request), HttpStatus.OK);
         } catch(Exception exception) {
             throw exception;
         }

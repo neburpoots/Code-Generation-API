@@ -76,7 +76,7 @@ public interface AccountControllerInterface {
             produces = { "application/json" },
             consumes = { "application/json" },
             method = RequestMethod.PATCH)
-    ResponseEntity<Void> editAccount(@Parameter(in = ParameterIn.PATH, description = "Iban of account", required=true, schema=@Schema()) @PathVariable("iban") String iban, @Parameter(in = ParameterIn.DEFAULT, description = "Edit information", required=true, schema=@Schema()) @Valid @RequestBody AccountPatchDTO body);
+    ResponseEntity<DTOEntity> editAccount(@Parameter(in = ParameterIn.PATH, description = "Iban of account", required=true, schema=@Schema()) @PathVariable("iban") String iban, @Parameter(in = ParameterIn.DEFAULT, description = "Edit information", required=true, schema=@Schema()) @Valid @RequestBody AccountPatchDTO body);
 
     @Operation(summary = "Finds an Account based on iban", description = "Returns an account matching the provided iban.", security = {
             @SecurityRequirement(name = "bearerAuth")    }, tags={ "accounts" })
@@ -95,7 +95,7 @@ public interface AccountControllerInterface {
     @RequestMapping(value = "/api/accounts/{iban}",
             produces = { "application/json" },
             method = RequestMethod.GET)
-    ResponseEntity<Account> getAccountByIban(@Parameter(in = ParameterIn.PATH, description = "Iban of account", required=true, schema=@Schema()) @PathVariable("iban") String iban);
+    ResponseEntity<DTOEntity> getAccountByIban(@Parameter(in = ParameterIn.PATH, description = "Iban of account", required=true, schema=@Schema()) @PathVariable("iban") String iban);
 
 
     @Operation(summary = "Finds own Account by default, otherwise by provided user_id", description = "Returns a list of accounts, optionally filtered by parameters.", security = {

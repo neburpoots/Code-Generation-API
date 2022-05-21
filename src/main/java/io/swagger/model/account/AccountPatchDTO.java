@@ -2,11 +2,18 @@ package io.swagger.model.account;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.model.entity.AccountType;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
+import java.util.UUID;
+
+import org.springframework.lang.Nullable;
 import org.springframework.validation.annotation.Validated;
+
+import javax.persistence.Column;
 import javax.validation.Valid;
+import javax.validation.constraints.*;
 
 /**
  * AccountPatchDTO
@@ -16,33 +23,17 @@ import javax.validation.Valid;
 
 
 public class AccountPatchDTO implements DTOEntity {
-  @JsonProperty("iban")
-  private String iban = null;
-
-  @JsonProperty("absolute_limit")
-  private BigDecimal absoluteLimit = null;
 
   @JsonProperty("status")
+  @Nullable
   private Boolean status = null;
 
-  public AccountPatchDTO iban(String iban) {
-    this.iban = iban;
-    return this;
-  }
-
-  /**
-   * Get iban
-   * @return iban
-   **/
-  @Schema(example = "NL41INHO0546284337", description = "")
-  
-    public String getIban() {
-    return iban;
-  }
-
-  public void setIban(String iban) {
-    this.iban = iban;
-  }
+  @JsonProperty("absolute_limit")
+  @DecimalMin(value = "-10000.01", inclusive = false)
+  @DecimalMax(value = "0.01", inclusive = false)
+  @Digits(integer=5, fraction=2)
+  @Nullable
+  private BigDecimal absoluteLimit = null;
 
   public AccountPatchDTO absoluteLimit(BigDecimal absoluteLimit) {
     this.absoluteLimit = absoluteLimit;
@@ -75,7 +66,7 @@ public class AccountPatchDTO implements DTOEntity {
    **/
   @Schema(example = "false", description = "")
   
-    public Boolean isStatus() {
+    public Boolean getStatus() {
     return status;
   }
 
@@ -93,14 +84,13 @@ public class AccountPatchDTO implements DTOEntity {
       return false;
     }
     AccountPatchDTO accountPatchDTO = (AccountPatchDTO) o;
-    return Objects.equals(this.iban, accountPatchDTO.iban) &&
-        Objects.equals(this.absoluteLimit, accountPatchDTO.absoluteLimit) &&
+    return Objects.equals(this.absoluteLimit, accountPatchDTO.absoluteLimit) &&
         Objects.equals(this.status, accountPatchDTO.status);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(iban, absoluteLimit, status);
+    return Objects.hash(absoluteLimit, status);
   }
 
   @Override
@@ -108,7 +98,6 @@ public class AccountPatchDTO implements DTOEntity {
     StringBuilder sb = new StringBuilder();
     sb.append("class AccountPatchDTO {\n");
     
-    sb.append("    iban: ").append(toIndentedString(iban)).append("\n");
     sb.append("    absoluteLimit: ").append(toIndentedString(absoluteLimit)).append("\n");
     sb.append("    status: ").append(toIndentedString(status)).append("\n");
     sb.append("}");

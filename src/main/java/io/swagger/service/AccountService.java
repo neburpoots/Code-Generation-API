@@ -1,25 +1,31 @@
 package io.swagger.service;
 
 import io.swagger.controller.ApiException;
-import io.swagger.exception.BadRequestException;
-import io.swagger.exception.ConflictException;
-import io.swagger.exception.InternalServerErrorException;
-import io.swagger.exception.UnProcessableEntityException;
+import io.swagger.controller.NotFoundException;
+import io.swagger.exception.*;
 import io.swagger.model.account.AccountGetDTO;
+import io.swagger.model.account.AccountPatchDTO;
 import io.swagger.model.account.AccountPostDTO;
 import io.swagger.model.entity.Account;
 import io.swagger.model.entity.AccountType;
 import io.swagger.model.entity.User;
 import io.swagger.model.user.UserGetDTO;
+import io.swagger.model.user.UserSearchDTO;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.repository.AccountRepository;
 import io.swagger.repository.UserRepository;
+import io.swagger.security.JwtTokenProvider;
 import io.swagger.utils.DtoUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.core.CollectionUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.*;
@@ -29,17 +35,48 @@ public class AccountService {
 
     private final AccountRepository accountRepo;
     private final UserService userService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Autowired
-    public AccountService(AccountRepository accountRepo, UserService userService) {
+    public AccountService(AccountRepository accountRepo, UserService userService, AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider) {
         this.accountRepo = accountRepo;
         this.userService = userService;
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.authenticationManager = authenticationManager;
     }
 
-    public DTOEntity createAccount(AccountPostDTO accountPostDTO)
-    {
+    public DTOEntity editAccount(AccountPatchDTO accountPatchDTO, String account_id) {
+
+        //Retrieves account
+        Account newAccount = retrieveAccount(account_id);
+
+        boolean updated = false;
+
+        //updates absolute limit in case of not being null
+        if (accountPatchDTO.getAbsoluteLimit() != null) {
+            newAccount.setAbsoluteLimit(accountPatchDTO.getAbsoluteLimit());
+            updated = true;
+        }
+
+        //updates status in case of not being null
+        if (accountPatchDTO.getStatus() != null) {
+            newAccount.setStatus(accountPatchDTO.getStatus());
+            updated = true;
+        }
+
+        //returns 422 if nothing is updated
+        if (!updated) {
+            throw new UnProcessableEntityException("Nothing is updated");
+        }
+
+        //returns account dto if updated
+        return new DtoUtils().convertToDto(accountRepo.save(newAccount), new AccountGetDTO());
+    }
+
+    public DTOEntity createAccount(AccountPostDTO accountPostDTO) {
         //Converts dto to account object
-        Account account = (Account)new DtoUtils().convertToEntity(new Account(), accountPostDTO);
+        Account account = (Account) new DtoUtils().convertToEntity(new Account(), accountPostDTO);
 
         // Checks if the user exists and sets it for account
         User user = userService.getUserObjectById(accountPostDTO.getUser_Id().toString());
@@ -47,24 +84,26 @@ public class AccountService {
 
         List<Account> existingAccounts = accountRepo.findByUser(user);
 
-        if(existingAccounts.size() >= 2) {
+        //Checks if account type is bank
+        if (account.getAccountType() == AccountType.BANK) {
+            throw new UnProcessableEntityException("Creating a account with type bank is not possible.");
+        }
+
+        if (existingAccounts.size() >= 2) {
             throw new ConflictException("Customer already has a primary and savings account ");
-        } else if(existingAccounts.size() == 1) {
+        } else if (existingAccounts.size() == 1) {
 
             switch (account.getAccountType()) {
                 case PRIMARY:
-                    if(existingAccounts.get(0).getAccountType() == AccountType.PRIMARY) {
+                    if (existingAccounts.get(0).getAccountType() == AccountType.PRIMARY) {
                         throw new ConflictException("Customer already has a primary account");
                     }
                     break;
                 case SAVINGS:
-                    if(existingAccounts.get(0).getAccountType() == AccountType.SAVINGS) {
+                    if (existingAccounts.get(0).getAccountType() == AccountType.SAVINGS) {
                         throw new ConflictException("Customer already has a savings account");
                     }
                     break;
-                case BANK:
-                    throw new UnProcessableEntityException("Creating a account with type bank is not possible.");
-
             }
         }
 
@@ -74,25 +113,39 @@ public class AccountService {
         return new DtoUtils().convertToDto(accountRepo.save(account), new AccountGetDTO());
     }
 
+    public List<DTOEntity> getAccounts(String userId, List<String> type, HttpServletRequest req) {
 
-    public List<DTOEntity> getAccounts(String userId, List<String> type) {
+        String token = jwtTokenProvider.resolveToken(req);
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         List<Account> accounts;
 
-        if(userId != null) {
-            User user = userService.getUserObjectById(userId);
-            accounts = accountRepo.findByUser(user);
+        //checks if the user id is empty for filtering
+        if (userId != null) {
+            //Checks if it is the users own id or if the role of the user is employee
+            if (userId.equals(jwtTokenProvider.getAudience(token)) || auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"))) {
+                User user = userService.getUserObjectById(userId);
+                accounts = accountRepo.findByUser(user);
+            } else {
+                throw new ForbiddenException();
+            }
         } else {
-            accounts = accountRepo.findAll();
+            //Checks if it is the role employee
+            if (auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"))) {
+                accounts = accountRepo.findAll();
+            } else {
+                throw new ForbiddenException();
+            }
         }
 
-        if(type != null) {
+        if (type != null) {
             String enumString = type.get(0);
             enumString = enumString.toUpperCase();
 
-            if(enumString.equals("PRIMARY")) {
+            if (enumString.equals("PRIMARY")) {
                 CollectionUtils.filter(accounts, a -> ((Account) a).getAccountType() == AccountType.PRIMARY);
-            } else if(enumString.equals("SAVINGS")) {
+            } else if (enumString.equals("SAVINGS")) {
                 CollectionUtils.filter(accounts, a -> ((Account) a).getAccountType() == AccountType.SAVINGS);
             } else {
                 throw new BadRequestException("Filter type is incorrect.");
@@ -101,5 +154,46 @@ public class AccountService {
 
         return new DtoUtils().convertListToDto(accounts, new AccountGetDTO());
 
+    }
+
+    public DTOEntity getAccount(String account_id, HttpServletRequest req) {
+        String token = jwtTokenProvider.resolveToken(req);
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        Account account;
+        boolean fetchAccount;
+
+        //If role is employee retrieve the account
+        if(auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"))) {
+            account = retrieveAccount(account_id);
+            return new DtoUtils().convertToDto(account, new AccountGetDTO());
+        }
+
+        //Checks if the iban belongs to the users own account
+        //Gets the user and the accounts for a user to check
+        User user = userService.getUserObjectById(jwtTokenProvider.getAudience(token));
+        List<Account> accountsFromUser;
+        accountsFromUser = accountRepo.findByUser(user);
+
+        //Checks if iban belongs to user
+        if(accountsFromUser.stream().anyMatch(a -> a.getId().equals(account_id))) {
+            account = retrieveAccount(account_id);
+        } else {
+            throw new ForbiddenException();
+        }
+
+        return new DtoUtils().convertToDto(account, new AccountGetDTO());
+    }
+
+    public Account retrieveAccount(String account_id) {
+        //Gets the specified account
+        Optional<Account> optionalAccount = accountRepo.findById(account_id);
+        if (optionalAccount.isPresent()) {
+            return optionalAccount.get();
+        } else {
+            //Throw 404 in case of not being null
+            throw new ResourceNotFoundException("Could not find account");
+        }
     }
 }
