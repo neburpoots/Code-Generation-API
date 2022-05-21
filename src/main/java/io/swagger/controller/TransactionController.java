@@ -74,7 +74,14 @@ public class TransactionController implements TransactionControllerInterface {
             schema = @Schema()) @Valid @RequestParam(value = "as_lt", required = false) String asLt, @Parameter(in = ParameterIn.QUERY, description = "More than given amount that needs to be considered for filter",
             schema = @Schema()) @Valid @RequestParam(value = "as_mt", required = false) String asMt) {
             try {
-                return new ResponseEntity<List<DTOEntity>>(this.transactionService.getTransactions(page), HttpStatus.OK);
+                if(fromIban.isEmpty()){
+                    return new ResponseEntity<List<DTOEntity>>(this.transactionService.getTransactions(page), HttpStatus.OK);
+                }else if(!fromIban.isEmpty() && !toIban.isEmpty()) {
+                    return new ResponseEntity<List<DTOEntity>>(this.transactionService.getTransactionsFromAndTo(toIban, fromIban), HttpStatus.OK);
+                }else
+                {
+                    return new ResponseEntity<List<DTOEntity>>(this.transactionService.getTransactionFromIBAN(fromIban), HttpStatus.OK);
+                }
             } catch (Exception exception) {
                 throw exception;
             }
