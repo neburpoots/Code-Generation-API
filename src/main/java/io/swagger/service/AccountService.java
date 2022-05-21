@@ -96,12 +96,12 @@ public class AccountService {
             switch (account.getAccountType()) {
                 case PRIMARY:
                     if (existingAccounts.get(0).getAccountType() == AccountType.PRIMARY) {
-                        throw new ConflictException("Customer already has a primary account");
+                        throw new ConflictException("Customer already has a primary account.");
                     }
                     break;
                 case SAVINGS:
                     if (existingAccounts.get(0).getAccountType() == AccountType.SAVINGS) {
-                        throw new ConflictException("Customer already has a savings account");
+                        throw new ConflictException("Customer already has a savings account.");
                     }
                     break;
             }
