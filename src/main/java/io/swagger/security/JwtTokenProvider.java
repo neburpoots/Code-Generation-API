@@ -79,7 +79,7 @@ public class JwtTokenProvider {
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            throw new UnauthorizedException("Expired or invalid JWT token");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Expired or invalid JWT token");
         }
     }
 }
