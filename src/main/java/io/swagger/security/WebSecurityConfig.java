@@ -1,7 +1,5 @@
 package io.swagger.security;
 
-import io.swagger.exception.UnauthorizedException;
-import io.swagger.utils.JWTAuthenticationFailureHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
