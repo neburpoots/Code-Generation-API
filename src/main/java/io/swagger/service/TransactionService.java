@@ -10,7 +10,6 @@ import io.swagger.model.utils.DTOEntity;
 import io.swagger.repository.TransactionRepository;
 import io.swagger.utils.DtoUtils;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Example;
 
 import org.springframework.stereotype.Service;
 import org.threeten.bp.LocalDate;
@@ -116,36 +115,5 @@ public class TransactionService {
             }else{
                 return t;
             }
-
-
-    }
-
-    public List<DTOEntity> getTransactionFromIBAN(String iban){
-        if(this.transactionRepo.findByFromAccount(iban).stream().count() == 0){
-            throw new ResourceNotFoundException("Nothing found for this particular iban: " + iban);
-        }
-        return new DtoUtils().convertListToDto(this.transactionRepo.findByFromAccount(iban), new TransactionGetDTO());
-    }
-    public List<DTOEntity> getTransactionToIBAN(String iban){
-        if(this.transactionRepo.findByToAccount(iban).stream().count() == 0){
-            throw new ResourceNotFoundException("Nothing found for this particular iban: " + iban);
-        }
-        return new DtoUtils().convertListToDto(this.transactionRepo.findByToAccount(iban), new TransactionGetDTO());
-    }
-
-    public List<DTOEntity> getTransactionsFromAndTo(String toAccount, String fromAccount, BigDecimal amount){
-        if(this.transactionRepo.findByToAccountAndFromAccountAndAmount(toAccount, fromAccount, amount).stream().count() == 0){
-            throw new ResourceNotFoundException("No transaction matches these iban's.");
-        }
-        return new DtoUtils().convertListToDto(this.transactionRepo.findByToAccountAndFromAccountAndAmount(toAccount, fromAccount, amount), new TransactionGetDTO());
-    }
-
-    public List<DTOEntity> getWithAllParameters(TransactionGetDTO transaction){
-        Transaction t = new Transaction(transaction.getToAccount(), transaction.getFromAccount(), transaction.getAmount(), 1);
-        return new DtoUtils().convertListToDto(this.transactionRepo.findAll(Example.of(t)), new TransactionGetDTO());
-    }
-
-    public List<DTOEntity> getTransactionWithoutParams(Integer page){
-        return new DtoUtils().convertListToDto(this.transactionRepo.findAll().subList(0, page), new TransactionGetDTO());
     }
 }
