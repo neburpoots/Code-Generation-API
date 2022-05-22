@@ -1,6 +1,5 @@
 package io.swagger.model.entity;
 
-
 import java.util.Objects;
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -9,10 +8,8 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.LocalDateTime;
 
 import javax.persistence.*;
-import javax.validation.Valid;
 
 @Entity
 @Getter

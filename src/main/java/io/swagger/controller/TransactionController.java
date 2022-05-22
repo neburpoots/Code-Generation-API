@@ -1,18 +1,14 @@
 package io.swagger.controller;
 
 import io.swagger.annotations.Api;
-import io.swagger.configuration.LocalDateTimeConverter;
-import io.swagger.model.entity.Transaction;
 import io.swagger.model.transaction.TransactionGetDTO;
 import io.swagger.model.transaction.TransactionPostDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.service.TransactionService;
-import io.swagger.utils.DtoUtils;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,14 +23,7 @@ import javax.annotation.processing.Generated;
 import javax.validation.constraints.*;
 import javax.validation.Valid;
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 
 @Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-05T18:12:07.854Z[GMT]")
 @RestController
@@ -82,18 +71,14 @@ public class TransactionController implements TransactionControllerInterface {
             schema = @Schema()) @Valid @RequestParam(value = "as_eq", required = false, defaultValue = "") String asEq, @Parameter(in = ParameterIn.QUERY, description = "Less than given amount that needs to be considered for filter",
             schema = @Schema()) @Valid @RequestParam(value = "as_lt", required = false, defaultValue = "") String asLt, @Parameter(in = ParameterIn.QUERY, description = "More than given amount that needs to be considered for filter",
             schema = @Schema()) @Valid @RequestParam(value = "as_mt", required = false, defaultValue = "") String asMt) {
-            try {
+        try {
+            if(this.transactionService.getTransactions(fromIban, toIban, asEq, asLt, asMt, transactionDate).stream().count() != 0)
+                return new ResponseEntity<List<TransactionGetDTO>>(this.transactionService.getTransactions(fromIban, toIban, asEq, asLt, asMt, transactionDate), HttpStatus.OK);
+            else
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
-                        return new ResponseEntity<List<TransactionGetDTO>>(this.transactionService.getTransactions(fromIban, toIban, asEq, asLt, asMt, transactionDate), HttpStatus.OK);
-//                        if(!fromIban.isEmpty()){
-//                            for(TransactionGetDTO tt :new ArrayList<TransactionGetDTO>(t.getBody())){
-//                                if(tt.getFromAccount().equals(fromIban))
-//                                    t.getBody().remove(tt);
-//                            }
-//                        }
-
-            } catch (Exception exception) {
-                throw exception;
-            }
+        } catch (Exception exception) {
+            throw exception;
+        }
     }
 }
