@@ -1,14 +1,18 @@
 package io.swagger.controller;
 
 import io.swagger.annotations.Api;
+import io.swagger.configuration.LocalDateTimeConverter;
 import io.swagger.model.entity.Transaction;
+import io.swagger.model.transaction.TransactionGetDTO;
 import io.swagger.model.transaction.TransactionPostDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.service.TransactionService;
+import io.swagger.utils.DtoUtils;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +28,13 @@ import javax.validation.constraints.*;
 import javax.validation.Valid;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 @Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-05T18:12:07.854Z[GMT]")
 @RestController
@@ -48,7 +58,6 @@ public class TransactionController implements TransactionControllerInterface {
 
     public ResponseEntity<DTOEntity> addTransaction(@Parameter(in = ParameterIn.DEFAULT, description = "Created Transaction object", required = true,
             schema = @Schema()) @Valid @RequestBody TransactionPostDTO body) {
-
         try {
             return new ResponseEntity<DTOEntity>(this.transactionService.createTransaction(body), HttpStatus.OK);
         } catch (Exception exception) {
@@ -64,24 +73,25 @@ public class TransactionController implements TransactionControllerInterface {
         }
     }
 
-    public ResponseEntity<List<DTOEntity>> getTransactions(@NotNull @Parameter(in = ParameterIn.QUERY, description = "Page number for pagination",
+    public ResponseEntity<List<TransactionGetDTO>> getTransactions(@NotNull @Parameter(in = ParameterIn.QUERY, description = "Page number for pagination",
             required = true, schema = @Schema()) @Valid @RequestParam(value = "page",
-            required = true) Integer page, @Parameter(in = ParameterIn.QUERY, description = "Date value that needs to be considered for filter",
-            schema = @Schema()) @Valid @RequestParam(value = "date", required = false) String userId, @Parameter(in = ParameterIn.QUERY, description = "From IBAN account that needs to be considered for filter",
-            schema = @Schema()) @Valid @RequestParam(value = "from_iban", required = false) String fromIban, @Parameter(in = ParameterIn.QUERY, description = "To IBAN account that needs to be considered for filter",
-            schema = @Schema()) @Valid @RequestParam(value = "to_iban", required = false) String toIban, @Parameter(in = ParameterIn.QUERY, description = "Equals given amount that needs to be considered for filter",
-            schema = @Schema()) @Valid @RequestParam(value = "as_eq", required = false) String asEq, @Parameter(in = ParameterIn.QUERY, description = "Less than given amount that needs to be considered for filter",
-            schema = @Schema()) @Valid @RequestParam(value = "as_lt", required = false) String asLt, @Parameter(in = ParameterIn.QUERY, description = "More than given amount that needs to be considered for filter",
-            schema = @Schema()) @Valid @RequestParam(value = "as_mt", required = false) String asMt) {
+            required = true, defaultValue = "0") Integer page, @Parameter(in = ParameterIn.QUERY, description = "Date value that needs to be considered for filter",
+            schema = @Schema()) @Valid @RequestParam(value = "date", required = false, defaultValue = "") String transactionDate, @Parameter(in = ParameterIn.QUERY, description = "From IBAN account that needs to be considered for filter",
+            schema = @Schema()) @Valid @RequestParam(value = "from_iban", required = false, defaultValue = "") String fromIban, @Parameter(in = ParameterIn.QUERY, description = "To IBAN account that needs to be considered for filter",
+            schema = @Schema()) @Valid @RequestParam(value = "to_iban", required = false, defaultValue = "") String toIban, @Parameter(in = ParameterIn.QUERY, description = "Equals given amount that needs to be considered for filter",
+            schema = @Schema()) @Valid @RequestParam(value = "as_eq", required = false, defaultValue = "") String asEq, @Parameter(in = ParameterIn.QUERY, description = "Less than given amount that needs to be considered for filter",
+            schema = @Schema()) @Valid @RequestParam(value = "as_lt", required = false, defaultValue = "") String asLt, @Parameter(in = ParameterIn.QUERY, description = "More than given amount that needs to be considered for filter",
+            schema = @Schema()) @Valid @RequestParam(value = "as_mt", required = false, defaultValue = "") String asMt) {
             try {
-                if(fromIban.isEmpty()){
-                    return new ResponseEntity<List<DTOEntity>>(this.transactionService.getTransactions(page), HttpStatus.OK);
-                }else if(!fromIban.isEmpty() && !toIban.isEmpty()) {
-                    return new ResponseEntity<List<DTOEntity>>(this.transactionService.getTransactionsFromAndTo(toIban, fromIban), HttpStatus.OK);
-                }else
-                {
-                    return new ResponseEntity<List<DTOEntity>>(this.transactionService.getTransactionFromIBAN(fromIban), HttpStatus.OK);
-                }
+
+                        return new ResponseEntity<List<TransactionGetDTO>>(this.transactionService.getTransactions(fromIban, toIban, asEq, asLt, asMt, transactionDate), HttpStatus.OK);
+//                        if(!fromIban.isEmpty()){
+//                            for(TransactionGetDTO tt :new ArrayList<TransactionGetDTO>(t.getBody())){
+//                                if(tt.getFromAccount().equals(fromIban))
+//                                    t.getBody().remove(tt);
+//                            }
+//                        }
+
             } catch (Exception exception) {
                 throw exception;
             }

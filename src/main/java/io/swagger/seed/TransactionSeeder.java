@@ -28,10 +28,17 @@ public class TransactionSeeder {
         Transaction t2 = new Transaction(accounts.get(1).getAccount_id(), accounts.get(1).getAccount_id(), new BigDecimal(210), 2);
         Transaction t3 = new Transaction(accounts.get(1).getAccount_id(), accounts.get(0).getAccount_id(), new BigDecimal(480), 1);
         Transaction t4 = new Transaction(accounts.get(1).getAccount_id(), accounts.get(1).getAccount_id(), new BigDecimal(80), 0);
-
+        Transaction t5 = new Transaction(accounts.get(0).getAccount_id(), accounts.get(1).getAccount_id(), new BigDecimal(330), 1);
+        Transaction t6 = new Transaction(accounts.get(1).getAccount_id(), accounts.get(1).getAccount_id(), new BigDecimal(210), 2);
+        Transaction t7 = new Transaction(accounts.get(1).getAccount_id(), accounts.get(0).getAccount_id(), new BigDecimal(480), 1);
+        Transaction t8 = new Transaction(accounts.get(1).getAccount_id(), accounts.get(1).getAccount_id(), new BigDecimal(80), 0);
+        Transaction t9 = new Transaction(accounts.get(0).getAccount_id(), accounts.get(1).getAccount_id(), new BigDecimal(330), 1);
+        Transaction t10 = new Transaction(accounts.get(1).getAccount_id(), accounts.get(1).getAccount_id(), new BigDecimal(210), 2);
+        Transaction t11 = new Transaction(accounts.get(1).getAccount_id(), accounts.get(0).getAccount_id(), new BigDecimal(480), 1);
+        Transaction t12 = new Transaction(accounts.get(1).getAccount_id(), accounts.get(1).getAccount_id(), new BigDecimal(80), 0);
         //List<Transaction> transactions
         return (List<Transaction>)this.transactionRepo.saveAll(
-                List.of(t, t2, t3, t4)
+                List.of(t, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12)
         );
     }
 }

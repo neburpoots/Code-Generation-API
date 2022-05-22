@@ -8,12 +8,18 @@ import io.swagger.model.transaction.TransactionPostDTO;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.repository.TransactionRepository;
 import io.swagger.utils.DtoUtils;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Example;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.awt.print.Pageable;
-import java.util.List;
-import java.util.UUID;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class TransactionService {
@@ -46,21 +52,72 @@ public class TransactionService {
 
         return new DtoUtils().convertToDto(this.transactionRepo.save(transaction), new TransactionPostDTO());
     }
+    public List<TransactionGetDTO> convertListToGetDto(List<?> objList, TransactionGetDTO mapper) {
+        return objList
+                .stream()
+                .map(source -> new ModelMapper().map(source, mapper.getClass()))
+                .collect(Collectors.toList());
+    }
+    public List<TransactionGetDTO> getTransactions(String fromIban, String toIban, String amount, String asLt, String asMt, String date){
+        List<TransactionGetDTO> t = null;
 
-    public List<DTOEntity> getTransactions(Integer page){
-        var amountOfTransaction = this.transactionRepo.count();
-        if(page > 10){
-            throw new BadRequestException("Page query is invalid lower than 10 please");
-        }else if(page < 1){
-            throw new BadRequestException("Page query is invalid 0 till please");
-        }
-        if((page * 10) > amountOfTransaction){
-            throw new BadRequestException("Page to high valid options: 0 - " + (amountOfTransaction/10) + '.');
-        }
-        var start = (page == 1) ? 0 : 10 * (page-1);
-        page = page * 10;
+                //From account filtering
+                if(t == null && !fromIban.equals("")){
+                    t = this.convertListToGetDto(this.transactionRepo.findByFromAccount(fromIban), new TransactionGetDTO());
+                }
+                //to account filtering
+                if(t == null && !toIban.equals("")){
+                    t = this.convertListToGetDto(this.transactionRepo.findByToAccount(toIban), new TransactionGetDTO());
+                }else if(t != null && !toIban.equals("")){
+                    for(TransactionGetDTO tt : new ArrayList<TransactionGetDTO>(t)) {
+                        if (!tt.getToAccount().equals(toIban)) {
+                            t.remove(tt);
+                        }
+                    }
+                }
+                //equals amount filtering
+                if(t == null && !amount.equals("")){
+                    t = this.convertListToGetDto(this.transactionRepo.findByAmount(new BigDecimal(amount)), new TransactionGetDTO());
+                }else if(t != null && !amount.equals("")){
+                    for(TransactionGetDTO tt : new ArrayList<TransactionGetDTO>(t)) {
+                        if (tt.getAmount().compareTo(new BigDecimal(amount)) != 0) {
+                            t.remove(tt);
+                        }
+                    }
+                }
+                //less than given amount filtering
+                if(t == null && !asLt.equals("")){
+                    t = this.convertListToGetDto(this.transactionRepo.findByAmountIsLessThan(new BigDecimal(asLt)), new TransactionGetDTO());
+                }else if(t != null && !asLt.equals("")){
 
-        return new DtoUtils().convertListToDto(this.transactionRepo.findAll().subList(start, page), new TransactionGetDTO());
+                    for(TransactionGetDTO tt : new ArrayList<TransactionGetDTO>(t)) {
+                        if (tt.getAmount().compareTo(new BigDecimal(asLt)) != -1) {
+                            t.remove(tt);
+                        }
+                    }
+                }
+                //more than filter
+                if(t == null && !asMt.equals("")){
+                    t = this.convertListToGetDto(this.transactionRepo.findByAmountIsGreaterThan(new BigDecimal(asMt)), new TransactionGetDTO());
+                }else if(t != null && !asMt.equals("")){
+                    for(TransactionGetDTO tt : new ArrayList<TransactionGetDTO>(t)) {
+                        if (tt.getAmount().compareTo(new BigDecimal(asMt)) != 1) {
+                            t.remove(tt);
+                        }
+                    }
+                }
+                //date filter
+
+
+
+
+
+                //checks if any filters where applied
+                if(t == null){
+                    return this.convertListToGetDto(this.transactionRepo.findAll(), new TransactionGetDTO());
+                }else{
+                    return t;
+                }
     }
 
     public List<DTOEntity> getTransactionFromIBAN(String iban){
@@ -76,10 +133,24 @@ public class TransactionService {
         return new DtoUtils().convertListToDto(this.transactionRepo.findByToAccount(iban), new TransactionGetDTO());
     }
 
-    public List<DTOEntity> getTransactionsFromAndTo(String toAccount, String fromAccount){
-        if(this.transactionRepo.findByToAccountAndFromAccount(toAccount, fromAccount).stream().count() == 0){
+    public List<DTOEntity> getTransactionsFromAndTo(String toAccount, String fromAccount, BigDecimal amount){
+        if(this.transactionRepo.findByToAccountAndFromAccountAndAmount(toAccount, fromAccount, amount).stream().count() == 0){
             throw new ResourceNotFoundException("No transaction matches these iban's.");
         }
-        return new DtoUtils().convertListToDto(this.transactionRepo.findByToAccountAndFromAccount(toAccount, fromAccount), new TransactionGetDTO());
+        return new DtoUtils().convertListToDto(this.transactionRepo.findByToAccountAndFromAccountAndAmount(toAccount, fromAccount, amount), new TransactionGetDTO());
+    }
+
+    public List<DTOEntity> getTransactionByDate(String transactionDate){
+        java.time.LocalDateTime date = LocalDateTime.parse(transactionDate);
+        return new DtoUtils().convertListToDto(this.transactionRepo.findByTimestamp(date), new TransactionGetDTO());
+    }
+
+    public List<DTOEntity> getWithAllParameters(TransactionGetDTO transaction){
+        Transaction t = new Transaction(transaction.getToAccount(), transaction.getFromAccount(), transaction.getAmount(), 1);
+        return new DtoUtils().convertListToDto(this.transactionRepo.findAll(Example.of(t)), new TransactionGetDTO());
+    }
+
+    public List<DTOEntity> getTransactionWithoutParams(Integer page){
+        return new DtoUtils().convertListToDto(this.transactionRepo.findAll().subList(0, page), new TransactionGetDTO());
     }
 }

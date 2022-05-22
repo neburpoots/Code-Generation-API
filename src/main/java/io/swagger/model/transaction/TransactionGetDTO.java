@@ -39,7 +39,7 @@ public class TransactionGetDTO implements DTOEntity {
     private LocalDateTime timestamp;
 
     @JsonProperty("amount")
-    private BigDecimal amount = null;
+    private BigDecimal amount;
 
     @JsonProperty("type")
     private Integer type = null;
