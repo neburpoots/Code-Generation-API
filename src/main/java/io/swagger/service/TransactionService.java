@@ -1,5 +1,7 @@
 package io.swagger.service;
 
+import io.swagger.configuration.LocalDateConverter;
+import io.swagger.configuration.LocalDateTimeConverter;
 import io.swagger.exception.BadRequestException;
 import io.swagger.exception.ResourceNotFoundException;
 import io.swagger.model.entity.Transaction;
@@ -10,14 +12,12 @@ import io.swagger.repository.TransactionRepository;
 import io.swagger.utils.DtoUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Example;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 
-import java.awt.print.Pageable;
+import org.springframework.stereotype.Service;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -60,7 +60,6 @@ public class TransactionService {
     }
     public List<TransactionGetDTO> getTransactions(String fromIban, String toIban, String amount, String asLt, String asMt, String date){
         List<TransactionGetDTO> t = null;
-
                 //From account filtering
                 if(t == null && !fromIban.equals("")){
                     t = this.convertListToGetDto(this.transactionRepo.findByFromAccount(fromIban), new TransactionGetDTO());
@@ -70,9 +69,8 @@ public class TransactionService {
                     t = this.convertListToGetDto(this.transactionRepo.findByToAccount(toIban), new TransactionGetDTO());
                 }else if(t != null && !toIban.equals("")){
                     for(TransactionGetDTO tt : new ArrayList<TransactionGetDTO>(t)) {
-                        if (!tt.getToAccount().equals(toIban)) {
+                        if (!tt.getToAccount().equals(toIban))
                             t.remove(tt);
-                        }
                     }
                 }
                 //equals amount filtering
@@ -80,9 +78,8 @@ public class TransactionService {
                     t = this.convertListToGetDto(this.transactionRepo.findByAmount(new BigDecimal(amount)), new TransactionGetDTO());
                 }else if(t != null && !amount.equals("")){
                     for(TransactionGetDTO tt : new ArrayList<TransactionGetDTO>(t)) {
-                        if (tt.getAmount().compareTo(new BigDecimal(amount)) != 0) {
+                        if (tt.getAmount().compareTo(new BigDecimal(amount)) != 0)
                             t.remove(tt);
-                        }
                     }
                 }
                 //less than given amount filtering
@@ -91,9 +88,8 @@ public class TransactionService {
                 }else if(t != null && !asLt.equals("")){
 
                     for(TransactionGetDTO tt : new ArrayList<TransactionGetDTO>(t)) {
-                        if (tt.getAmount().compareTo(new BigDecimal(asLt)) != -1) {
+                        if (tt.getAmount().compareTo(new BigDecimal(asLt)) != -1)
                             t.remove(tt);
-                        }
                     }
                 }
                 //more than filter
@@ -101,17 +97,21 @@ public class TransactionService {
                     t = this.convertListToGetDto(this.transactionRepo.findByAmountIsGreaterThan(new BigDecimal(asMt)), new TransactionGetDTO());
                 }else if(t != null && !asMt.equals("")){
                     for(TransactionGetDTO tt : new ArrayList<TransactionGetDTO>(t)) {
-                        if (tt.getAmount().compareTo(new BigDecimal(asMt)) != 1) {
+                        if (tt.getAmount().compareTo(new BigDecimal(asMt)) != 1)
                             t.remove(tt);
-                        }
                     }
                 }
                 //date filter
-
-
-
-
-
+                if(t == null && !date.equals("")) {
+                    LocalDate dd = new LocalDateConverter("dd-MM-yyyy").convert(date);
+                    t = this.convertListToGetDto(this.transactionRepo.findByTimestamp(dd), new TransactionGetDTO());
+                }else if(t != null && !date.equals("")){
+                    for(TransactionGetDTO tt : new ArrayList<TransactionGetDTO>(t)) {
+                        LocalDate dd = new LocalDateConverter("dd-MM-yyyy").convert(date);
+                        if (!tt.getTimestamp().equals(dd))
+                            t.remove(tt);
+                    }
+                }
                 //checks if any filters where applied
                 if(t == null){
                     return this.convertListToGetDto(this.transactionRepo.findAll(), new TransactionGetDTO());
@@ -138,11 +138,6 @@ public class TransactionService {
             throw new ResourceNotFoundException("No transaction matches these iban's.");
         }
         return new DtoUtils().convertListToDto(this.transactionRepo.findByToAccountAndFromAccountAndAmount(toAccount, fromAccount, amount), new TransactionGetDTO());
-    }
-
-    public List<DTOEntity> getTransactionByDate(String transactionDate){
-        java.time.LocalDateTime date = LocalDateTime.parse(transactionDate);
-        return new DtoUtils().convertListToDto(this.transactionRepo.findByTimestamp(date), new TransactionGetDTO());
     }
 
     public List<DTOEntity> getWithAllParameters(TransactionGetDTO transaction){

@@ -1,20 +1,15 @@
 package io.swagger.model.entity;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
+
 import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.model.entity.TransactionType;
-import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.util.UUID;
 
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
-import org.springframework.validation.annotation.Validated;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
 
 import javax.persistence.*;
 import javax.validation.Valid;
@@ -42,14 +37,14 @@ public class Transaction   {
   private Integer type;
 
   @NonNull
-  private LocalDateTime timestamp;
+  private LocalDate timestamp;
 
   public Transaction(String toAccount, String fromAccount, BigDecimal amount, Integer type){
     this.toAccount = toAccount;
     this.fromAccount = fromAccount;
     this.amount = amount;
     this.type = type;
-    this.timestamp = LocalDateTime.now();
+    this.timestamp = LocalDate.now();
   }
 
   public Transaction(){
