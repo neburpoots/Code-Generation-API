@@ -196,9 +196,9 @@ public class UserService {
         }
     }
 
-    public List<DTOEntity> getUsers() {
+    public List<DTOEntity> getUsers(String firstname, String lastname, String iban) {
         try {
-            return dtoUtils.convertListToDto(this.userRepo.findAll(), new UserGetDTO());
+            return dtoUtils.convertListToDto(this.userRepo.findUserByFirstnameContainingIgnoreCaseAndLastnameContainingIgnoreCase(Objects.toString(firstname, ""), Objects.toString(lastname, "")), new UserGetDTO());
         } catch (Exception e) {
             throw new InternalServerErrorException();
         }

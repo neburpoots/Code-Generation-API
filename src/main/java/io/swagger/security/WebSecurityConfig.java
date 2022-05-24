@@ -29,6 +29,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             "/v2/api-docs",
             "/swagger-resources",
             "/swagger-resources/**",
+            "/swagger-ui/**",
             "/configuration/ui",
             "/configuration/security",
             "/swagger-ui.html",
@@ -58,6 +59,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.authorizeRequests()
                 .antMatchers("/api/users/login").permitAll()
+                .antMatchers("/api/users/register").permitAll()
                 .antMatchers("/h2/**/**").permitAll()
                 .antMatchers(AUTH_WHITELIST).permitAll()
                 .anyRequest()
