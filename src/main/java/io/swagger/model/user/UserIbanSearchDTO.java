@@ -1,17 +1,13 @@
 package io.swagger.model.user;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.model.entity.Role;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.UUID;
-
-import lombok.NonNull;
 import org.springframework.validation.annotation.Validated;
+
 import javax.validation.Valid;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  * UserSearchDTO
@@ -19,17 +15,18 @@ import javax.validation.Valid;
 @Validated
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-05T18:12:07.854Z[GMT]")
 
-public class UserSearchDTO implements DTOEntity {
+public class UserIbanSearchDTO implements DTOEntity {
 
-    public UserSearchDTO(UUID user_id, String firstname, String lastname, String email)
+    public UserIbanSearchDTO(UUID user_id, String firstname, String lastname, String email, String iban)
     {
         this.user_id = user_id;
         this.firstname = firstname;
         this.lastname = lastname;
         this.email = email;
+        this.iban = iban;
     }
 
-    public UserSearchDTO()
+    public UserIbanSearchDTO()
     {
     }
 
@@ -45,7 +42,10 @@ public class UserSearchDTO implements DTOEntity {
     @JsonProperty("email")
     private String email = null;
 
-    public UserSearchDTO user_id(UUID user_id) {
+    @JsonProperty("iban")
+    private String iban = null;
+
+    public UserIbanSearchDTO user_id(UUID user_id) {
         this.user_id = user_id;
         return this;
     }
@@ -65,7 +65,7 @@ public class UserSearchDTO implements DTOEntity {
         this.user_id = user_id;
     }
 
-    public UserSearchDTO firstname(String firstname) {
+    public UserIbanSearchDTO firstname(String firstname) {
         this.firstname = firstname;
         return this;
     }
@@ -84,7 +84,7 @@ public class UserSearchDTO implements DTOEntity {
         this.firstname = firstname;
     }
 
-    public UserSearchDTO lastname(String lastname) {
+    public UserIbanSearchDTO lastname(String lastname) {
         this.lastname = lastname;
         return this;
     }
@@ -103,7 +103,7 @@ public class UserSearchDTO implements DTOEntity {
         this.lastname = lastname;
     }
 
-    public UserSearchDTO email(String email) {
+    public UserIbanSearchDTO email(String email) {
         this.email = email;
         return this;
     }
@@ -122,19 +122,39 @@ public class UserSearchDTO implements DTOEntity {
         this.email = email;
     }
 
+    public UserIbanSearchDTO iban(String iban) {
+        this.iban = iban;
+        return this;
+    }
+
+    /**
+     * Get iban
+     * @return iban
+     **/
+    @Schema(example = "NL69SWAG0000000000", description = "")
+
+    public String getIban() {
+        return iban;
+    }
+
+    public void setIban(String iban) {
+        this.iban = iban;
+    }
+
     @Override
-    public boolean equals(java.lang.Object o) {
+    public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        UserSearchDTO userGetDTO = (UserSearchDTO) o;
+        UserIbanSearchDTO userGetDTO = (UserIbanSearchDTO) o;
         return Objects.equals(this.user_id, userGetDTO.user_id) &&
                 Objects.equals(this.firstname, userGetDTO.firstname) &&
                 Objects.equals(this.lastname, userGetDTO.lastname) &&
-                Objects.equals(this.email, userGetDTO.email);
+                Objects.equals(this.email, userGetDTO.email) &&
+                Objects.equals(this.iban, userGetDTO.iban);
     }
 
     @Override
@@ -151,6 +171,7 @@ public class UserSearchDTO implements DTOEntity {
         sb.append("    firstname: ").append(toIndentedString(firstname)).append("\n");
         sb.append("    lastname: ").append(toIndentedString(lastname)).append("\n");
         sb.append("    email: ").append(toIndentedString(email)).append("\n");
+        sb.append("    iban: ").append(toIndentedString(iban)).append("\n");
         sb.append("}");
         return sb.toString();
     }
@@ -159,7 +180,7 @@ public class UserSearchDTO implements DTOEntity {
      * Convert the given object to string with each line indented by 4 spaces
      * (except the first line).
      */
-    private String toIndentedString(java.lang.Object o) {
+    private String toIndentedString(Object o) {
         if (o == null) {
             return "null";
         }
