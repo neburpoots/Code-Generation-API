@@ -1,8 +1,10 @@
 package io.swagger.model.transaction;
 
+import java.util.Arrays;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.model.utils.DTOEntity;
+import io.swagger.model.entity.TransactionType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 
@@ -10,13 +12,14 @@ import org.springframework.validation.annotation.Validated;
 import org.threeten.bp.LocalDate;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 
 /**
  * TransactionPostDTO
  */
 @Validated
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-05T18:12:07.854Z[GMT]")
-
 
 public class TransactionPostDTO implements DTOEntity {
   @JsonProperty("toAccount")

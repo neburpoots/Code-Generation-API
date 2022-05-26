@@ -1,11 +1,13 @@
 package io.swagger.controller;
 
 import io.swagger.annotations.Api;
+import io.swagger.exception.BadRequestException;
 import io.swagger.model.transaction.TransactionGetDTO;
 import io.swagger.model.transaction.TransactionPostDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.service.TransactionService;
+import io.swagger.utils.DtoUtils;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.annotation.processing.Generated;
 import javax.validation.constraints.*;
@@ -48,7 +51,7 @@ public class TransactionController implements TransactionControllerInterface {
     public ResponseEntity<DTOEntity> addTransaction(@Parameter(in = ParameterIn.DEFAULT, description = "Created Transaction object", required = true,
             schema = @Schema()) @Valid @RequestBody TransactionPostDTO body) {
         try {
-            return new ResponseEntity<DTOEntity>(this.transactionService.createTransaction(body), HttpStatus.OK);
+            return new ResponseEntity<DTOEntity>(this.transactionService.createTransaction(body), HttpStatus.CREATED);
         } catch (Exception exception) {
             throw exception;
         }
@@ -57,8 +60,8 @@ public class TransactionController implements TransactionControllerInterface {
     public ResponseEntity<DTOEntity> getTransactionById(@Parameter(in = ParameterIn.PATH, description = "Id of transaction", required = true, schema = @Schema()) @PathVariable("id") String id) {
         try {
             return new ResponseEntity<DTOEntity>(this.transactionService.getTransactionById(id), HttpStatus.OK);
-        } catch (Exception exception) {
-            throw exception;
+        } catch (ResponseStatusException exception) {
+            throw new ResponseStatusException(HttpStatus.NO_CONTENT, "Errors: ", exception);
         }
     }
 
@@ -72,11 +75,7 @@ public class TransactionController implements TransactionControllerInterface {
             schema = @Schema()) @Valid @RequestParam(value = "as_lt", required = false, defaultValue = "") String asLt, @Parameter(in = ParameterIn.QUERY, description = "More than given amount that needs to be considered for filter",
             schema = @Schema()) @Valid @RequestParam(value = "as_mt", required = false, defaultValue = "") String asMt) {
         try {
-            if(this.transactionService.getTransactions(fromIban, toIban, asEq, asLt, asMt, transactionDate).stream().count() != 0)
-                return new ResponseEntity<List<TransactionGetDTO>>(this.transactionService.getTransactions(fromIban, toIban, asEq, asLt, asMt, transactionDate), HttpStatus.OK);
-            else
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
+            return new ResponseEntity<List<TransactionGetDTO>>(this.transactionService.getTransactions(fromIban, toIban, asEq, asLt, asMt, transactionDate), HttpStatus.OK);
         } catch (Exception exception) {
             throw exception;
         }

@@ -1,10 +1,10 @@
 package io.swagger.service;
 
 import io.swagger.configuration.LocalDateConverter;
+import io.swagger.configuration.LocalDateValidator;
 import io.swagger.exception.BadRequestException;
 import io.swagger.exception.ResourceNotFoundException;
 import io.swagger.model.entity.Transaction;
-import io.swagger.model.entity.TransactionType;
 import io.swagger.model.transaction.TransactionGetDTO;
 import io.swagger.model.transaction.TransactionPostDTO;
 import io.swagger.model.utils.DTOEntity;
@@ -14,6 +14,7 @@ import org.modelmapper.ModelMapper;
 
 import org.springframework.stereotype.Service;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.chrono.ChronoLocalDate;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -32,21 +33,44 @@ public class TransactionService {
     }
 
     public Transaction getTransactionObjectById(String id) {
-        return this.transactionRepo.findById(convertToUUID(id)).orElseThrow(() -> new ResourceNotFoundException("Transaction with id: '" + id + "' was not found."));
+
+            return this.transactionRepo.findById(convertToUUID(id)).orElseThrow(() -> new ResourceNotFoundException("Transaction with id: '" + id + "' was not found."));
+
     }
 
-    private List<String> validateTransactionDTO(TransactionPostDTO dto) {
+    public boolean validateBigDecimal(String amount){
+            if (amount == null) {
+                return false;
+            }
+            try {
+                BigDecimal b = new BigDecimal(amount);
+                BigDecimal max = new BigDecimal(10000);
+                BigDecimal min = new BigDecimal(0);
+
+                if(b.compareTo(min) == -1 || b.compareTo(max) == 1){
+                    throw new NumberFormatException();
+                }
+            } catch (NumberFormatException nfe) {
+                return false;
+            }
+            return true;
+
+    }
+
+    public List<String> validateTransactionDTO(String fromIban, String toIban, String amount, String asLt, String asMt, String date) {
         List<String> tt = new ArrayList<>();
-        if (dto.getAmount().compareTo(new BigDecimal(0.00)) == 0
-                || dto.getAmount().compareTo(new BigDecimal(0.00)) == -1
-                || dto.getAmount().compareTo(new BigDecimal(5000)) == 1)
-            tt.add("Given amount is not valid.");
-        if (dto.getFromAccount().length() < 10 || dto.getFromAccount().length() > 20 || dto.getFromAccount().isEmpty())
-            tt.add("The from account was not entered or is a invalid iban. ");
-        if (dto.getToAccount().length() < 10 || dto.getToAccount().length() > 20 || dto.getToAccount().isEmpty())
-            tt.add("The to account was not entered or is a invalid iban.");
-        if (dto.getType() > TransactionType.values().length || dto.getType() < 0)
-            tt.add("The type of transaction was invalid, it should be between 0 and " + TransactionType.values().length);
+
+        if(!validateBigDecimal(amount) && !amount.isEmpty())
+            tt.add("Amount is invalid or over 10000");
+
+        if(!validateBigDecimal(asLt) && !asLt.isEmpty())
+            tt.add("Minimum amount is invalid");
+
+        if(!validateBigDecimal(asMt) && !asMt.isEmpty())
+            tt.add("Maximum amount is invalid");
+
+        if(!new LocalDateValidator("dd-MM-yyyy").isValid(date) && !date.isEmpty())
+            tt.add("Date was invalid needs to be: dd-mm-yyyy (22-05-2022)");
 
         return tt;
     }
@@ -62,9 +86,6 @@ public class TransactionService {
     }
 
     public DTOEntity createTransaction(TransactionPostDTO body) {
-        if (!validateTransactionDTO(body).isEmpty()) {
-            throw new BadRequestException(validateTransactionDTO(body).get(0));
-        }
         Transaction transaction = (Transaction) new DtoUtils().convertToEntity(new Transaction(), body);
 
         return new DtoUtils().convertToDto(this.transactionRepo.save(transaction), new TransactionPostDTO());
@@ -78,6 +99,10 @@ public class TransactionService {
     }
 
     public List<TransactionGetDTO> getTransactions(String fromIban, String toIban, String amount, String asLt, String asMt, String date) {
+        List<String> errors = this.validateTransactionDTO(fromIban, toIban, amount, asLt, asMt, date);
+        if(!errors.isEmpty())
+            throw new BadRequestException(errors.get(0));
+
         List<TransactionGetDTO> t = null;
         //From account filtering
         if (t == null && !fromIban.equals("")) {
@@ -127,7 +152,7 @@ public class TransactionService {
         } else if (t != null && !date.equals("")) {
             for (TransactionGetDTO tt : new ArrayList<TransactionGetDTO>(t)) {
                 LocalDate dd = new LocalDateConverter("dd-MM-yyyy").convert(date);
-                if (!tt.getTimestamp().equals(dd))
+                if (tt.getTimestamp().compareTo(ChronoLocalDate.from(dd)) != 0)
                     t.remove(tt);
             }
         }
