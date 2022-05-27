@@ -5,13 +5,13 @@ import io.swagger.configuration.LocalDateValidator;
 import io.swagger.exception.BadRequestException;
 import io.swagger.exception.ResourceNotFoundException;
 import io.swagger.model.entity.Transaction;
+import io.swagger.model.entity.TransactionType;
 import io.swagger.model.transaction.TransactionGetDTO;
 import io.swagger.model.transaction.TransactionPostDTO;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.repository.TransactionRepository;
 import io.swagger.utils.DtoUtils;
 import org.modelmapper.ModelMapper;
-
 import org.springframework.stereotype.Service;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.chrono.ChronoLocalDate;
@@ -22,6 +22,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class TransactionService {
+    private BigDecimal MAX_TRANSACTION_AMOUNT = new BigDecimal(10000);
+
     private final TransactionRepository transactionRepo;
 
     public TransactionService(TransactionRepository transactionRepo) {
@@ -57,8 +59,23 @@ public class TransactionService {
 
     }
 
+    public boolean validateIban(String iban){
+        String regex = "[A-Z]{2}[0-9]{2}[A-Z]{4}[0-9]{8,14}";
+            if(iban.matches(regex)){
+                return true;
+            }else{
+                return false;
+            }
+    }
+
     public List<String> validateTransactionDTO(String fromIban, String toIban, String amount, String asLt, String asMt, String date) {
         List<String> tt = new ArrayList<>();
+
+        if(!validateIban(fromIban) && !fromIban.isEmpty())
+            tt.add("The supplied from iban was not valid.");
+
+        if(!validateIban(toIban) && !toIban.isEmpty())
+            tt.add("The supplied to iban is not valid");
 
         if(!validateBigDecimal(amount) && !amount.isEmpty())
             tt.add("Amount is invalid or over 10000");
@@ -86,9 +103,17 @@ public class TransactionService {
     }
 
     public DTOEntity createTransaction(TransactionPostDTO body) {
-        Transaction transaction = (Transaction) new DtoUtils().convertToEntity(new Transaction(), body);
+        String tt = "";
+        List <String> errors = this.validateTransactionDTO(body.getFromAccount(), body.getToAccount(), body.getAmount().toString(), "", "", "");
+        if(!errors.isEmpty()){
+            for(String t : errors)
+                tt += t + ". ";
 
-        return new DtoUtils().convertToDto(this.transactionRepo.save(transaction), new TransactionPostDTO());
+            throw new BadRequestException(tt);
+        }else{
+            Transaction transaction = (Transaction) new DtoUtils().convertToEntity(new Transaction(), body);
+            return new DtoUtils().convertToDto(this.transactionRepo.save(transaction), new TransactionPostDTO());
+        }
     }
 
     public List<TransactionGetDTO> convertListToGetDto(List<?> objList, TransactionGetDTO mapper) {
@@ -96,6 +121,13 @@ public class TransactionService {
                 .stream()
                 .map(source -> new ModelMapper().map(source, mapper.getClass()))
                 .collect(Collectors.toList());
+    }
+
+    public List<TransactionGetDTO> addTransactionType(List<TransactionGetDTO> list){
+        for (TransactionGetDTO tt : list){
+            tt.setTypeTransaction(TransactionType.values()[tt.getType()]);
+        }
+        return list;
     }
 
     public List<TransactionGetDTO> getTransactions(String fromIban, String toIban, String amount, String asLt, String asMt, String date) {
@@ -158,9 +190,10 @@ public class TransactionService {
         }
         //checks if any filters where applied
         if (t == null) {
-            return this.convertListToGetDto(this.transactionRepo.findAll(), new TransactionGetDTO());
+            return addTransactionType(this.convertListToGetDto(this.transactionRepo.findAll(), new TransactionGetDTO()));
+
         } else {
-            return t;
+            return addTransactionType(t);
         }
     }
 }

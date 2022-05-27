@@ -3,6 +3,7 @@ package io.swagger.model.transaction;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.model.entity.TransactionType;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
@@ -42,6 +43,18 @@ public class TransactionGetDTO implements DTOEntity {
 
     @JsonProperty("type")
     private Integer type = null;
+
+    public TransactionType getTypeTransaction() {
+        return typeTransaction;
+    }
+
+    public void setTypeTransaction(TransactionType typeTransaction) {
+        this.typeTransaction = typeTransaction;
+    }
+
+    @JsonProperty("transaction_type")
+    private TransactionType typeTransaction;
+
 
     public TransactionGetDTO toAccount(String toAccount) {
         this.toAccount = toAccount;

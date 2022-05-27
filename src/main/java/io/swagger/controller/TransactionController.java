@@ -1,13 +1,10 @@
 package io.swagger.controller;
 
 import io.swagger.annotations.Api;
-import io.swagger.exception.BadRequestException;
 import io.swagger.model.transaction.TransactionGetDTO;
 import io.swagger.model.transaction.TransactionPostDTO;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.service.TransactionService;
-import io.swagger.utils.DtoUtils;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -35,15 +32,12 @@ public class TransactionController implements TransactionControllerInterface {
 
     private static final Logger log = LoggerFactory.getLogger(TransactionController.class);
 
-    private final ObjectMapper objectMapper;
-
     private final HttpServletRequest request;
 
     private TransactionService transactionService;
 
     @Autowired
-    public TransactionController(ObjectMapper objectMapper, HttpServletRequest request, TransactionService transactionService) {
-        this.objectMapper = objectMapper;
+    public TransactionController(HttpServletRequest request, TransactionService transactionService) {
         this.request = request;
         this.transactionService = transactionService;
     }
