@@ -5,10 +5,14 @@ import io.swagger.model.entity.Role;
 import io.swagger.model.entity.User;
 import io.swagger.model.user.*;
 import io.swagger.model.utils.DTOEntity;
+import io.swagger.models.auth.In;
 import io.swagger.repository.RoleRepository;
 import io.swagger.repository.UserRepository;
 import io.swagger.security.JwtTokenProvider;
 import io.swagger.utils.DtoUtils;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -233,7 +237,7 @@ public class UserService
         }
     }
 
-    public List<DTOEntity> getUsers(String firstname, String lastname, String iban, String account)
+    public List<DTOEntity> getUsers(String firstname, String lastname, String iban, String account, Integer pageNo, Integer pageSize)
     {
         if (!Objects.toString(iban, "").equals(""))
         {
@@ -247,16 +251,25 @@ public class UserService
             }
         } else
         {
+            if (pageNo < 0)
+            {
+                throw new BadRequestException("Page index must not be less than zero!");
+            }
+            if (pageSize > 20 || pageSize < 1){
+                throw new BadRequestException("Page size must not be less than one or more than 20!");
+            }
+            Pageable pageable = PageRequest.of(pageNo, pageSize);
+
             if (Objects.toString(account, "").equals(""))
             {
-                return dtoUtils.convertListToDto(this.userRepo.findUsersAll(Objects.toString(firstname, ""), Objects.toString(lastname, "")), new UserIbanSearchDTO());
+                return dtoUtils.convertListToDto(this.userRepo.findUsersAll(Objects.toString(firstname, ""), Objects.toString(lastname, ""), pageable), new UserIbanSearchDTO());
             } else if (account.equals("true"))
             {
-                return dtoUtils.convertListToDto(this.userRepo.findUsersWithAccount(Objects.toString(firstname, ""), Objects.toString(lastname, "")), new UserIbanSearchDTO());
+                return dtoUtils.convertListToDto(this.userRepo.findUsersWithAccount(Objects.toString(firstname, ""), Objects.toString(lastname, ""), pageable), new UserIbanSearchDTO());
 
             } else if (account.equals("false"))
             {
-                return dtoUtils.convertListToDto(this.userRepo.findUsersNoAccount(Objects.toString(firstname, ""), Objects.toString(lastname, "")), new UserSearchDTO());
+                return dtoUtils.convertListToDto(this.userRepo.findUsersNoAccount(Objects.toString(firstname, ""), Objects.toString(lastname, ""), pageable), new UserSearchDTO());
 
             } else
             {
