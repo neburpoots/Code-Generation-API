@@ -50,7 +50,7 @@ public class Error   {
    * Get message
    * @return message
    **/
-  @Schema(required = true, description = "")
+  @Schema(example = "Missing something", required = true, description = "")
       @NotNull
 
     public String getMessage() {
