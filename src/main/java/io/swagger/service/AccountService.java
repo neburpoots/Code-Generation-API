@@ -16,6 +16,7 @@ import io.swagger.repository.AccountRepository;
 import io.swagger.repository.UserRepository;
 import io.swagger.security.JwtTokenProvider;
 import io.swagger.utils.DtoUtils;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.core.CollectionUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class AccountService {
@@ -37,6 +39,7 @@ public class AccountService {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
+    private ModelMapper modelMapper;
 
     @Autowired
     public AccountService(AccountRepository accountRepo, UserService userService, AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider) {
@@ -44,9 +47,10 @@ public class AccountService {
         this.userService = userService;
         this.jwtTokenProvider = jwtTokenProvider;
         this.authenticationManager = authenticationManager;
+        this.modelMapper = new ModelMapper();
     }
 
-    public DTOEntity editAccount(AccountPatchDTO accountPatchDTO, String account_id) {
+    public AccountGetDTO editAccount(AccountPatchDTO accountPatchDTO, String account_id) {
 
         //Retrieves account
         Account newAccount = retrieveAccount(account_id);
@@ -71,15 +75,16 @@ public class AccountService {
         }
 
         //returns account dto if updated
-        return new DtoUtils().convertToDto(accountRepo.save(newAccount), new AccountGetDTO());
+        Account updatedAccount = accountRepo.save(newAccount);
+        return this.modelMapper.map(updatedAccount, AccountGetDTO.class);
     }
 
-    public DTOEntity createAccount(AccountPostDTO accountPostDTO) {
+    public AccountGetDTO createAccount(AccountPostDTO accountPostDTO) {
         //Converts dto to account object
         Account account = (Account) new DtoUtils().convertToEntity(new Account(), accountPostDTO);
 
         // Checks if the user exists and sets it for account
-        User user = userService.getUserObjectById(accountPostDTO.getUser_Id().toString());
+        User user = userService.getUserObjectById(accountPostDTO.getUser_id().toString());
         account.setUser(user);
 
         List<Account> existingAccounts = accountRepo.findByUser(user);
@@ -110,10 +115,11 @@ public class AccountService {
         account.setBalance(new BigDecimal(0));
         account.setStatus(true);
 
-        return new DtoUtils().convertToDto(accountRepo.save(account), new AccountGetDTO());
+        Account newAccount = accountRepo.save(account);
+        return this.modelMapper.map(newAccount, AccountGetDTO.class);
     }
 
-    public List<DTOEntity> getAccounts(String userId, List<String> type, HttpServletRequest req) {
+    public List<AccountGetDTO> getAccounts(String userId, List<String> type, HttpServletRequest req) {
 
         String token = jwtTokenProvider.resolveToken(req);
 
@@ -152,11 +158,13 @@ public class AccountService {
             }
         }
 
-        return new DtoUtils().convertListToDto(accounts, new AccountGetDTO());
-
+        return accounts
+                .stream()
+                .map(source -> modelMapper.map(source, AccountGetDTO.class))
+                .collect(Collectors.toList());
     }
 
-    public DTOEntity getAccount(String account_id, HttpServletRequest req) {
+    public AccountGetDTO getAccount(String account_id, HttpServletRequest req) {
         String token = jwtTokenProvider.resolveToken(req);
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -167,7 +175,7 @@ public class AccountService {
         //If role is employee retrieve the account
         if(auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"))) {
             account = retrieveAccount(account_id);
-            return new DtoUtils().convertToDto(account, new AccountGetDTO());
+            return this.modelMapper.map(account, AccountGetDTO.class);
         }
 
         //Checks if the iban belongs to the users own account
@@ -183,7 +191,7 @@ public class AccountService {
             throw new ForbiddenException();
         }
 
-        return new DtoUtils().convertToDto(account, new AccountGetDTO());
+        return this.modelMapper.map(account, AccountGetDTO.class);
     }
 
     public Account retrieveAccount(String account_id) {

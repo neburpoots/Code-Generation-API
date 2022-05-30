@@ -6,6 +6,7 @@
 package io.swagger.controller;
 
 import io.swagger.exception.BadRequestException;
+import io.swagger.model.account.AccountGetDTO;
 import io.swagger.model.entity.Account;
 import io.swagger.model.account.AccountPatchDTO;
 import io.swagger.model.account.AccountPostDTO;
@@ -38,7 +39,7 @@ public interface AccountControllerInterface {
     @Operation(summary = "Creates a primary or secondary account", description = "Creates a primary or savings account for provided user_id.", security = {
             @SecurityRequirement(name = "bearerAuth")    }, tags={ "accounts" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AccountControllerInterface.class))),
+            @ApiResponse(responseCode = "201", description = "Created", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AccountGetDTO.class))),
 
             @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
 
@@ -55,13 +56,13 @@ public interface AccountControllerInterface {
             produces = { "application/json" },
             consumes = { "application/json" },
             method = RequestMethod.POST)
-    ResponseEntity<DTOEntity> createAccount(@Parameter(in = ParameterIn.DEFAULT, description = "Created User object", required=true, schema=@Schema()) @Valid @RequestBody AccountPostDTO body) throws Exception;
+    ResponseEntity<AccountGetDTO> createAccount(@Parameter(in = ParameterIn.DEFAULT, description = "Created User object", required=true, schema=@Schema()) @Valid @RequestBody AccountPostDTO body) throws Exception;
 
 
     @Operation(summary = "Alters limit or status of Account", description = "", security = {
             @SecurityRequirement(name = "bearerAuth")    }, tags={ "accounts" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Successfully saved changes to account."),
+            @ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AccountGetDTO.class))),
 
             @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
 
@@ -76,12 +77,12 @@ public interface AccountControllerInterface {
             produces = { "application/json" },
             consumes = { "application/json" },
             method = RequestMethod.PATCH)
-    ResponseEntity<DTOEntity> editAccount(@Parameter(in = ParameterIn.PATH, description = "Iban of account", required=true, schema=@Schema()) @PathVariable("iban") String iban, @Parameter(in = ParameterIn.DEFAULT, description = "Edit information", required=true, schema=@Schema()) @Valid @RequestBody AccountPatchDTO body);
+    ResponseEntity<AccountGetDTO> editAccount(@Parameter(in = ParameterIn.PATH, description = "Iban of account", required=true, schema=@Schema()) @PathVariable("iban") String iban, @Parameter(in = ParameterIn.DEFAULT, description = "Edit information", required=true, schema=@Schema()) @Valid @RequestBody AccountPatchDTO body);
 
     @Operation(summary = "Finds an Account based on iban", description = "Returns an account matching the provided iban.", security = {
             @SecurityRequirement(name = "bearerAuth")    }, tags={ "accounts" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AccountControllerInterface.class))),
+            @ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AccountGetDTO.class))),
 
             @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
 
@@ -95,13 +96,13 @@ public interface AccountControllerInterface {
     @RequestMapping(value = "/api/accounts/{iban}",
             produces = { "application/json" },
             method = RequestMethod.GET)
-    ResponseEntity<DTOEntity> getAccountByIban(@Parameter(in = ParameterIn.PATH, description = "Iban of account", required=true, schema=@Schema()) @PathVariable("iban") String iban);
+    ResponseEntity<AccountGetDTO> getAccountByIban(@Parameter(in = ParameterIn.PATH, description = "Iban of account", required=true, schema=@Schema()) @PathVariable("iban") String iban);
 
 
     @Operation(summary = "Finds own Account by default, otherwise by provided user_id", description = "Returns a list of accounts, optionally filtered by parameters.", security = {
             @SecurityRequirement(name = "bearerAuth")    }, tags={ "accounts" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = AccountControllerInterface.class)))),
+            @ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = AccountGetDTO.class)))),
 
             @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
 
@@ -115,7 +116,7 @@ public interface AccountControllerInterface {
     @RequestMapping(value = "/api/accounts",
             produces = { "application/json" },
             method = RequestMethod.GET)
-    ResponseEntity<List<DTOEntity>> getAccounts(@Parameter(in = ParameterIn.QUERY, description = "This query will get both accounts that belong to the matching user id." ,schema=@Schema()) @Valid @RequestParam(value = "user_id", required = false) String userId, @Parameter(in = ParameterIn.QUERY, description = "This query will filter either the 'primary' or 'savings' account." ,schema=@Schema(allowableValues={ "primary", "savings" }
+    ResponseEntity<List<AccountGetDTO>> getAccounts(@Parameter(in = ParameterIn.QUERY, description = "This query will get both accounts that belong to the matching user id." ,schema=@Schema()) @Valid @RequestParam(value = "user_id", required = false) String userId, @Parameter(in = ParameterIn.QUERY, description = "This query will filter either the 'primary' or 'savings' account." ,schema=@Schema(allowableValues={ "primary", "savings" }
     )) @Valid @RequestParam(value = "type", required = false) List<String> type);
 }
 

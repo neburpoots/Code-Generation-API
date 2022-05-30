@@ -36,7 +36,7 @@ public class AccountPostDTO implements DTOEntity {
   @NotNull
   private AccountType accountType = null;
 
-  public AccountPostDTO user_id(UUID user_id) {
+  public AccountPostDTO user_id(UUID user_Id) {
     this.user_id = user_id;
     return this;
   }
@@ -48,11 +48,11 @@ public class AccountPostDTO implements DTOEntity {
   @Schema(example = "123e4567-e89b-12d3-a456-426614174000", description = "")
 
   @Valid
-    public UUID getUser_Id() {
+    public UUID getUser_id() {
     return user_id;
   }
 
-  public void setUser_Id(UUID userId) {
+  public void setUser_id(UUID user_id) {
     this.user_id = user_id;
   }
 
@@ -116,7 +116,7 @@ public class AccountPostDTO implements DTOEntity {
     StringBuilder sb = new StringBuilder();
     sb.append("class AccountPostDTO {\n");
     
-    sb.append("    user_id: ").append(toIndentedString(user_id)).append("\n");
+    sb.append("    user_Id: ").append(toIndentedString(user_id)).append("\n");
     sb.append("    absoluteLimit: ").append(toIndentedString(absoluteLimit)).append("\n");
     sb.append("    account_type: ").append(toIndentedString(accountType)).append("\n");
     sb.append("}");

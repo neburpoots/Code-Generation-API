@@ -26,10 +26,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.servlet.http.HttpServletRequest;
@@ -62,38 +59,42 @@ public class AccountController implements AccountControllerInterface {
     }
 
     @PreAuthorize("hasRole('EMPLOYEE')")
-    public ResponseEntity<DTOEntity> createAccount(@Parameter(in = ParameterIn.DEFAULT, description = "Created User object", required=true, schema=@Schema()) @Valid @RequestBody AccountPostDTO body)
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<AccountGetDTO> createAccount(@Parameter(in = ParameterIn.DEFAULT, description = "Created User object", required=true, schema=@Schema()) @Valid @RequestBody AccountPostDTO body)
     {
         try {
-            return new ResponseEntity<DTOEntity>(accountService.createAccount(body), HttpStatus.CREATED);
+            return new ResponseEntity<AccountGetDTO>(accountService.createAccount(body), HttpStatus.CREATED);
         } catch(Exception exception) {
             throw exception;
         }
     }
 
     @PreAuthorize("hasRole('EMPLOYEE')")
-    public ResponseEntity<DTOEntity> editAccount(@Parameter(in = ParameterIn.PATH, description = "Iban of account", required=true, schema=@Schema()) @PathVariable("iban") String iban,@Parameter(in = ParameterIn.DEFAULT, description = "Edit information", required=true, schema=@Schema()) @Valid @RequestBody AccountPatchDTO body) {
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<AccountGetDTO> editAccount(@Parameter(in = ParameterIn.PATH, description = "Iban of account", required=true, schema=@Schema()) @PathVariable("iban") String iban,@Parameter(in = ParameterIn.DEFAULT, description = "Edit information", required=true, schema=@Schema()) @Valid @RequestBody AccountPatchDTO body) {
         try {
-            return new ResponseEntity<DTOEntity>(accountService.editAccount(body, iban), HttpStatus.OK);
+            return new ResponseEntity<AccountGetDTO>(accountService.editAccount(body, iban), HttpStatus.OK);
         } catch(Exception exception) {
             throw exception;
         }
     }
 
     @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<DTOEntity> getAccountByIban(@Parameter(in = ParameterIn.PATH, description = "Iban of account", required=true, schema=@Schema()) @PathVariable("iban") String iban) {
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<AccountGetDTO> getAccountByIban(@Parameter(in = ParameterIn.PATH, description = "Iban of account", required=true, schema=@Schema()) @PathVariable("iban") String iban) {
         try {
-            return new ResponseEntity<DTOEntity>(accountService.getAccount(iban, request), HttpStatus.OK);
+            return new ResponseEntity<AccountGetDTO>(accountService.getAccount(iban, request), HttpStatus.OK);
         } catch(Exception exception) {
             throw exception;
         }
     }
 
     @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<List<DTOEntity>> getAccounts(@Parameter(in = ParameterIn.QUERY, description = "This query will get both accounts that belong to the matching user id." ,schema=@Schema()) @Valid @RequestParam(value = "user_id", required = false) String userId, @Parameter(in = ParameterIn.QUERY, description = "This query will filter either the 'primary' or 'savings' account." ,schema=@Schema(allowableValues={ "primary", "savings" }
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<List<AccountGetDTO>> getAccounts(@Parameter(in = ParameterIn.QUERY, description = "This query will get both accounts that belong to the matching user id." ,schema=@Schema()) @Valid @RequestParam(value = "user_id", required = false) String userId, @Parameter(in = ParameterIn.QUERY, description = "This query will filter either the 'primary' or 'savings' account." ,schema=@Schema(allowableValues={ "primary", "savings" }
     )) @Valid @RequestParam(value = "type", required = false) List<String> type) {
         try {
-            return new ResponseEntity<List<DTOEntity>>(accountService.getAccounts(userId, type, request), HttpStatus.OK);
+            return new ResponseEntity<List<AccountGetDTO>>(accountService.getAccounts(userId, type, request), HttpStatus.OK);
         } catch(Exception exception) {
             throw exception;
         }
