@@ -21,13 +21,11 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -116,6 +114,8 @@ public interface AccountControllerInterface {
     @RequestMapping(value = "/api/accounts",
             produces = { "application/json" },
             method = RequestMethod.GET)
+    @PreAuthorize("hasRole('CUSTOMER')")
+    @ResponseStatus(HttpStatus.OK)
     ResponseEntity<List<AccountGetDTO>> getAccounts(@Parameter(in = ParameterIn.QUERY, description = "This query will get both accounts that belong to the matching user id." ,schema=@Schema()) @Valid @RequestParam(value = "user_id", required = false) String userId, @Parameter(in = ParameterIn.QUERY, description = "This query will filter either the 'primary' or 'savings' account." ,schema=@Schema(allowableValues={ "primary", "savings" }
     )) @Valid @RequestParam(value = "type", required = false) List<String> type);
 }
