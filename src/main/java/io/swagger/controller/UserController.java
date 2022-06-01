@@ -2,10 +2,8 @@ package io.swagger.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.exception.InternalServerErrorException;
-import io.swagger.model.user.UserLoginDTO;
-import io.swagger.model.user.UserPasswordDTO;
-import io.swagger.model.user.UserPatchDTO;
-import io.swagger.model.user.UserPostDTO;
+import io.swagger.model.entity.RefreshToken;
+import io.swagger.model.user.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.service.UserService;
@@ -18,10 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Generated;
 import javax.validation.constraints.*;
@@ -99,6 +94,15 @@ public class UserController implements UserControllerInterface {
     public ResponseEntity<DTOEntity> loginUser(@Parameter(in = ParameterIn.DEFAULT, description = "Login credentials", required = true, schema = @Schema()) @Valid @RequestBody UserLoginDTO body) {
         try {
             return new ResponseEntity<DTOEntity>(this.userService.login(body), HttpStatus.OK);
+        } catch (Exception exception) {
+            throw exception;
+        }
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<TokenRefreshResponseDTO> refreshToken(@Parameter(in = ParameterIn.DEFAULT, description = "Created token DTO", required = true, schema = @Schema()) @Valid @RequestBody TokenRefreshRequestDTO body) {
+        try {
+            return new ResponseEntity<TokenRefreshResponseDTO>(this.userService.refreshToken(body), HttpStatus.OK);
         } catch (Exception exception) {
             throw exception;
         }

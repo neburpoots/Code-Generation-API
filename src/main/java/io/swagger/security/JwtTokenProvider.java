@@ -38,6 +38,13 @@ public class JwtTokenProvider {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
+    public String generateTokenFromUsername(String username) {
+        return Jwts.builder().setSubject(username).setIssuedAt(new Date())
+                .setExpiration(new Date((new Date()).getTime() + validityInMilliseconds)).signWith(SignatureAlgorithm.HS512, secretKey)
+                .compact();
+    }
+
+
     public String createToken(String username, List<Role> roles, UUID id) {
         Claims claims = Jwts.claims().setSubject(username);
         claims.put("auth", roles.stream().map(s -> new SimpleGrantedAuthority(s.getAuthority())).filter(Objects::nonNull).collect(Collectors.toList()));

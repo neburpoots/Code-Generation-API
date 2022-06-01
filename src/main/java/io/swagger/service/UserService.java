@@ -1,6 +1,7 @@
 package io.swagger.service;
 
 import io.swagger.exception.*;
+import io.swagger.model.entity.RefreshToken;
 import io.swagger.model.entity.Role;
 import io.swagger.model.entity.User;
 import io.swagger.model.user.*;
@@ -13,6 +14,7 @@ import io.swagger.utils.DtoUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -36,8 +38,9 @@ public class UserService
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
     private final DtoUtils dtoUtils;
+    private final RefreshTokenService refreshTokenService;
 
-    public UserService(UserRepository userRepo, RoleRepository roleRepo, AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider, PasswordEncoder passwordEncoder, DtoUtils dtoUtils)
+    public UserService(UserRepository userRepo, RoleRepository roleRepo, AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider, PasswordEncoder passwordEncoder, DtoUtils dtoUtils, RefreshTokenService refreshTokenService)
     {
         this.userRepo = userRepo;
         this.roleRepo = roleRepo;
@@ -45,6 +48,7 @@ public class UserService
         this.jwtTokenProvider = jwtTokenProvider;
         this.passwordEncoder = passwordEncoder;
         this.dtoUtils = dtoUtils;
+        this.refreshTokenService = refreshTokenService;
     }
 
     public DTOEntity login(UserLoginDTO userLoginDTO)
@@ -66,6 +70,9 @@ public class UserService
                 UserLoginReturnDTO userLoginReturnDTO = (UserLoginReturnDTO) dtoUtils.convertToDto(user, new UserLoginReturnDTO());
                 userLoginReturnDTO.setAccessToken(jwt);
 
+                //added code for refresh tokens
+                RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getUser_id());
+                userLoginReturnDTO.setRefreshToken(refreshToken.getToken());
                 return userLoginReturnDTO;
             }
             throw new UnauthorizedException("Invalid login credentials");
@@ -297,5 +304,20 @@ public class UserService
     public User getUserObjectById(String id)
     {
         return this.userRepo.findById(dtoUtils.convertToUUID(id)).orElseThrow(() -> new ResourceNotFoundException("User with id: '" + id + "' not found"));
+    }
+
+
+    public TokenRefreshResponseDTO refreshToken(TokenRefreshRequestDTO requestDTO)
+    {
+        String requestRefreshToken = requestDTO.getRefreshToken();
+        return refreshTokenService.findByToken(requestRefreshToken)
+                .map(refreshTokenService::verifyExpiration)
+                .map(RefreshToken::getUser)
+                .map(user -> {
+                    String token = jwtTokenProvider.generateTokenFromUsername(user.getEmail());
+                    return new TokenRefreshResponseDTO(token, requestRefreshToken);
+                })
+                .orElseThrow(() -> new BadRequestException(
+                        "Refresh token is not in database!"));
     }
 }

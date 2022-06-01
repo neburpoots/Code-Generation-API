@@ -5,13 +5,10 @@
  */
 package io.swagger.controller;
 
+import io.swagger.model.user.*;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.model.utils.Error;
 import io.swagger.model.entity.User;
-import io.swagger.model.user.UserLoginDTO;
-import io.swagger.model.user.UserPasswordDTO;
-import io.swagger.model.user.UserPatchDTO;
-import io.swagger.model.user.UserPostDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -159,6 +156,26 @@ public interface UserControllerInterface {
             consumes = {"application/json"},
             method = RequestMethod.POST)
     ResponseEntity<DTOEntity> loginUser(@Parameter(in = ParameterIn.DEFAULT, description = "Login credentials", required = true, schema = @Schema()) @Valid @RequestBody UserLoginDTO body);
+
+    @Operation(summary = "Refreshes token", description = "", tags = {"users"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TokenRefreshResponseDTO.class))),
+
+            @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served."),
+
+            @ApiResponse(responseCode = "401", description = "Credentials invalid or missing."),
+
+            @ApiResponse(responseCode = "403", description = "You are not authorized to make this request."),
+
+            @ApiResponse(responseCode = "404", description = "Resource not found."),
+
+            @ApiResponse(responseCode = "500", description = "Internal server error.")})
+    @RequestMapping(value = "/api/users/refreshtoken",
+            produces = {"application/json"},
+            consumes = {"application/json"},
+            method = RequestMethod.POST)
+    ResponseEntity<TokenRefreshResponseDTO> refreshToken(@Parameter(in = ParameterIn.DEFAULT, description = "Refresh token", required = true, schema = @Schema()) @Valid @RequestBody TokenRefreshRequestDTO body);
+
 
 }
 

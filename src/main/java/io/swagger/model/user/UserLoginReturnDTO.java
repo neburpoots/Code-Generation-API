@@ -44,6 +44,9 @@ public class UserLoginReturnDTO implements DTOEntity {
     @JsonProperty("access_token")
     private String accessToken;
 
+    @JsonProperty("refresh_token")
+    private String refreshToken;
+
     public UserLoginReturnDTO user_id(UUID user_id) {
         this.user_id = user_id;
         return this;
@@ -181,6 +184,26 @@ public class UserLoginReturnDTO implements DTOEntity {
     public UserLoginReturnDTO role(List<Role> roles) {
         this.roles = roles;
         return this;
+    }
+
+
+    public UserLoginReturnDTO refreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+        return this;
+    }
+
+    /**
+     * Get refreshToken
+     * @return refreshToken
+     **/
+    @Schema(example = "c1c75b53-c2aa-44bb-8caf-c7881c1a1395", description = "")
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 
     /**

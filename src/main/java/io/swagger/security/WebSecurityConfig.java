@@ -53,7 +53,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             "/api-docs#/components/schemas/**",
             "/error",
             "/csrf",
-            "/info"
+            "/info",
+            "/api/users/refreshtoken"
 
             // other public endpoints of your API may be appended to this array
     };
