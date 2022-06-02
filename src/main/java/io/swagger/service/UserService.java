@@ -78,7 +78,7 @@ public class UserService
             throw new UnauthorizedException("Invalid login credentials");
         } catch (Exception ae)
         {
-            throw new testException(ae.getMessage());
+            throw ae;
         }
     }
 
