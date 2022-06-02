@@ -30,7 +30,7 @@ public class Account implements Identifiable<String>  {
             @org.hibernate.annotations.Parameter(
                     name = "sequence_name", value = "hibernate_sequence"),
             @org.hibernate.annotations.Parameter(
-                    name = "sequence_prefix", value = "NL69")
+                    name = "sequence_prefix", value = "NL01")
       }
   )
   @GeneratedValue(

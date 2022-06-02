@@ -22,6 +22,7 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -89,10 +90,10 @@ public class AccountController implements AccountControllerInterface {
         }
     }
 
-    public ResponseEntity<List<AccountGetDTO>> getAccounts(@Parameter(in = ParameterIn.QUERY, description = "This query will get both accounts that belong to the matching user id." ,schema=@Schema()) @Valid @RequestParam(value = "user_id", required = false) String userId, @Parameter(in = ParameterIn.QUERY, description = "This query will filter either the 'primary' or 'savings' account." ,schema=@Schema(allowableValues={ "primary", "savings" }
-    )) @Valid @RequestParam(value = "type", required = false) List<String> type) {
+    public ResponseEntity<Page<AccountGetDTO>> getAccounts(@Parameter(in = ParameterIn.QUERY, description = "This query will get both accounts that belong to the matching user id." ,schema=@Schema()) @Valid @RequestParam(value = "user_id", required = false) String userId, @Parameter(in = ParameterIn.QUERY, description = "This query will filter either the 'primary' or 'savings' account." ,schema=@Schema(allowableValues={ "primary", "savings" }
+    )) @Valid @RequestParam(value = "type", required = false) List<String> type, @Parameter(in = ParameterIn.QUERY, description = "This query will filter for a page" ,schema=@Schema()) @Valid @RequestParam(value = "page", defaultValue = "0", required = false) Integer page, @Parameter(in = ParameterIn.QUERY, description = "This query is the number of items returned" ,schema=@Schema()) @Valid @RequestParam(value = "size", defaultValue = "5", required = false) Integer size) {
         try {
-            return new ResponseEntity<List<AccountGetDTO>>(accountService.getAccounts(userId, type, request), HttpStatus.OK);
+            return new ResponseEntity<Page<AccountGetDTO>>(accountService.getAccounts(userId, type, request, page, size), HttpStatus.OK);
         } catch(Exception exception) {
             throw exception;
         }

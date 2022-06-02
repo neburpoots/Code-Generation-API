@@ -21,6 +21,7 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -39,17 +40,17 @@ public interface AccountControllerInterface {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AccountGetDTO.class))),
 
-            @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served."),
 
-            @ApiResponse(responseCode = "401", description = "Credentials invalid or missing.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "401", description = "Credentials invalid or missing."),
 
-            @ApiResponse(responseCode = "403", description = "You are not authorized to make this request.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "403", description = "You are not authorized to make this request."),
 
-            @ApiResponse(responseCode = "404", description = "Resource not found.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "404", description = "Resource not found."),
 
-            @ApiResponse(responseCode = "409", description = "There was a conflict processing your request.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "409", description = "There was a conflict processing your request."),
 
-            @ApiResponse(responseCode = "500", description = "Internal server error.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))) })
+            @ApiResponse(responseCode = "500", description = "Internal server error.") })
     @RequestMapping(value = "/api/accounts",
             produces = { "application/json" },
             consumes = { "application/json" },
@@ -62,15 +63,15 @@ public interface AccountControllerInterface {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AccountGetDTO.class))),
 
-            @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served."),
 
-            @ApiResponse(responseCode = "401", description = "Credentials invalid or missing.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "401", description = "Credentials invalid or missing."),
 
-            @ApiResponse(responseCode = "403", description = "You are not authorized to make this request.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "403", description = "You are not authorized to make this request."),
 
-            @ApiResponse(responseCode = "404", description = "Resource not found.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "404", description = "Resource not found."),
 
-            @ApiResponse(responseCode = "500", description = "Internal server error.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))) })
+            @ApiResponse(responseCode = "500", description = "Internal server error.") })
     @RequestMapping(value = "/api/accounts/{iban}",
             produces = { "application/json" },
             consumes = { "application/json" },
@@ -82,15 +83,15 @@ public interface AccountControllerInterface {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AccountGetDTO.class))),
 
-            @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served."),
 
-            @ApiResponse(responseCode = "401", description = "Credentials invalid or missing.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "401", description = "Credentials invalid or missing."),
 
-            @ApiResponse(responseCode = "403", description = "You are not authorized to make this request.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "403", description = "You are not authorized to make this request."),
 
-            @ApiResponse(responseCode = "404", description = "Resource not found.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "404", description = "Resource not found."),
 
-            @ApiResponse(responseCode = "500", description = "Internal server error.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))) })
+            @ApiResponse(responseCode = "500", description = "Internal server error.") })
     @RequestMapping(value = "/api/accounts/{iban}",
             produces = { "application/json" },
             method = RequestMethod.GET)
@@ -102,21 +103,21 @@ public interface AccountControllerInterface {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = AccountGetDTO.class)))),
 
-            @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served."),
 
-            @ApiResponse(responseCode = "401", description = "Credentials invalid or missing.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "401", description = "Credentials invalid or missing."),
 
-            @ApiResponse(responseCode = "403", description = "You are not authorized to make this request.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "403", description = "You are not authorized to make this request."),
 
-            @ApiResponse(responseCode = "404", description = "Resource not found.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "404", description = "Resource not found."),
 
-            @ApiResponse(responseCode = "500", description = "Internal server error.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))) })
+            @ApiResponse(responseCode = "500", description = "Internal server error.") })
     @RequestMapping(value = "/api/accounts",
             produces = { "application/json" },
             method = RequestMethod.GET)
     @PreAuthorize("hasRole('CUSTOMER')")
     @ResponseStatus(HttpStatus.OK)
-    ResponseEntity<List<AccountGetDTO>> getAccounts(@Parameter(in = ParameterIn.QUERY, description = "This query will get both accounts that belong to the matching user id." ,schema=@Schema()) @Valid @RequestParam(value = "user_id", required = false) String userId, @Parameter(in = ParameterIn.QUERY, description = "This query will filter either the 'primary' or 'savings' account." ,schema=@Schema(allowableValues={ "primary", "savings" }
-    )) @Valid @RequestParam(value = "type", required = false) List<String> type);
+    ResponseEntity<Page<AccountGetDTO>> getAccounts(@Parameter(in = ParameterIn.QUERY, description = "This query will get both accounts that belong to the matching user id." ,schema=@Schema()) @Valid @RequestParam(value = "user_id", required = false) String userId, @Parameter(in = ParameterIn.QUERY, description = "This query will filter either the 'primary' or 'savings' account." ,schema=@Schema(allowableValues={ "primary", "savings" }
+    )) @Valid @RequestParam(value = "type", required = false) List<String> type, @Parameter(in = ParameterIn.QUERY, description = "This query will filter for a page" ,schema=@Schema()) @Valid @RequestParam(value = "page", defaultValue = "0", required = false) Integer page, @Parameter(in = ParameterIn.QUERY, description = "This query is the number of items returned" ,schema=@Schema()) @Valid @RequestParam(value = "size", defaultValue = "5", required = false) Integer size);
 }
 

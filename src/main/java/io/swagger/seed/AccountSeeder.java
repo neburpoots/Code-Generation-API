@@ -30,13 +30,17 @@ public class AccountSeeder {
     public List<Account> seed(List<User> users) {
         Account account1 = new Account(new BigDecimal(500), new BigDecimal(500), AccountType.PRIMARY, true);
         Account account2 = new Account(new BigDecimal(500), new BigDecimal(500), AccountType.SAVINGS, true);
-
+        Account account3 = new Account(new BigDecimal(1000), new BigDecimal(200), AccountType.PRIMARY, true);
+        Account account4 = new Account(new BigDecimal(5000), new BigDecimal(100), AccountType.SAVINGS, false);
 
         account1.setUser(users.get(0));
         account2.setUser(users.get(1));
+        account3.setUser(users.get(2));
+        account4.setUser(users.get(2));
+
 
         return this.accountRepo.saveAll(
-                List.of(account1, account2)
+                List.of(account1, account2, account3, account4)
         );
     }
 }

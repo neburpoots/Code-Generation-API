@@ -16,9 +16,14 @@ import io.swagger.repository.AccountRepository;
 import io.swagger.repository.UserRepository;
 import io.swagger.security.JwtTokenProvider;
 import io.swagger.utils.DtoUtils;
+import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.core.CollectionUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -30,6 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -119,49 +125,55 @@ public class AccountService {
         return this.modelMapper.map(newAccount, AccountGetDTO.class);
     }
 
-    public List<AccountGetDTO> getAccounts(String userId, List<String> type, HttpServletRequest req) {
+    public Page<AccountGetDTO> getAccounts(String userId, List<String> type, HttpServletRequest req, Integer page, Integer size) {
 
         String token = jwtTokenProvider.resolveToken(req);
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        List<Account> accounts;
+        Page<Account> accounts = null;
+        User user = null;
+        AccountType accountType = null;
+        boolean getWithUser = false;
+        boolean getWithType = false;
 
         //checks if the user id is empty for filtering
         if (userId != null) {
             //Checks if it is the users own id or if the role of the user is employee
             if (userId.equals(jwtTokenProvider.getAudience(token)) || auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"))) {
-                User user = userService.getUserObjectById(userId);
-                accounts = accountRepo.findByUser(user);
+                user = userService.getUserObjectById(userId);
+                getWithUser = true;
             } else {
                 throw new ForbiddenException();
             }
-        } else {
-            //Checks if it is the role employee
-            if (auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"))) {
-                accounts = accountRepo.findAll();
-            } else {
-                throw new ForbiddenException();
-            }
+        } else if (auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"))){
+            throw new ForbiddenException();
         }
 
         if (type != null) {
             String enumString = type.get(0);
             enumString = enumString.toUpperCase();
-
+            getWithType = true;
             if (enumString.equals("PRIMARY")) {
-                CollectionUtils.filter(accounts, a -> ((Account) a).getAccountType() == AccountType.PRIMARY);
+                accountType = AccountType.PRIMARY;
             } else if (enumString.equals("SAVINGS")) {
-                CollectionUtils.filter(accounts, a -> ((Account) a).getAccountType() == AccountType.SAVINGS);
+                accountType = AccountType.SAVINGS;
             } else {
                 throw new BadRequestException("Filter type is incorrect.");
             }
         }
 
-        return accounts
-                .stream()
-                .map(source -> modelMapper.map(source, AccountGetDTO.class))
-                .collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(page, size);
+        if(getWithUser && getWithType) accounts = accountRepo.findByUserAndAccountType(user, accountType, pageable);
+        else if(getWithUser) accounts = accountRepo.findByUser(user, pageable);
+        else if(getWithType) accounts = accountRepo.findByAccountType(accountType, pageable);
+        else accounts = accountRepo.findAll(pageable);
+
+        return mapEntityPageIntoDtoPage(accounts, AccountGetDTO.class);
+    }
+
+    public <D, T> Page<D> mapEntityPageIntoDtoPage(Page<T> entities, Class<D> dtoClass) {
+        return entities.map(objectEntity -> modelMapper.map(objectEntity, dtoClass));
     }
 
     public AccountGetDTO getAccount(String account_id, HttpServletRequest req) {
