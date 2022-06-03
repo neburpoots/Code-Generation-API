@@ -1,14 +1,12 @@
 package io.swagger.service;
 
 import io.swagger.configuration.LocalDateConverter;
-import io.swagger.configuration.LocalDateTimeConverter;
 import io.swagger.configuration.LocalDateValidator;
 import io.swagger.exception.BadRequestException;
 import io.swagger.exception.ResourceNotFoundException;
 import io.swagger.model.entity.Account;
 import io.swagger.model.entity.Transaction;
 import io.swagger.model.entity.TransactionType;
-import io.swagger.model.entity.User;
 import io.swagger.model.transaction.TransactionGetDTO;
 import io.swagger.model.transaction.TransactionPostDTO;
 import io.swagger.model.utils.DTOEntity;
@@ -125,11 +123,8 @@ public class TransactionService {
     }
 
     public DTOEntity createTransaction(TransactionPostDTO body) {
-        Account account = this.accountService.retrieveAccount(body.getFromAccount());
-
-        Account toAccount = this.accountRepository.getOne(body.getToAccount());
-
-
+        Account account = (this.accountService.retrieveAccount(body.getFromAccount()).getAccount_id() != null) ? this.accountService.retrieveAccount(body.getFromAccount()) : null;
+        Account toAccount = this.accountService.retrieveAccount(body.getToAccount());
 
         BigDecimal transactionsMadeToday = this.getTotalDailyTransactions(body.getFromAccount());
 
