@@ -39,12 +39,19 @@ public class AccountSeeder {
         Account account2 = new Account(new BigDecimal(500), new BigDecimal(-500), AccountType.SAVINGS, true);
         Account account3 = new Account(new BigDecimal(1000), new BigDecimal(-200), AccountType.PRIMARY, true);
         Account account4 = new Account(new BigDecimal(5000), new BigDecimal(-100), AccountType.SAVINGS, false);
+        Account account5 = new Account(new BigDecimal(3000), new BigDecimal(-200), AccountType.PRIMARY, true);
+        Account account6 = new Account(new BigDecimal(4000), new BigDecimal(-100), AccountType.SAVINGS, true);
+        Account account7 = new Account(new BigDecimal(2000), new BigDecimal(-100), AccountType.PRIMARY, true);
+        Account account8 = new Account(new BigDecimal(2000), new BigDecimal(-150), AccountType.SAVINGS, true);
 
         account1.setUser(users.get(1));
-        account2.setUser(users.get(2));
-        account3.setUser(users.get(3));
-        account4.setUser(users.get(3));
-
+        account2.setUser(users.get(1));
+        account3.setUser(users.get(2));
+        account4.setUser(users.get(2));
+        account5.setUser(users.get(3));
+        account6.setUser(users.get(3));
+        account7.setUser(users.get(4));
+        account8.setUser(users.get(4));
 
         return this.accountRepo.saveAll(
                 List.of(bankaccount, account1, account2, account3, account4)

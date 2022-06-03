@@ -40,7 +40,7 @@ import javax.transaction.Transactional;
 @NamedNativeQuery(
         name = "findUsersWithAccount",
         query =
-                "SELECT USER.USER_ID AS user_id, USER.EMAIL AS email, USER.FIRSTNAME AS firstname, USER.LASTNAME AS lastname, ACCOUNT.ACCOUNT_ID AS iban FROM USER INNER JOIN ACCOUNT ON USER.USER_ID = ACCOUNT.USER_ID WHERE LOWER( USER.FIRSTNAME ) LIKE '%' || lower(:firstname) || '%' AND LOWER ( USER.LASTNAME ) LIKE '%' || lower(:lastname) || '%' ",
+                "SELECT USER.USER_ID AS user_id, USER.EMAIL AS email, USER.FIRSTNAME AS firstname, USER.LASTNAME AS lastname, ACCOUNT.ACCOUNT_ID AS iban FROM USER INNER JOIN ACCOUNT ON USER.USER_ID = ACCOUNT.USER_ID WHERE LOWER( USER.FIRSTNAME ) LIKE '%' || lower(:firstname) || '%' AND LOWER ( USER.LASTNAME ) LIKE '%' || lower(:lastname) || '%' AND ACCOUNT.ACCOUNT_TYPE != 1",
         resultSetMapping = "users_withaccount_dto"
 )
 @SqlResultSetMapping(
@@ -77,7 +77,7 @@ import javax.transaction.Transactional;
 @NamedNativeQuery(
         name = "findUsersAll",
         query =
-                "SELECT USER.USER_ID AS user_id, USER.EMAIL AS email, USER.FIRSTNAME AS firstname, USER.LASTNAME AS lastname, ACCOUNT.ACCOUNT_ID AS iban FROM USER LEFT OUTER JOIN ACCOUNT ON USER.USER_ID = ACCOUNT.USER_ID WHERE LOWER( USER.FIRSTNAME ) LIKE '%' || lower(:firstname) || '%' AND LOWER ( USER.LASTNAME ) LIKE '%' || lower(:lastname) || '%' ",
+                "SELECT USER.USER_ID AS user_id, USER.EMAIL AS email, USER.FIRSTNAME AS firstname, USER.LASTNAME AS lastname, ACCOUNT.ACCOUNT_ID AS iban FROM USER LEFT OUTER JOIN ACCOUNT ON USER.USER_ID = ACCOUNT.USER_ID WHERE LOWER( USER.FIRSTNAME ) LIKE '%' || lower(:firstname) || '%' AND LOWER ( USER.LASTNAME ) LIKE '%' || lower(:lastname) || '%' AND ACCOUNT.ACCOUNT_TYPE != 1",
         resultSetMapping = "users_all_dto"
 )
 @SqlResultSetMapping(
