@@ -12,6 +12,7 @@ import io.swagger.model.utils.DTOEntity;
 import io.swagger.repository.TransactionRepository;
 import io.swagger.utils.DtoUtils;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.chrono.ChronoLocalDate;
@@ -92,6 +93,10 @@ public class TransactionService {
         return tt;
     }
 
+   // public getFilteredTransactions(){
+
+    //}
+
     private UUID convertToUUID(String id) {
         UUID uuid;
         try {
@@ -128,6 +133,30 @@ public class TransactionService {
             tt.setTypeTransaction(TransactionType.values()[tt.getType()]);
         }
         return list;
+    }
+
+    public List<TransactionGetDTO> filterTransactions(String toAccount, String fromAccount, String asEq, String asLt, String asMt, String date, Pageable p){
+
+//        List<String> errors = this.validateTransactionDTO(fromAccount, toAccount, asEq, asLt, asMt, date);
+//        if(!errors.isEmpty())
+//            throw new BadRequestException(errors.get(0));
+
+        LocalDate transactionDate = new LocalDateConverter("dd-MM-yyyy").convert(date);
+        BigDecimal amount = new BigDecimal(asEq);
+
+        if(toAccount.isEmpty())
+            toAccount = null;
+
+        if(fromAccount.isEmpty())
+            fromAccount = null;
+
+        amount = null;
+        BigDecimal lt = new BigDecimal(asLt);
+        BigDecimal mt = new BigDecimal(asMt);
+
+        List <TransactionGetDTO> t = this.convertListToGetDto(this.transactionRepo.filterTransactions(toAccount, fromAccount, transactionDate, amount, lt, mt, p), new TransactionGetDTO());
+
+        return t;
     }
 
     public List<TransactionGetDTO> getTransactions(String fromIban, String toIban, String amount, String asLt, String asMt, String date) {

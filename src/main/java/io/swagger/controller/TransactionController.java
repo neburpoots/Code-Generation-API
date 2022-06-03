@@ -11,6 +11,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -54,14 +56,16 @@ public class TransactionController implements TransactionControllerInterface {
     public ResponseEntity<DTOEntity> getTransactionById(@Parameter(in = ParameterIn.PATH, description = "Id of transaction", required = true, schema = @Schema()) @PathVariable("id") String id) {
         try {
             return new ResponseEntity<DTOEntity>(this.transactionService.getTransactionById(id), HttpStatus.OK);
-        } catch (ResponseStatusException exception) {
-            throw new ResponseStatusException(HttpStatus.NO_CONTENT, "Errors: ", exception);
+        } catch (Exception exception) {
+            throw exception;
         }
     }
 
     public ResponseEntity<List<TransactionGetDTO>> getTransactions(@NotNull @Parameter(in = ParameterIn.QUERY, description = "Page number for pagination",
             required = true, schema = @Schema()) @Valid @RequestParam(value = "page",
-            required = true, defaultValue = "0") Integer page, @Parameter(in = ParameterIn.QUERY, description = "Date value that needs to be considered for filter",
+            required = true, defaultValue = "0") Integer page, @NotNull @Parameter(in = ParameterIn.QUERY, description = "Page size for pagination",
+            required = true, schema = @Schema()) @Valid @RequestParam(value = "pageSize",
+            required = true, defaultValue = "10") Integer pageSize ,@Parameter(in = ParameterIn.QUERY, description = "Date value that needs to be considered for filter",
             schema = @Schema()) @Valid @RequestParam(value = "date", required = false, defaultValue = "") String transactionDate, @Parameter(in = ParameterIn.QUERY, description = "From IBAN account that needs to be considered for filter",
             schema = @Schema()) @Valid @RequestParam(value = "from_iban", required = false, defaultValue = "") String fromIban, @Parameter(in = ParameterIn.QUERY, description = "To IBAN account that needs to be considered for filter",
             schema = @Schema()) @Valid @RequestParam(value = "to_iban", required = false, defaultValue = "") String toIban, @Parameter(in = ParameterIn.QUERY, description = "Equals given amount that needs to be considered for filter",
@@ -69,7 +73,10 @@ public class TransactionController implements TransactionControllerInterface {
             schema = @Schema()) @Valid @RequestParam(value = "as_lt", required = false, defaultValue = "") String asLt, @Parameter(in = ParameterIn.QUERY, description = "More than given amount that needs to be considered for filter",
             schema = @Schema()) @Valid @RequestParam(value = "as_mt", required = false, defaultValue = "") String asMt) {
         try {
-            return new ResponseEntity<List<TransactionGetDTO>>(this.transactionService.getTransactions(fromIban, toIban, asEq, asLt, asMt, transactionDate), HttpStatus.OK);
+            Pageable p = PageRequest.of(page, pageSize);
+            //return new ResponseEntity<List<TransactionGetDTO>>(this.transactionService.getTransactions(fromIban, toIban, asEq, asLt, asMt, transactionDate), HttpStatus.OK);
+            return new ResponseEntity<List<TransactionGetDTO>>(this.transactionService.filterTransactions(fromIban, toIban, asEq, asLt, asMt, transactionDate, p), HttpStatus.OK);
+
         } catch (Exception exception) {
             throw exception;
         }
