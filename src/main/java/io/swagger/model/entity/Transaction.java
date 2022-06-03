@@ -7,7 +7,9 @@ import java.util.UUID;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+import org.apache.tomcat.jni.Local;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
 
 import javax.persistence.*;
 
@@ -34,14 +36,18 @@ public class Transaction   {
   private Integer type;
 
   @NonNull
-  private LocalDate timestamp;
+  private LocalDateTime timestamp;
+
+  @NonNull
+  private LocalDate date;
 
   public Transaction(String toAccount, String fromAccount, BigDecimal amount, Integer type){
     this.toAccount = toAccount;
     this.fromAccount = fromAccount;
     this.amount = amount;
     this.type = type;
-    this.timestamp = LocalDate.now();
+    this.date = LocalDate.now();
+    this.timestamp = LocalDateTime.now();
   }
 
   public Transaction(){

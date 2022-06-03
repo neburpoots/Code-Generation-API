@@ -6,8 +6,10 @@ import io.swagger.model.utils.DTOEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 
+import org.apache.tomcat.jni.Local;
 import org.springframework.validation.annotation.Validated;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
 
 import javax.validation.Valid;
 
@@ -29,7 +31,10 @@ public class TransactionPostDTO implements DTOEntity {
   private BigDecimal amount = null;
 
   @JsonProperty("timestamp")
-  private LocalDate timestamp = LocalDate.now();
+  private LocalDateTime timestamp = LocalDateTime.now();
+
+  @JsonProperty("date")
+  private LocalDate date = LocalDate.now();
 
   @JsonProperty("type")
   private Integer type = null;

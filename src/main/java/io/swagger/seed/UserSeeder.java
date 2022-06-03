@@ -31,10 +31,10 @@ public class UserSeeder {
     private WebSecurityConfig webSecurityConfig;
 
     public List<User> seed() {
-        User ruben = new User("Ruben", "Stoop", "ruben@student.inholland.nl", new BigDecimal(50), new BigDecimal(25000), webSecurityConfig.passwordEncoder().encode("Secret123!"));
-        User tim = new User("Tim", "Roffelsen", "tim@student.inholland.nl", new BigDecimal(50), new BigDecimal(25000), webSecurityConfig.passwordEncoder().encode("Secret123!"));
-        User customer = new User("Mr", "Customer", "customer@student.inholland.nl", new BigDecimal(50), new BigDecimal(25000), webSecurityConfig.passwordEncoder().encode("Secret123!"));
-        User noAccount = new User("No", "Account", "noaccount@student.inholland.nl", new BigDecimal(50), new BigDecimal(25000), webSecurityConfig.passwordEncoder().encode("Secret123!"));
+        User ruben = new User("Ruben", "Stoop", "ruben@student.inholland.nl", new BigDecimal(500), new BigDecimal(2500), webSecurityConfig.passwordEncoder().encode("Secret123!"));
+        User tim = new User("Tim", "Roffelsen", "tim@student.inholland.nl", new BigDecimal(500), new BigDecimal(2500), webSecurityConfig.passwordEncoder().encode("Secret123!"));
+        User customer = new User("Mr", "Customer", "customer@student.inholland.nl", new BigDecimal(500), new BigDecimal(2500), webSecurityConfig.passwordEncoder().encode("Secret123!"));
+        User noAccount = new User("No", "Account", "noaccount@student.inholland.nl", new BigDecimal(500), new BigDecimal(5000), webSecurityConfig.passwordEncoder().encode("Secret123!"));
 
         // Sets all the roles for the employee users
         ruben.setRolesForUser(List.of(roleRepo.findById(1).orElse(null), roleRepo.findById(2).orElse(null)));

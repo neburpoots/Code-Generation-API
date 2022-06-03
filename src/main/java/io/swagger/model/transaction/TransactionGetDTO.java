@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 
 import org.springframework.validation.annotation.Validated;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
 
 import javax.validation.Valid;
 
@@ -27,16 +28,27 @@ public class TransactionGetDTO implements DTOEntity {
     @JsonProperty("fromAccount")
     private String fromAccount = null;
 
-    public LocalDate getTimestamp() {
+    public LocalDateTime getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(LocalDate timestamp) {
+    public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
     }
 
     @JsonProperty("timestamp")
-    private LocalDate timestamp;
+    private LocalDateTime timestamp;
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    @JsonProperty("date")
+    private LocalDate date;
 
     @JsonProperty("amount")
     private BigDecimal amount;

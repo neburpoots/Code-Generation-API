@@ -1,11 +1,14 @@
 package io.swagger.service;
 
 import io.swagger.configuration.LocalDateConverter;
+import io.swagger.configuration.LocalDateTimeConverter;
 import io.swagger.configuration.LocalDateValidator;
 import io.swagger.exception.BadRequestException;
 import io.swagger.exception.ResourceNotFoundException;
+import io.swagger.model.entity.Account;
 import io.swagger.model.entity.Transaction;
 import io.swagger.model.entity.TransactionType;
+import io.swagger.model.entity.User;
 import io.swagger.model.transaction.TransactionGetDTO;
 import io.swagger.model.transaction.TransactionPostDTO;
 import io.swagger.model.utils.DTOEntity;
@@ -16,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -27,8 +31,11 @@ public class TransactionService {
 
     private final TransactionRepository transactionRepo;
 
-    public TransactionService(TransactionRepository transactionRepo) {
+    private final AccountService accountService;
+
+    public TransactionService(TransactionRepository transactionRepo, AccountService accountService) {
         this.transactionRepo = transactionRepo;
+        this.accountService = accountService;
     }
 
     public DTOEntity getTransactionById(String id) {
@@ -93,6 +100,8 @@ public class TransactionService {
         return tt;
     }
 
+
+
     private UUID convertToUUID(String id) {
         UUID uuid;
         try {
@@ -103,7 +112,26 @@ public class TransactionService {
         return uuid;
     }
 
+    private BigDecimal getTotalDailyTransactions(String fromAccount){
+        BigDecimal amount = new BigDecimal(0);
+        List <Transaction> list = this.transactionRepo.findByFromAccountAndTimestampAfter(fromAccount, LocalDateTime.now().minusHours(24));
+        for(Transaction t : list){
+            amount.add(t.getAmount());
+        }
+        return amount;
+    }
+
     public DTOEntity createTransaction(TransactionPostDTO body) {
+        Account account = this.accountService.retrieveAccount(body.getFromAccount());
+        BigDecimal transactionsMadeToday = this.getTotalDailyTransactions(body.getFromAccount());
+
+        if(account.getUser().getTransactionLimit().compareTo(body.getAmount()) == -1){
+            throw new BadRequestException("Transaction limit of " + account.getUser().getTransactionLimit() + "was reached. ");
+        }
+        if(transactionsMadeToday.compareTo(account.getUser().getTransactionLimit()) == -1){
+            throw new BadRequestException("Daily limit of " + account.getUser().getDailyLimit() + " has been reached.");
+        }
+
         String tt = "";
         List <String> errors = this.validateTransactionDTO(body.getFromAccount(), body.getToAccount(), body.getAmount().toString(), "", "", "");
         if(!errors.isEmpty()){
@@ -132,7 +160,6 @@ public class TransactionService {
     }
 
     public List<TransactionGetDTO> filterTransactions(String toAccount, String fromAccount, String asEq, String asLt, String asMt, String date, Integer page, Integer pageSize){
-
         List<String> errors = this.validateTransactionDTO(fromAccount, toAccount, asEq, asLt, asMt, date);
         if(!errors.isEmpty())
             throw new BadRequestException(errors.get(0));
