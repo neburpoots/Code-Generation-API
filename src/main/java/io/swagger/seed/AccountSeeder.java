@@ -27,20 +27,27 @@ public class AccountSeeder {
         this.accountRepo = accountRepo;
     }
 
+
     public List<Account> seed(List<User> users) {
+
+        Account bankaccount = new Account(new BigDecimal(1000000), new BigDecimal(0), AccountType.BANK, true);
+        bankaccount.setAccount_id("NL01INHO0000000001");
+        bankaccount.setUser(users.get(0));
+
+
         Account account1 = new Account(new BigDecimal(500), new BigDecimal(-500), AccountType.PRIMARY, true);
         Account account2 = new Account(new BigDecimal(500), new BigDecimal(-500), AccountType.SAVINGS, true);
         Account account3 = new Account(new BigDecimal(1000), new BigDecimal(-200), AccountType.PRIMARY, true);
         Account account4 = new Account(new BigDecimal(5000), new BigDecimal(-100), AccountType.SAVINGS, false);
 
-        account1.setUser(users.get(0));
-        account2.setUser(users.get(1));
-        account3.setUser(users.get(2));
-        account4.setUser(users.get(2));
+        account1.setUser(users.get(1));
+        account2.setUser(users.get(2));
+        account3.setUser(users.get(3));
+        account4.setUser(users.get(3));
 
 
         return this.accountRepo.saveAll(
-                List.of(account1, account2, account3, account4)
+                List.of(bankaccount, account1, account2, account3, account4)
         );
     }
 }

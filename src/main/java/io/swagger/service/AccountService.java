@@ -61,7 +61,13 @@ public class AccountService {
         //Retrieves account
         Account newAccount = retrieveAccount(account_id);
 
+
         boolean updated = false;
+
+        //Checks if
+        if(newAccount.getAccountType() == AccountType.BANK) {
+            throw new BadRequestException("Can't edit this account");
+        }
 
         //updates absolute limit in case of not being null
         if (accountPatchDTO.getAbsoluteLimit() != null) {
@@ -171,9 +177,9 @@ public class AccountService {
         //Gets the users depending on the
         Pageable pageable = PageRequest.of(page, size);
         if(getWithUser && getWithType) accounts = accountRepo.findByUserAndAccountType(user, accountType, pageable);
-        else if(getWithUser) accounts = accountRepo.findByUser(user, pageable);
+        else if(getWithUser) accounts = accountRepo.findByUserAndAccountTypeIsNot(user, AccountType.BANK, pageable);
         else if(getWithType) accounts = accountRepo.findByAccountType(accountType, pageable);
-        else accounts = accountRepo.findAll(pageable);
+        else accounts = accountRepo.findByAccountTypeIsNot(AccountType.BANK, pageable);
 
         //Checks if page number is valid
         if((accounts.getTotalPages() - 1) < page) {
@@ -221,6 +227,9 @@ public class AccountService {
         //Gets the specified account
         Optional<Account> optionalAccount = accountRepo.findById(account_id);
         if (optionalAccount.isPresent()) {
+            if(optionalAccount.get().getAccountType() == AccountType.BANK) {
+                throw new BadRequestException("You do not have access to this account");
+            }
             return optionalAccount.get();
         } else {
             //Throw 404 in case of not being null

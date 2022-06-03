@@ -31,6 +31,7 @@ public class UserSeeder {
     private WebSecurityConfig webSecurityConfig;
 
     public List<User> seed() {
+        User bank = new User("Bank", "Account", "bankaccount@bankaccount.nl", new BigDecimal(1000000), new BigDecimal(1000000), webSecurityConfig.passwordEncoder().encode("Secret123!"));
         User ruben = new User("Ruben", "Stoop", "ruben@student.inholland.nl", new BigDecimal(500), new BigDecimal(2500), webSecurityConfig.passwordEncoder().encode("Secret123!"));
         User tim = new User("Tim", "Roffelsen", "tim@student.inholland.nl", new BigDecimal(500), new BigDecimal(2500), webSecurityConfig.passwordEncoder().encode("Secret123!"));
         User customer = new User("Mr", "Customer", "customer@student.inholland.nl", new BigDecimal(500), new BigDecimal(2500), webSecurityConfig.passwordEncoder().encode("Secret123!"));
@@ -46,7 +47,7 @@ public class UserSeeder {
         customer.setRolesForUser(customerRole);
 
         return this.userRepo.saveAll(
-                List.of(ruben, tim, customer, noAccount)
+                List.of(bank, ruben, tim, customer, noAccount)
         );
 
 

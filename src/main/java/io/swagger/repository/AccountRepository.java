@@ -13,6 +13,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface AccountRepository extends JpaRepository<Account, String> {
@@ -25,11 +26,11 @@ public interface AccountRepository extends JpaRepository<Account, String> {
 
     Page<Account> findByUserAndAccountType(User user, AccountType accountType, Pageable pageable);
 
-    Page<Account> findByUser(User user, Pageable pageable);
+    Page<Account> findByUserAndAccountTypeIsNot(User user, AccountType accountType, Pageable pageable);
 
     Page<Account> findByAccountType(AccountType accountType, Pageable pageable);
 
-
+    Page<Account> findByAccountTypeIsNot(AccountType accountType, Pageable pageable);
 
 //    @Query("select u from Account b where UPPER(b.firstName) like CONCAT('%',UPPER(?1),'%') and UPPER(b.lastName) like CONCAT('%',UPPER(?2),'%')";)
 //    List<Customer> findByFirstNameLikeAndLastNameLike(String firstNameFilter, String lastNameFilter);

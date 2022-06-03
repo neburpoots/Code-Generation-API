@@ -25,7 +25,7 @@ import java.util.Random;
 
 
 //THIS CLASS GENERATES IBANS AS THE PRIMARY KEY FOR ACCOUNT
-//
+//https://vladmihalcea.com/how-to-implement-a-custom-string-based-sequence-identifier-generator-with-hibernate/
 @Component
 @EnableTransactionManagement
 public class StringSequenceIdentifier implements
