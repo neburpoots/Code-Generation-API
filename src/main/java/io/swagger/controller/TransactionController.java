@@ -73,9 +73,8 @@ public class TransactionController implements TransactionControllerInterface {
             schema = @Schema()) @Valid @RequestParam(value = "as_lt", required = false, defaultValue = "") String asLt, @Parameter(in = ParameterIn.QUERY, description = "More than given amount that needs to be considered for filter",
             schema = @Schema()) @Valid @RequestParam(value = "as_mt", required = false, defaultValue = "") String asMt) {
         try {
-            Pageable p = PageRequest.of(page, pageSize);
             //return new ResponseEntity<List<TransactionGetDTO>>(this.transactionService.getTransactions(fromIban, toIban, asEq, asLt, asMt, transactionDate), HttpStatus.OK);
-            return new ResponseEntity<List<TransactionGetDTO>>(this.transactionService.filterTransactions(fromIban, toIban, asEq, asLt, asMt, transactionDate, p), HttpStatus.OK);
+            return new ResponseEntity<List<TransactionGetDTO>>(this.transactionService.filterTransactions(fromIban, toIban, asEq, asLt, asMt, transactionDate, page, pageSize), HttpStatus.OK);
 
         } catch (Exception exception) {
             throw exception;

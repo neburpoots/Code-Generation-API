@@ -12,10 +12,10 @@ import io.swagger.model.utils.DTOEntity;
 import io.swagger.repository.TransactionRepository;
 import io.swagger.utils.DtoUtils;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.chrono.ChronoLocalDate;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -93,10 +93,6 @@ public class TransactionService {
         return tt;
     }
 
-   // public getFilteredTransactions(){
-
-    //}
-
     private UUID convertToUUID(String id) {
         UUID uuid;
         try {
@@ -135,94 +131,24 @@ public class TransactionService {
         return list;
     }
 
-    public List<TransactionGetDTO> filterTransactions(String toAccount, String fromAccount, String asEq, String asLt, String asMt, String date, Pageable p){
+    public List<TransactionGetDTO> filterTransactions(String toAccount, String fromAccount, String asEq, String asLt, String asMt, String date, Integer page, Integer pageSize){
 
-//        List<String> errors = this.validateTransactionDTO(fromAccount, toAccount, asEq, asLt, asMt, date);
-//        if(!errors.isEmpty())
-//            throw new BadRequestException(errors.get(0));
-
-        LocalDate transactionDate = new LocalDateConverter("dd-MM-yyyy").convert(date);
-        BigDecimal amount = new BigDecimal(asEq);
-
-        if(toAccount.isEmpty())
-            toAccount = null;
-
-        if(fromAccount.isEmpty())
-            fromAccount = null;
-
-        amount = null;
-        BigDecimal lt = new BigDecimal(asLt);
-        BigDecimal mt = new BigDecimal(asMt);
-
-        List <TransactionGetDTO> t = this.convertListToGetDto(this.transactionRepo.filterTransactions(toAccount, fromAccount, transactionDate, amount, lt, mt, p), new TransactionGetDTO());
-
-        return t;
-    }
-
-    public List<TransactionGetDTO> getTransactions(String fromIban, String toIban, String amount, String asLt, String asMt, String date) {
-        List<String> errors = this.validateTransactionDTO(fromIban, toIban, amount, asLt, asMt, date);
+        List<String> errors = this.validateTransactionDTO(fromAccount, toAccount, asEq, asLt, asMt, date);
         if(!errors.isEmpty())
             throw new BadRequestException(errors.get(0));
 
-        List<TransactionGetDTO> t = null;
-        //From account filtering
-        if (t == null && !fromIban.equals("")) {
-            t = this.convertListToGetDto(this.transactionRepo.findByFromAccount(fromIban), new TransactionGetDTO());
-        }
-        //to account filtering
-        if (t == null && !toIban.equals("")) {
-            t = this.convertListToGetDto(this.transactionRepo.findByToAccount(toIban), new TransactionGetDTO());
-        } else if (t != null && !toIban.equals("")) {
-            for (TransactionGetDTO tt : new ArrayList<TransactionGetDTO>(t)) {
-                if (!tt.getToAccount().equals(toIban))
-                    t.remove(tt);
-            }
-        }
-        //equals amount filtering
-        if (t == null && !amount.equals("")) {
-            t = this.convertListToGetDto(this.transactionRepo.findByAmount(new BigDecimal(amount)), new TransactionGetDTO());
-        } else if (t != null && !amount.equals("")) {
-            for (TransactionGetDTO tt : new ArrayList<TransactionGetDTO>(t)) {
-                if (tt.getAmount().compareTo(new BigDecimal(amount)) != 0)
-                    t.remove(tt);
-            }
-        }
-        //less than given amount filtering
-        if (t == null && !asLt.equals("")) {
-            t = this.convertListToGetDto(this.transactionRepo.findByAmountIsLessThan(new BigDecimal(asLt)), new TransactionGetDTO());
-        } else if (t != null && !asLt.equals("")) {
+        Pageable p = PageRequest.of(page, pageSize);
 
-            for (TransactionGetDTO tt : new ArrayList<TransactionGetDTO>(t)) {
-                if (tt.getAmount().compareTo(new BigDecimal(asLt)) != -1)
-                    t.remove(tt);
-            }
-        }
-        //more than filter
-        if (t == null && !asMt.equals("")) {
-            t = this.convertListToGetDto(this.transactionRepo.findByAmountIsGreaterThan(new BigDecimal(asMt)), new TransactionGetDTO());
-        } else if (t != null && !asMt.equals("")) {
-            for (TransactionGetDTO tt : new ArrayList<TransactionGetDTO>(t)) {
-                if (tt.getAmount().compareTo(new BigDecimal(asMt)) != 1)
-                    t.remove(tt);
-            }
-        }
-        //date filter
-        if (t == null && !date.equals("")) {
-            LocalDate dd = new LocalDateConverter("dd-MM-yyyy").convert(date);
-            t = this.convertListToGetDto(this.transactionRepo.findByTimestamp(dd), new TransactionGetDTO());
-        } else if (t != null && !date.equals("")) {
-            for (TransactionGetDTO tt : new ArrayList<TransactionGetDTO>(t)) {
-                LocalDate dd = new LocalDateConverter("dd-MM-yyyy").convert(date);
-                if (tt.getTimestamp().compareTo(ChronoLocalDate.from(dd)) != 0)
-                    t.remove(tt);
-            }
-        }
-        //checks if any filters where applied
-        if (t == null) {
-            return addTransactionType(this.convertListToGetDto(this.transactionRepo.findAll(), new TransactionGetDTO()));
+        LocalDate transactionDate = (!date.isEmpty()) ? new LocalDateConverter("dd-MM-yyyy").convert(date) : null;
+        toAccount =  (!toAccount.isEmpty()) ? toAccount : null;
+        fromAccount = (!fromAccount.isEmpty()) ? fromAccount : null;
 
-        } else {
-            return addTransactionType(t);
-        }
+        BigDecimal amount = (!asEq.isEmpty()) ? new BigDecimal(asEq) : null;
+        BigDecimal lt = (!asLt.isEmpty()) ? new BigDecimal(asLt) : null;
+        BigDecimal mt = (!asMt.isEmpty()) ? new BigDecimal(asMt) : null;
+
+        List <TransactionGetDTO> t = this.addTransactionType(this.convertListToGetDto(this.transactionRepo.filterTransactions(toAccount, fromAccount, transactionDate, amount, lt, mt, p), new TransactionGetDTO()));
+
+        return t;
     }
 }
