@@ -131,6 +131,11 @@ public class AccountService {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
+        //Checks if the page values are accurate
+        if(page < 0 || size < 1) {
+            throw new BadRequestException("Invalid page or page size");
+        }
+
         Page<Account> accounts = null;
         User user = null;
         AccountType accountType = null;
@@ -163,11 +168,17 @@ public class AccountService {
             }
         }
 
+        //Gets the users depending on the
         Pageable pageable = PageRequest.of(page, size);
         if(getWithUser && getWithType) accounts = accountRepo.findByUserAndAccountType(user, accountType, pageable);
         else if(getWithUser) accounts = accountRepo.findByUser(user, pageable);
         else if(getWithType) accounts = accountRepo.findByAccountType(accountType, pageable);
         else accounts = accountRepo.findAll(pageable);
+
+        //Checks if page number is valid
+        if((accounts.getTotalPages() - 1) < page) {
+            throw new BadRequestException("Page number is invalid");
+        }
 
         return mapEntityPageIntoDtoPage(accounts, AccountGetDTO.class);
     }
