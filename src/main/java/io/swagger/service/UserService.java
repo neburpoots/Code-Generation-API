@@ -191,12 +191,12 @@ public class UserService {
                 throw new BadRequestException("Email is invalid");
             }
         }
-        if (userPatchDTO.getTransactionLimit() != null && userPatchDTO.getTransactionLimit().compareTo(new BigDecimal(0)) >= 0 && userPatchDTO.getTransactionLimit().compareTo(user.getTransactionLimit()) != 0) {
+        if (userPatchDTO.getTransactionLimit() != null && userPatchDTO.getTransactionLimit().compareTo(new BigDecimal(0)) >= 0 && userPatchDTO.getTransactionLimit().compareTo(user.getTransactionLimit()) != 0 && userPatchDTO.getTransactionLimit().compareTo(new BigDecimal(1000000)) <= 0) {
             user.setTransactionLimit(userPatchDTO.getTransactionLimit());
             System.out.println("trans");
             edit = true;
         }
-        if (userPatchDTO.getDailyLimit() != null && userPatchDTO.getDailyLimit().compareTo(new BigDecimal(0)) >= 0 && userPatchDTO.getDailyLimit().compareTo(user.getDailyLimit()) != 0) {
+        if (userPatchDTO.getDailyLimit() != null && userPatchDTO.getDailyLimit().compareTo(new BigDecimal(0)) >= 0 && userPatchDTO.getDailyLimit().compareTo(user.getDailyLimit()) != 0 && userPatchDTO.getDailyLimit().compareTo(new BigDecimal(1000000)) <= 0) {
             user.setDailyLimit(userPatchDTO.getDailyLimit());
             System.out.println("dail");
             edit = true;
