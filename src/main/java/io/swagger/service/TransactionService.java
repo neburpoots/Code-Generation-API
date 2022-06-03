@@ -1,17 +1,16 @@
 package io.swagger.service;
 
 import io.swagger.configuration.LocalDateConverter;
-import io.swagger.configuration.LocalDateTimeConverter;
 import io.swagger.configuration.LocalDateValidator;
 import io.swagger.exception.BadRequestException;
 import io.swagger.exception.ResourceNotFoundException;
 import io.swagger.model.entity.Account;
 import io.swagger.model.entity.Transaction;
 import io.swagger.model.entity.TransactionType;
-import io.swagger.model.entity.User;
 import io.swagger.model.transaction.TransactionGetDTO;
 import io.swagger.model.transaction.TransactionPostDTO;
 import io.swagger.model.utils.DTOEntity;
+import io.swagger.repository.AccountRepository;
 import io.swagger.repository.TransactionRepository;
 import io.swagger.utils.DtoUtils;
 import org.modelmapper.ModelMapper;
@@ -32,10 +31,12 @@ public class TransactionService {
     private final TransactionRepository transactionRepo;
 
     private final AccountService accountService;
+    private final AccountRepository accountRepository;
 
-    public TransactionService(TransactionRepository transactionRepo, AccountService accountService) {
+    public TransactionService(TransactionRepository transactionRepo, AccountService accountService, AccountRepository accountRepository) {
         this.transactionRepo = transactionRepo;
         this.accountService = accountService;
+        this.accountRepository = accountRepository;
     }
 
     public DTOEntity getTransactionById(String id) {
@@ -116,21 +117,31 @@ public class TransactionService {
         BigDecimal amount = new BigDecimal(0);
         List <Transaction> list = this.transactionRepo.findByFromAccountAndTimestampAfter(fromAccount, LocalDateTime.now().minusHours(24));
         for(Transaction t : list){
-            amount.add(t.getAmount());
+            amount = amount.add(t.getAmount());
         }
         return amount;
     }
 
     public DTOEntity createTransaction(TransactionPostDTO body) {
-        Account account = this.accountService.retrieveAccount(body.getFromAccount());
+        Account account = (this.accountService.retrieveAccount(body.getFromAccount()).getAccount_id() != null) ? this.accountService.retrieveAccount(body.getFromAccount()) : null;
+        Account toAccount = this.accountService.retrieveAccount(body.getToAccount());
+
         BigDecimal transactionsMadeToday = this.getTotalDailyTransactions(body.getFromAccount());
 
         if(account.getUser().getTransactionLimit().compareTo(body.getAmount()) == -1){
             throw new BadRequestException("Transaction limit of " + account.getUser().getTransactionLimit() + "was reached. ");
         }
-        if(transactionsMadeToday.compareTo(account.getUser().getTransactionLimit()) == -1){
-            throw new BadRequestException("Daily limit of " + account.getUser().getDailyLimit() + " has been reached.");
+        if(transactionsMadeToday.add(body.getAmount()).compareTo(account.getUser().getDailyLimit()) == 1){
+            throw new BadRequestException("Transactions made todayL " + transactionsMadeToday + "Daily limit of " + account.getUser().getDailyLimit() + " has been reached.");
         }
+        if(account.getBalance().compareTo(body.getAmount()) == -1){
+            throw new BadRequestException("Insufficient funds. ");
+        }
+
+        toAccount.setBalance(toAccount.getBalance().add(body.getAmount()));
+
+        account.setBalance(account.getBalance().subtract(body.getAmount()));
+        this.accountRepository.save(account);
 
         String tt = "";
         List <String> errors = this.validateTransactionDTO(body.getFromAccount(), body.getToAccount(), body.getAmount().toString(), "", "", "");
