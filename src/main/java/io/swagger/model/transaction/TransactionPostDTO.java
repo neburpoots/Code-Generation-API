@@ -20,6 +20,8 @@ import javax.validation.Valid;
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-05T18:12:07.854Z[GMT]")
 
 public class TransactionPostDTO implements DTOEntity {
+
+
   @JsonProperty("toAccount")
   private String toAccount = null;
 
@@ -32,6 +34,22 @@ public class TransactionPostDTO implements DTOEntity {
 
   @JsonProperty("timestamp")
   private LocalDateTime timestamp = LocalDateTime.now();
+
+  public LocalDateTime getTimestamp() {
+    return timestamp;
+  }
+
+  public void setTimestamp(LocalDateTime timestamp) {
+    this.timestamp = timestamp;
+  }
+
+  public LocalDate getDate() {
+    return date;
+  }
+
+  public void setDate(LocalDate date) {
+    this.date = date;
+  }
 
   @JsonProperty("date")
   private LocalDate date = LocalDate.now();
