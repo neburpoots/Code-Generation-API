@@ -46,10 +46,11 @@ public class UserSeeder {
         customerRole.add(roleRepo.findById(1).orElse(null));
         customer.setRolesForUser(customerRole);
 
+        noAccount.setRolesForUser(customerRole);
+
         return this.userRepo.saveAll(
                 List.of(bank, ruben, tim, customer, noAccount)
         );
-
 
 
     }

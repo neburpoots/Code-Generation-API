@@ -2,7 +2,6 @@ package io.swagger.model.user;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.model.entity.UserRole;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
@@ -32,8 +31,8 @@ public class UserPatchDTO implements DTOEntity {
   @JsonProperty("daily_limit")
   private BigDecimal dailyLimit = null;
 
-  @JsonProperty("role")
-  private UserRole role = null;
+  @JsonProperty("roles")
+  private Integer[] roles = null;
 
   public UserPatchDTO firstname(String firstname) {
     this.firstname = firstname;
@@ -132,24 +131,24 @@ public class UserPatchDTO implements DTOEntity {
     this.dailyLimit = dailyLimit;
   }
 
-  public UserPatchDTO role(UserRole role) {
-    this.role = role;
+  public UserPatchDTO roles(Integer[] roles) {
+    this.roles = roles;
     return this;
   }
 
   /**
-   * Get role
-   * @return role
+   * Get roles
+   * @return roles
    **/
   @Schema(description = "")
   
     @Valid
-    public UserRole getRole() {
-    return role;
+    public Integer[] getRoles() {
+    return roles;
   }
 
-  public void setRole(UserRole role) {
-    this.role = role;
+  public void setRoles(Integer[] roles) {
+    this.roles = roles;
   }
 
 
@@ -167,12 +166,12 @@ public class UserPatchDTO implements DTOEntity {
         Objects.equals(this.email, userPatchDTO.email) &&
         Objects.equals(this.transactionLimit, userPatchDTO.transactionLimit) &&
         Objects.equals(this.dailyLimit, userPatchDTO.dailyLimit) &&
-        Objects.equals(this.role, userPatchDTO.role);
+        Objects.equals(this.roles, userPatchDTO.roles);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(firstname, lastname, email, transactionLimit, dailyLimit, role);
+    return Objects.hash(firstname, lastname, email, transactionLimit, dailyLimit, roles);
   }
 
   @Override
@@ -185,7 +184,7 @@ public class UserPatchDTO implements DTOEntity {
     sb.append("    email: ").append(toIndentedString(email)).append("\n");
     sb.append("    transactionLimit: ").append(toIndentedString(transactionLimit)).append("\n");
     sb.append("    dailyLimit: ").append(toIndentedString(dailyLimit)).append("\n");
-    sb.append("    role: ").append(toIndentedString(role)).append("\n");
+    sb.append("    role: ").append(toIndentedString(roles)).append("\n");
     sb.append("}");
     return sb.toString();
   }

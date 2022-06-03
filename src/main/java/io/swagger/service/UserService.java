@@ -29,8 +29,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
-public class UserService
-{
+public class UserService {
 
     private final UserRepository userRepo;
     private final RoleRepository roleRepo;
@@ -40,8 +39,7 @@ public class UserService
     private final DtoUtils dtoUtils;
     private final RefreshTokenService refreshTokenService;
 
-    public UserService(UserRepository userRepo, RoleRepository roleRepo, AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider, PasswordEncoder passwordEncoder, DtoUtils dtoUtils, RefreshTokenService refreshTokenService)
-    {
+    public UserService(UserRepository userRepo, RoleRepository roleRepo, AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider, PasswordEncoder passwordEncoder, DtoUtils dtoUtils, RefreshTokenService refreshTokenService) {
         this.userRepo = userRepo;
         this.roleRepo = roleRepo;
         this.authenticationManager = authenticationManager;
@@ -51,21 +49,16 @@ public class UserService
         this.refreshTokenService = refreshTokenService;
     }
 
-    public DTOEntity login(UserLoginDTO userLoginDTO)
-    {
-        try
-        {
+    public DTOEntity login(UserLoginDTO userLoginDTO) {
+        try {
             User user = userRepo.findByEmail(userLoginDTO.getEmail());
-            if (user == null)
-            {
+            if (user == null) {
                 throw new ResourceNotFoundException("No account found with given email");
             }
-            if (userLoginDTO.getPassword() == null)
-            {
+            if (userLoginDTO.getPassword() == null) {
                 throw new BadRequestException("Password missing");
             }
-            if (verifyPassword(userLoginDTO.getPassword(), user.getPassword()))
-            {
+            if (verifyPassword(userLoginDTO.getPassword(), user.getPassword())) {
                 String jwt = jwtTokenProvider.createToken(user.getEmail(), new ArrayList<Role>(), user.getUser_id());
                 UserLoginReturnDTO userLoginReturnDTO = (UserLoginReturnDTO) dtoUtils.convertToDto(user, new UserLoginReturnDTO());
                 userLoginReturnDTO.setAccessToken(jwt);
@@ -76,22 +69,18 @@ public class UserService
                 return userLoginReturnDTO;
             }
             throw new UnauthorizedException("Invalid login credentials");
-        } catch (Exception ae)
-        {
+        } catch (Exception ae) {
             throw new testException(ae.getMessage());
         }
     }
 
-    public DTOEntity addUser(UserPostDTO userPostDTO)
-    {
+    public DTOEntity addUser(UserPostDTO userPostDTO) {
         userPostDTO.setEmail(userPostDTO.getEmail().toLowerCase(Locale.ROOT));
         List<String> checks = checkPostFields(userPostDTO);
-        if (!checks.isEmpty())
-        {
+        if (!checks.isEmpty()) {
             throw new BadRequestException(String.join(";", checks));
         }
-        if (findUserByEmail(userPostDTO.getEmail()) == null)
-        {
+        if (findUserByEmail(userPostDTO.getEmail()) == null) {
             User user = (User) dtoUtils.convertToEntity(new User(), userPostDTO);
             user.setPassword(hashPassword(userPostDTO.getPassword()));
             user.setDailyLimit(new BigDecimal(2500));
@@ -99,44 +88,36 @@ public class UserService
             user.setRolesForUser(List.of(roleRepo.findById(1).orElse(null)));
 
             return dtoUtils.convertToDto(this.userRepo.save(user), new UserGetDTO());
-        } else
-        {
+        } else {
             throw new ConflictException("This email is already in use");
         }
     }
 
-    private List<String> checkPostFields(UserPostDTO userPostDTO)
-    {
+    private List<String> checkPostFields(UserPostDTO userPostDTO) {
         List<String> checks = new ArrayList<>();
-        if (userPostDTO.getFirstname() == null || userPostDTO.getFirstname().length() < 2 || userPostDTO.getFirstname().length() > 50)
-        {
+        if (userPostDTO.getFirstname() == null || userPostDTO.getFirstname().length() < 2 || userPostDTO.getFirstname().length() > 50) {
             checks.add("Invalid first name length");
         }
-        if (userPostDTO.getLastname() == null || userPostDTO.getLastname().length() < 2 || userPostDTO.getLastname().length() > 50)
-        {
+        if (userPostDTO.getLastname() == null || userPostDTO.getLastname().length() < 2 || userPostDTO.getLastname().length() > 50) {
             checks.add("Invalid last name length");
         }
-        if (userPostDTO.getEmail() == null || !verifyEmail(userPostDTO.getEmail()))
-        {
+        if (userPostDTO.getEmail() == null || !verifyEmail(userPostDTO.getEmail())) {
             checks.add("Email address is invalid");
         }
-        if (userPostDTO.getPassword() == null || !verifyPasswordComplexity(userPostDTO.getPassword()))
-        {
+        if (userPostDTO.getPassword() == null || !verifyPasswordComplexity(userPostDTO.getPassword())) {
             checks.add("Invalid password");
         }
         return checks;
     }
 
-    private boolean verifyEmail(String email)
-    {
+    private boolean verifyEmail(String email) {
         Pattern regex =
                 Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
         Matcher matcher = regex.matcher(email);
         return matcher.find();
     }
 
-    private boolean verifyPasswordComplexity(String password)
-    {
+    private boolean verifyPasswordComplexity(String password) {
         Pattern regex =
                 Pattern.compile("^(?=.*[0-9])"
                         + "(?=.*[a-z])(?=.*[A-Z])"
@@ -146,154 +127,148 @@ public class UserService
         return matcher.find();
     }
 
-    private String hashPassword(String password)
-    {
+    private String hashPassword(String password) {
         return new BCryptPasswordEncoder().encode(password);
     }
 
-    private boolean verifyPassword(String password, String hash)
-    {
+    private boolean verifyPassword(String password, String hash) {
         return new BCryptPasswordEncoder().matches(password, hash);
     }
 
-    public DTOEntity findUserByEmail(String email)
-    {
+    public DTOEntity findUserByEmail(String email) {
         User user = userRepo.findByEmail(email);
-        if (user != null)
-        {
+        if (user != null) {
             return dtoUtils.convertToDto(user, new UserGetDTO());
-        } else
-        {
+        } else {
             return null;
         }
     }
 
-    public boolean editPassword(UserPasswordDTO userPasswordDTO, HttpServletRequest req)
-    {
+    public boolean editPassword(UserPasswordDTO userPasswordDTO, HttpServletRequest req) {
         String token = jwtTokenProvider.resolveToken(req);
-        if (userPasswordDTO.getCurrentPassword() != null || userPasswordDTO.getNewPassword() != null)
-        {
+        if (userPasswordDTO.getCurrentPassword() != null || userPasswordDTO.getNewPassword() != null) {
             User user = getUserObjectById(jwtTokenProvider.getAudience(token));
-            if (verifyPassword(userPasswordDTO.getCurrentPassword(), user.getPassword()))
-            {
-                if (!verifyPasswordComplexity(userPasswordDTO.getNewPassword()))
-                {
+            if (verifyPassword(userPasswordDTO.getCurrentPassword(), user.getPassword())) {
+                if (!verifyPasswordComplexity(userPasswordDTO.getNewPassword())) {
                     throw new BadRequestException("New password not complex enough");
                 }
                 user.setPassword(hashPassword(userPasswordDTO.getNewPassword()));
 
                 this.userRepo.save(user);
-            } else
-            {
+            } else {
                 throw new UnauthorizedException("Invalid password");
             }
-        } else
-        {
+        } else {
             throw new BadRequestException();
         }
         return true;
     }
 
-    public void editUserById(UserPatchDTO userPatchDTO, String id)
-    {
+    public void editUserById(UserPatchDTO userPatchDTO, String id) {
         boolean edit = false;
         User user = getUserObjectById(id);
 
-        if (userPatchDTO.getFirstname() != null && !userPatchDTO.getFirstname().isEmpty())
-        {
+        if (userPatchDTO.getFirstname() != null && !userPatchDTO.getFirstname().isEmpty() && !user.getFirstname().equals(userPatchDTO.getFirstname())) {
             user.setFirstname(userPatchDTO.getFirstname());
+            System.out.println("first");
             edit = true;
         }
-        if (userPatchDTO.getLastname() != null && !userPatchDTO.getLastname().isEmpty())
-        {
+        if (userPatchDTO.getLastname() != null && !userPatchDTO.getLastname().isEmpty() && !user.getLastname().equals(userPatchDTO.getLastname())) {
             user.setLastname(userPatchDTO.getLastname());
+            System.out.println("last");
             edit = true;
         }
-        if (userPatchDTO.getEmail() != null && !userPatchDTO.getEmail().isEmpty())
-        {
-            if (verifyEmail(userPatchDTO.getEmail()))
-            {
-                if (findUserByEmail(userPatchDTO.getEmail()) == null)
-                {
+        if (userPatchDTO.getEmail() != null && !userPatchDTO.getEmail().isEmpty() && !user.getEmail().equals(userPatchDTO.getEmail())) {
+            if (verifyEmail(userPatchDTO.getEmail())) {
+                if (findUserByEmail(userPatchDTO.getEmail()) == null) {
                     user.setEmail(userPatchDTO.getEmail());
+                    System.out.println("email");
                     edit = true;
-                } else
-                {
+                } else {
                     throw new ConflictException("Email is already in use");
                 }
-            } else
-            {
+            } else {
                 throw new BadRequestException("Email is invalid");
             }
         }
-        if (userPatchDTO.getTransactionLimit() != null && userPatchDTO.getTransactionLimit().compareTo(new BigDecimal(0)) >= 0)
-        {
+        if (userPatchDTO.getTransactionLimit() != null && userPatchDTO.getTransactionLimit().compareTo(new BigDecimal(0)) >= 0 && userPatchDTO.getTransactionLimit().compareTo(user.getTransactionLimit()) != 0) {
             user.setTransactionLimit(userPatchDTO.getTransactionLimit());
+            System.out.println("trans");
             edit = true;
         }
-        if (userPatchDTO.getDailyLimit() != null && userPatchDTO.getDailyLimit().compareTo(new BigDecimal(0)) >= 0)
-        {
+        if (userPatchDTO.getDailyLimit() != null && userPatchDTO.getDailyLimit().compareTo(new BigDecimal(0)) >= 0 && userPatchDTO.getDailyLimit().compareTo(user.getDailyLimit()) != 0) {
             user.setDailyLimit(userPatchDTO.getDailyLimit());
+            System.out.println("dail");
             edit = true;
+        }
+        if (userPatchDTO.getRoles() != null) {
+            if (setEditRoles(userPatchDTO.getRoles(), user.getRoles())) {
+                List<Role> roles = new ArrayList<>();
+                for (Integer number : userPatchDTO.getRoles()) {
+                    roles.add(roleRepo.findById(number).orElse(null));
+                }
+                user.setRolesForUser(roles);
+                System.out.println("roles");
+                edit = true;
+            }
         }
         this.userRepo.save(user);
 
-        if (!edit)
-        {
+        if (!edit) {
             throw new BadRequestException("Nothing changed, please recheck request");
         }
     }
 
-    public List<DTOEntity> getUsers(String firstname, String lastname, String iban, String account, Integer pageNo, Integer pageSize)
-    {
-        if (!Objects.toString(iban, "").equals(""))
-        {
-            try
-            {
+    private boolean setEditRoles(Integer[] roles, Set<Role> currentRoles) {
+        List<Integer> rolesNew = Arrays.asList(roles);
+
+        Collections.sort(rolesNew);
+        List<Integer> rolesOld = new ArrayList<>();
+        for (Role role : currentRoles) {
+            rolesOld.add(role.getRole_id());
+        }
+        Collections.sort(rolesOld);
+
+        return !rolesNew.equals(rolesOld);
+    }
+
+    public List<DTOEntity> getUsers(String firstname, String lastname, String iban, String account, Integer pageNo, Integer pageSize) {
+        if (!Objects.toString(iban, "").equals("")) {
+            try {
                 UserIbanSearchDTO user = this.userRepo.findUserByIban(iban);
                 return List.of(user);
-            } catch (Exception e)
-            {
+            } catch (Exception e) {
                 throw new BadRequestException("User with iban: " + iban + " not found.");
             }
-        } else
-        {
-            if (pageNo < 0)
-            {
+        } else {
+            if (pageNo < 0) {
                 throw new BadRequestException("Page index must not be less than zero!");
             }
-            if (pageSize > 20 || pageSize < 1){
+            if (pageSize > 20 || pageSize < 1) {
                 throw new BadRequestException("Page size must not be less than one or more than 20!");
             }
             Pageable pageable = PageRequest.of(pageNo, pageSize);
 
-            if (Objects.toString(account, "").equals(""))
-            {
+            if (Objects.toString(account, "").equals("")) {
                 return dtoUtils.convertListToDto(this.userRepo.findUsersAll(Objects.toString(firstname, ""), Objects.toString(lastname, ""), pageable), new UserIbanSearchDTO());
-            } else if (account.equals("true"))
-            {
+            } else if (account.equals("true")) {
                 return dtoUtils.convertListToDto(this.userRepo.findUsersWithAccount(Objects.toString(firstname, ""), Objects.toString(lastname, ""), pageable), new UserIbanSearchDTO());
 
-            } else if (account.equals("false"))
-            {
+            } else if (account.equals("false")) {
                 return dtoUtils.convertListToDto(this.userRepo.findUsersNoAccount(Objects.toString(firstname, ""), Objects.toString(lastname, ""), pageable), new UserSearchDTO());
 
-            } else
-            {
+            } else {
                 throw new BadRequestException("Invalid search parameters");
             }
         }
     }
 
-    public DTOEntity getUserById(String id, HttpServletRequest req)
-    {
+    public DTOEntity getUserById(String id, HttpServletRequest req) {
         String token = jwtTokenProvider.resolveToken(req);
 
-        if (!id.equals(jwtTokenProvider.getAudience(token)))
-        {
+        if (!id.equals(jwtTokenProvider.getAudience(token))) {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (!auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE")))
-            {
+            if (!auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"))) {
                 return dtoUtils.convertToDto(getUserObjectById(id), new UserSearchDTO());
             }
         }
@@ -301,14 +276,12 @@ public class UserService
         return dtoUtils.convertToDto(getUserObjectById(id), new UserGetDTO());
     }
 
-    public User getUserObjectById(String id)
-    {
+    public User getUserObjectById(String id) {
         return this.userRepo.findById(dtoUtils.convertToUUID(id)).orElseThrow(() -> new ResourceNotFoundException("User with id: '" + id + "' not found"));
     }
 
 
-    public TokenRefreshResponseDTO refreshToken(TokenRefreshRequestDTO requestDTO)
-    {
+    public TokenRefreshResponseDTO refreshToken(TokenRefreshRequestDTO requestDTO) {
         String requestRefreshToken = requestDTO.getRefreshToken();
         return refreshTokenService.findByToken(requestRefreshToken)
                 .map(refreshTokenService::verifyExpiration)
