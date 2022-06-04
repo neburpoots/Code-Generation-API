@@ -109,9 +109,11 @@ public class StringSequenceIdentifier implements
                         .uniqueResult()
         ).longValue();
 
-        StringBuilder iban = new StringBuilder(sequencePrefix + "INHO");
-        iban.append(String.format("%09d%s", 0, seqValue));
+        //Checks the amount of digits it needs to use
+        int added = 10 - String.valueOf(seqValue).length();
+        //Checks the amount of digits it needs to use and adds it to a string
+        String zeros = new String(new char[added]).replace("\0", "0");
 
-        return iban.toString();
+        return sequencePrefix + "INHO" + zeros + seqValue;
     }
 }

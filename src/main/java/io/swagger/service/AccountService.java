@@ -99,6 +99,8 @@ public class AccountService {
         User user = userService.getUserObjectById(accountPostDTO.getUser_id().toString());
         account.setUser(user);
 
+        if(account.getUser().getEmail().equals("bankaccount@bankaccount.nl")) throw new BadRequestException("You can't create a account for the bank user");
+
         List<Account> existingAccounts = accountRepo.findByUser(user);
 
         //Checks if account type is bank
