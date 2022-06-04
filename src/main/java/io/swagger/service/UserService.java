@@ -12,10 +12,7 @@ import io.swagger.repository.UserRepository;
 import io.swagger.security.JwtTokenProvider;
 import io.swagger.utils.DtoUtils;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -238,7 +235,8 @@ public class UserService {
         if (!Objects.toString(iban, "").equals("")) {
             try {
                 UserIbanSearchDTO user = this.userRepo.findUserByIban(iban);
-                return (Page) List.of(user);
+                Page<UserIbanSearchDTO> users = new PageImpl<>(List.of(user));
+                return users.map(source -> new ModelMapper().map(source, UserIbanSearchDTO.class));
             } catch (Exception e) {
                 throw new BadRequestException("User with iban: " + iban + " not found.");
             }
@@ -253,7 +251,7 @@ public class UserService {
 
             if (Objects.toString(account, "").equals("")) {
                 Page<UserIbanSearchDTO> users = this.userRepo.findUsersAll(Objects.toString(firstname, ""), Objects.toString(lastname, ""), pageable);
-                if ((users.getTotalPages() - 1) < pageNo) {
+                if ((users.getTotalPages() - 1) < pageNo && pageNo != 0) {
                     throw new BadRequestException("Page number not found");
                 }
                 return users
