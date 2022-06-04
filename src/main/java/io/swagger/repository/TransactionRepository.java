@@ -27,21 +27,5 @@ public interface TransactionRepository extends JpaRepository <Transaction, UUID>
                                          @Param("asLt") BigDecimal asLt,
                                          @Param("asMt") BigDecimal asMt, Pageable pageable);
 
-
-    //returns all transactions with to_accounts matching the given iban.
-    List<Transaction> findByToAccount(String iban);
-
-    //returns all transactions with from_accounts matching the given iban.
-
-    List<Transaction> findByFromAccountAndTimestampAfter(String iban, LocalDateTime datetime);
-
-    List<Transaction> findByToAccountAndFromAccountAndAmount(String toAccount, String fromAccount, BigDecimal amount);
-
-    List<Transaction> findByTimestamp(LocalDate date);
-
-    List <Transaction> findByAmount(BigDecimal amount);
-
-    List <Transaction> findByAmountIsLessThan(BigDecimal amount);
-
-    List <Transaction> findByAmountIsGreaterThan(BigDecimal amount);
+    List<Transaction> findByFromAccountAndTimestampAfterAndTypeOrType(String iban, LocalDateTime datetime, Integer payment, Integer withdrawal);
 }

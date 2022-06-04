@@ -32,6 +32,14 @@ public class Transaction   {
   @NonNull
   private BigDecimal amount;
 
+  public Integer getType() {
+    return type;
+  }
+
+  public void setType(Integer type) {
+    this.type = type;
+  }
+
   @NonNull
   private Integer type;
 
