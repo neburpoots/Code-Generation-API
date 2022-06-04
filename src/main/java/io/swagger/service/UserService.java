@@ -11,6 +11,8 @@ import io.swagger.repository.RoleRepository;
 import io.swagger.repository.UserRepository;
 import io.swagger.security.JwtTokenProvider;
 import io.swagger.utils.DtoUtils;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -232,11 +234,11 @@ public class UserService {
         return !rolesNew.equals(rolesOld);
     }
 
-    public List<DTOEntity> getUsers(String firstname, String lastname, String iban, String account, Integer pageNo, Integer pageSize) {
+    public Page<DTOEntity> getUsers(String firstname, String lastname, String iban, String account, Integer pageNo, Integer pageSize) {
         if (!Objects.toString(iban, "").equals("")) {
             try {
                 UserIbanSearchDTO user = this.userRepo.findUserByIban(iban);
-                return List.of(user);
+                return (Page) List.of(user);
             } catch (Exception e) {
                 throw new BadRequestException("User with iban: " + iban + " not found.");
             }
@@ -250,13 +252,25 @@ public class UserService {
             Pageable pageable = PageRequest.of(pageNo, pageSize);
 
             if (Objects.toString(account, "").equals("")) {
-                return dtoUtils.convertListToDto(this.userRepo.findUsersAll(Objects.toString(firstname, ""), Objects.toString(lastname, ""), pageable), new UserIbanSearchDTO());
+                Page<UserIbanSearchDTO> users = this.userRepo.findUsersAll(Objects.toString(firstname, ""), Objects.toString(lastname, ""), pageable);
+                if ((users.getTotalPages() - 1) < pageNo) {
+                    throw new BadRequestException("Page number not found");
+                }
+                return users
+                        .map(source -> new ModelMapper().map(source, UserIbanSearchDTO.class));
             } else if (account.equals("true")) {
-                return dtoUtils.convertListToDto(this.userRepo.findUsersWithAccount(Objects.toString(firstname, ""), Objects.toString(lastname, ""), pageable), new UserIbanSearchDTO());
+                Page<UserIbanSearchDTO> users = this.userRepo.findUsersWithAccount(Objects.toString(firstname, ""), Objects.toString(lastname, ""), pageable);
+                if ((users.getTotalPages() - 1) < pageNo) {
+                    throw new BadRequestException("Page number not found");
+                }
+                return users.map(source -> new ModelMapper().map(source, UserIbanSearchDTO.class));
 
             } else if (account.equals("false")) {
-                return dtoUtils.convertListToDto(this.userRepo.findUsersNoAccount(Objects.toString(firstname, ""), Objects.toString(lastname, ""), pageable), new UserSearchDTO());
-
+                Page<UserSearchDTO> users = this.userRepo.findUsersNoAccount(Objects.toString(firstname, ""), Objects.toString(lastname, ""), pageable);
+                if ((users.getTotalPages() - 1) < pageNo) {
+                    throw new BadRequestException("Page number not found");
+                }
+                return users.map(source -> new ModelMapper().map(source, UserSearchDTO.class));
             } else {
                 throw new BadRequestException("Invalid search parameters");
             }

@@ -37,6 +37,9 @@ import javax.transaction.Transactional;
                 }
         )
 )
+
+// find all users with account
+
 @NamedNativeQuery(
         name = "findUsersWithAccount",
         query =
@@ -57,6 +60,16 @@ import javax.transaction.Transactional;
         )
 )
 @NamedNativeQuery(
+        name = "findUsersWithAccount.count",
+        query =
+                "SELECT count(*) as cnt FROM USER INNER JOIN ACCOUNT ON USER.USER_ID = ACCOUNT.USER_ID WHERE LOWER( USER.FIRSTNAME ) LIKE '%' || lower(:firstname) || '%' AND LOWER ( USER.LASTNAME ) LIKE '%' || lower(:lastname) || '%' AND ACCOUNT.ACCOUNT_TYPE != 1 AND ACCOUNT.ACCOUNT_TYPE != 2",
+        resultSetMapping = "users_withaccount_dto.count"
+)
+@SqlResultSetMapping(name = "users_withaccount_dto.count", columns = @ColumnResult(name = "cnt"))
+
+// find all users no account
+
+@NamedNativeQuery(
         name = "findUsersWithNoAccount",
         query =
                 "SELECT USER.USER_ID AS user_id, USER.EMAIL AS email, USER.FIRSTNAME AS firstname, USER.LASTNAME AS lastname FROM USER WHERE USER.USER_ID NOT IN (SELECT USER_ID FROM ACCOUNT) AND LOWER( USER.FIRSTNAME ) LIKE '%' || lower(:firstname) || '%' AND LOWER ( USER.LASTNAME ) LIKE '%' || lower(:lastname) || '%' ",
@@ -75,9 +88,19 @@ import javax.transaction.Transactional;
         )
 )
 @NamedNativeQuery(
+        name = "findUsersWithNoAccount.count",
+        query =
+                "SELECT count(*) as cnt FROM USER WHERE USER.USER_ID NOT IN (SELECT USER_ID FROM ACCOUNT) AND LOWER( USER.FIRSTNAME ) LIKE '%' || lower(:firstname) || '%' AND LOWER ( USER.LASTNAME ) LIKE '%' || lower(:lastname) || '%' ",
+        resultSetMapping = "users_noaccount_dto.count"
+)
+@SqlResultSetMapping(name = "users_noaccount_dto.count", columns = @ColumnResult(name = "cnt"))
+
+// Find all users
+
+@NamedNativeQuery(
         name = "findUsersAll",
         query =
-                "SELECT USER.USER_ID AS user_id, USER.EMAIL AS email, USER.FIRSTNAME AS firstname, USER.LASTNAME AS lastname, ACCOUNT.ACCOUNT_ID AS iban FROM USER LEFT OUTER JOIN ACCOUNT ON USER.USER_ID = ACCOUNT.USER_ID WHERE LOWER( USER.FIRSTNAME ) LIKE '%' || lower(:firstname) || '%' AND LOWER ( USER.LASTNAME ) LIKE '%' || lower(:lastname) || '%' AND ACCOUNT.ACCOUNT_TYPE != 2 AND ACCOUNT.ACCOUNT_TYPE != 1 OR ACCOUNT.ACCOUNT_TYPE is NULL",
+                "SELECT USER.USER_ID AS user_id, USER.EMAIL AS email, USER.FIRSTNAME AS firstname, USER.LASTNAME AS lastname, ACCOUNT.ACCOUNT_ID AS iban FROM USER" + " LEFT OUTER JOIN ACCOUNT ON USER.USER_ID = ACCOUNT.USER_ID" + " WHERE LOWER( USER.FIRSTNAME ) LIKE '%' || lower(:firstname) || '%' AND LOWER ( USER.LASTNAME ) LIKE '%' || lower(:lastname) || '%' AND ACCOUNT.ACCOUNT_TYPE != 2 AND ACCOUNT.ACCOUNT_TYPE != 1 OR ACCOUNT.ACCOUNT_TYPE is NULL",
         resultSetMapping = "users_all_dto"
 )
 @SqlResultSetMapping(
@@ -93,6 +116,14 @@ import javax.transaction.Transactional;
                 }
         )
 )
+@NamedNativeQuery(
+        name = "findUsersAll.count",
+        query =
+                "SELECT count(*) as cnt FROM USER LEFT OUTER JOIN ACCOUNT ON USER.USER_ID = ACCOUNT.USER_ID WHERE LOWER( USER.FIRSTNAME ) LIKE '%' || lower(:firstname) || '%' AND LOWER ( USER.LASTNAME ) LIKE '%' || lower(:lastname) || '%' AND ACCOUNT.ACCOUNT_TYPE != 2 AND ACCOUNT.ACCOUNT_TYPE != 1 OR ACCOUNT.ACCOUNT_TYPE is NULL",
+        resultSetMapping = "users_all_dto.count"
+)
+@SqlResultSetMapping(name = "users_all_dto.count", columns = @ColumnResult(name = "cnt"))
+
 public class User
 {
 

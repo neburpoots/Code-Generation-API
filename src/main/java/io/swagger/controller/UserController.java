@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -83,9 +84,9 @@ public class UserController implements UserControllerInterface {
     }
 
     @PreAuthorize("hasRole('EMPLOYEE')")
-    public ResponseEntity<List<DTOEntity>> getUsers(@NotNull @Parameter(in = ParameterIn.QUERY, description = "Page number for pagination", required = true, schema = @Schema()) @Valid @RequestParam(value = "pageNo", required = true) Integer pageNo, @NotNull @Parameter(in = ParameterIn.QUERY, description = "Page size for pagination", required = true, schema = @Schema()) @Valid @RequestParam(value = "pageSize", required = true) Integer pageSize,@Parameter(in = ParameterIn.QUERY, description = "First name value that needs to be considered for filter", schema = @Schema()) @Valid @RequestParam(value = "firstname", required = false) String firstname, @Parameter(in = ParameterIn.QUERY, description = "Last name value that needs to be considered for filter", schema = @Schema()) @Valid @RequestParam(value = "lastname", required = false) String lastname, @Parameter(in = ParameterIn.QUERY, description = "IBAN value that needs to be considered for filter", schema = @Schema()) @Valid @RequestParam(value = "iban", required = false) String iban, @Parameter(in = ParameterIn.QUERY, description = "Filter users with or without accounts, blank for all", schema = @Schema()) @Valid @RequestParam(value = "account", required = false) String account) {
+    public ResponseEntity<Page<DTOEntity>> getUsers(@NotNull @Parameter(in = ParameterIn.QUERY, description = "Page number for pagination", required = true, schema = @Schema()) @Valid @RequestParam(value = "pageNo", required = true) Integer pageNo, @NotNull @Parameter(in = ParameterIn.QUERY, description = "Page size for pagination", required = true, schema = @Schema()) @Valid @RequestParam(value = "pageSize", required = true) Integer pageSize, @Parameter(in = ParameterIn.QUERY, description = "First name value that needs to be considered for filter", schema = @Schema()) @Valid @RequestParam(value = "firstname", required = false) String firstname, @Parameter(in = ParameterIn.QUERY, description = "Last name value that needs to be considered for filter", schema = @Schema()) @Valid @RequestParam(value = "lastname", required = false) String lastname, @Parameter(in = ParameterIn.QUERY, description = "IBAN value that needs to be considered for filter", schema = @Schema()) @Valid @RequestParam(value = "iban", required = false) String iban, @Parameter(in = ParameterIn.QUERY, description = "Filter users with or without accounts, blank for all", schema = @Schema()) @Valid @RequestParam(value = "account", required = false) String account) {
         try {
-            return new ResponseEntity<List<DTOEntity>>(this.userService.getUsers(firstname, lastname, iban, account, pageNo, pageSize), HttpStatus.OK);
+            return new ResponseEntity<Page<DTOEntity>>(this.userService.getUsers(firstname, lastname, iban, account, pageNo, pageSize), HttpStatus.OK);
         } catch (Exception exception) {
             throw exception;
         }

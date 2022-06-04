@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -135,7 +136,7 @@ public interface UserControllerInterface {
     @RequestMapping(value = "/api/users",
             produces = {"application/json"},
             method = RequestMethod.GET)
-    ResponseEntity<List<DTOEntity>> getUsers(@NotNull @Parameter(in = ParameterIn.QUERY, description = "Page number for pagination", required = true, schema = @Schema()) @Valid @RequestParam(value = "pageNo", required = true) Integer pageNo, @NotNull @Parameter(in = ParameterIn.QUERY, description = "Page size for pagination", required = true, schema = @Schema()) @Valid @RequestParam(value = "pageSize", required = true) Integer pageSize,@Parameter(in = ParameterIn.QUERY, description = "First name value that needs to be considered for filter", schema = @Schema()) @Valid @RequestParam(value = "firstname", required = false) String firstname, @Parameter(in = ParameterIn.QUERY, description = "Last name value that needs to be considered for filter", schema = @Schema()) @Valid @RequestParam(value = "lastname", required = false) String lastname, @Parameter(in = ParameterIn.QUERY, description = "IBAN value that needs to be considered for filter", schema = @Schema()) @Valid @RequestParam(value = "iban", required = false) String iban, @Parameter(in = ParameterIn.QUERY, description = "Filter users with or without accounts, blank for all", schema = @Schema()) @Valid @RequestParam(value = "account", required = false) String account);
+    ResponseEntity<Page<DTOEntity>> getUsers(@NotNull @Parameter(in = ParameterIn.QUERY, description = "Page number for pagination", required = true, schema = @Schema()) @Valid @RequestParam(value = "pageNo", required = true) Integer pageNo, @NotNull @Parameter(in = ParameterIn.QUERY, description = "Page size for pagination", required = true, schema = @Schema()) @Valid @RequestParam(value = "pageSize", required = true) Integer pageSize, @Parameter(in = ParameterIn.QUERY, description = "First name value that needs to be considered for filter", schema = @Schema()) @Valid @RequestParam(value = "firstname", required = false) String firstname, @Parameter(in = ParameterIn.QUERY, description = "Last name value that needs to be considered for filter", schema = @Schema()) @Valid @RequestParam(value = "lastname", required = false) String lastname, @Parameter(in = ParameterIn.QUERY, description = "IBAN value that needs to be considered for filter", schema = @Schema()) @Valid @RequestParam(value = "iban", required = false) String iban, @Parameter(in = ParameterIn.QUERY, description = "Filter users with or without accounts, blank for all", schema = @Schema()) @Valid @RequestParam(value = "account", required = false) String account);
 
 
     @Operation(summary = "Logs User into the system", description = "", tags = {"users"})

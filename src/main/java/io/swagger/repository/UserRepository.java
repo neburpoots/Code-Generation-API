@@ -4,6 +4,7 @@ import io.swagger.model.entity.User;
 import io.swagger.model.user.UserIbanSearchDTO;
 import io.swagger.model.user.UserSearchDTO;
 import io.swagger.model.utils.DTOEntity;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -23,12 +24,12 @@ public interface UserRepository extends JpaRepository<User, UUID>
     @Query(name = "findUserByIban", nativeQuery = true)
     UserIbanSearchDTO findUserByIban(@Param("iban") String iban);
 
-    @Query(name = "findUsersWithAccount", nativeQuery = true)
-    List<UserIbanSearchDTO> findUsersWithAccount(@Param("firstname") String firstname, @Param("lastname") String lastname, Pageable pageable);
+    @Query(name = "findUsersWithAccount", countQuery = "findUsersWithAccount.count", nativeQuery = true)
+    Page<UserIbanSearchDTO> findUsersWithAccount(@Param("firstname") String firstname, @Param("lastname") String lastname, Pageable pageable);
 
-    @Query(name = "findUsersWithNoAccount", nativeQuery = true)
-    List<UserSearchDTO> findUsersNoAccount(@Param("firstname") String firstname, @Param("lastname") String lastname, Pageable pageable);
+    @Query(name = "findUsersWithNoAccount", countQuery = "findUsersWithNoAccount.count", nativeQuery = true)
+    Page<UserSearchDTO> findUsersNoAccount(@Param("firstname") String firstname, @Param("lastname") String lastname, Pageable pageable);
 
-    @Query(name = "findUsersAll", nativeQuery = true)
-    List<UserIbanSearchDTO> findUsersAll(@Param("firstname") String firstname, @Param("lastname") String lastname, Pageable pageable);
+    @Query(name = "findUsersAll", countQuery = "findUsersAll.count", nativeQuery = true)
+    Page<UserIbanSearchDTO> findUsersAll(@Param("firstname") String firstname, @Param("lastname") String lastname, Pageable pageable);
 }
