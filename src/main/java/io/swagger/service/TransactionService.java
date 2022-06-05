@@ -39,8 +39,13 @@ public class TransactionService {
         this.accountRepository = accountRepository;
     }
 
-    public DTOEntity getTransactionById(String id) {
-        return new DtoUtils().convertToDto(this.getTransactionObjectById(id), new TransactionPostDTO());
+    public List<TransactionGetDTO> getTransactionById(String id, Integer page, Integer pageSize) {
+        if(this.validateIban(id)){
+            Pageable p = PageRequest.of(page, pageSize);
+            return this.addTransactionType(this.convertListToGetDto(this.transactionRepo.findByFromAccountOrToAccount(id, id, p), new TransactionGetDTO()));
+        }
+        else
+            throw new BadRequestException("Not a valid iban");
     }
 
     public Transaction getTransactionObjectById(String id) {

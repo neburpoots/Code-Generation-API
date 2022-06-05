@@ -75,7 +75,11 @@ public interface TransactionControllerInterface {
     @RequestMapping(value = "/api/transactions/{id}",
             produces = { "application/json" },
             method = RequestMethod.GET)
-    ResponseEntity<DTOEntity> getTransactionById(@Parameter(in = ParameterIn.PATH, description = "Id of transaction", required=true, schema=@Schema()) @PathVariable("id") String id);
+    ResponseEntity<List<TransactionGetDTO>> getTransactionsById(@Parameter(in = ParameterIn.PATH, description = "All transaction of given iban (id)", required=true, schema=@Schema()) @PathVariable("id") String id, @NotNull @Parameter(in = ParameterIn.QUERY, description = "Page number for pagination",
+            required = true, schema = @Schema()) @Valid @RequestParam(value = "page",
+            required = true, defaultValue = "0") Integer page, @NotNull @Parameter(in = ParameterIn.QUERY, description = "Page size for pagination",
+            required = true, schema = @Schema()) @Valid @RequestParam(value = "pageSize",
+            required = true, defaultValue = "10") Integer pageSize);
 
 
     @Operation(summary = "Finds Transactions by date, user, iban or by amount", description = "Returns a list of Transactions, filtered by parameters and pagination.", security = {

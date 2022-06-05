@@ -1,6 +1,7 @@
 package io.swagger.controller;
 
 import io.swagger.annotations.Api;
+import io.swagger.model.entity.Transaction;
 import io.swagger.model.transaction.TransactionGetDTO;
 import io.swagger.model.transaction.TransactionPostDTO;
 import io.swagger.model.utils.DTOEntity;
@@ -53,9 +54,16 @@ public class TransactionController implements TransactionControllerInterface {
         }
     }
 
-    public ResponseEntity<DTOEntity> getTransactionById(@Parameter(in = ParameterIn.PATH, description = "Id of transaction", required = true, schema = @Schema()) @PathVariable("id") String id) {
+    public ResponseEntity<List<TransactionGetDTO>> getTransactionsById(
+            @Parameter(in = ParameterIn.PATH, description = "Id of transaction", required = true, schema = @Schema()) @PathVariable("id") String id,
+            @NotNull @Parameter(in = ParameterIn.QUERY, description = "Page number for pagination",
+                    required = true, schema = @Schema()) @Valid @RequestParam(value = "page",
+                    required = true, defaultValue = "0") Integer page, @NotNull @Parameter(in = ParameterIn.QUERY, description = "Page size for pagination",
+            required = true, schema = @Schema()) @Valid @RequestParam(value = "pageSize",
+            required = true, defaultValue = "10") Integer pageSize
+    ) {
         try {
-            return new ResponseEntity<DTOEntity>(this.transactionService.getTransactionById(id), HttpStatus.OK);
+            return new ResponseEntity<List<TransactionGetDTO>>(this.transactionService.getTransactionById(id, page, pageSize), HttpStatus.OK);
         } catch (Exception exception) {
             throw exception;
         }
