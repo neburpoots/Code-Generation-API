@@ -28,4 +28,6 @@ public interface TransactionRepository extends JpaRepository <Transaction, UUID>
                                          @Param("asMt") BigDecimal asMt, Pageable pageable);
 
     List<Transaction> findByFromAccountAndTimestampAfterAndTypeOrType(String iban, LocalDateTime datetime, Integer payment, Integer withdrawal);
+
+    List<Transaction> findByFromAccountOrToAccount(String iban, String iban2, Pageable pageable);
 }
