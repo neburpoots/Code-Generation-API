@@ -52,8 +52,8 @@ public class AccountGetDTO implements DTOEntity {
         this.account_id = account_id;
     }
 
-    public AccountGetDTO account_id(UserGetDTO user) {
-        this.user = user;
+    public AccountGetDTO account_id(String account_id) {
+        this.account_id = account_id;
         return this;
     }
 

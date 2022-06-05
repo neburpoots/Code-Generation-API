@@ -90,6 +90,8 @@ public class AccountController implements AccountControllerInterface {
         }
     }
 
+    @PreAuthorize("hasRole('CUSTOMER')")
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Page<AccountGetDTO>> getAccounts(@Parameter(in = ParameterIn.QUERY, description = "This query will get both accounts that belong to the matching user id." ,schema=@Schema()) @Valid @RequestParam(value = "user_id", required = false) String userId, @Parameter(in = ParameterIn.QUERY, description = "This query will filter either the 'primary' or 'savings' account." ,schema=@Schema(allowableValues={ "primary", "savings" }
     )) @Valid @RequestParam(value = "type", required = false) List<String> type, @Parameter(in = ParameterIn.QUERY, description = "This query will filter for a page" ,schema=@Schema()) @Valid @RequestParam(value = "page", defaultValue = "0", required = false) Integer page, @Parameter(in = ParameterIn.QUERY, description = "This query is the number of items returned" ,schema=@Schema()) @Valid @RequestParam(value = "size", defaultValue = "5", required = false) Integer size) {
         try {

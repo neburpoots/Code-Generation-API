@@ -92,6 +92,12 @@ public class AccountPostDTO implements DTOEntity {
   }
 
 
+  public AccountPostDTO accountType(AccountType accountType) {
+    this.accountType = accountType;
+    return this;
+  }
+
+
   @Override
   public boolean equals(java.lang.Object o) {
     if (this == o) {
