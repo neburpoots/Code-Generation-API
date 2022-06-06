@@ -70,6 +70,9 @@ public class UserService {
     }
 
     public UserGetDTO addUser(UserPostDTO userPostDTO) {
+        if (userPostDTO.getFirstname() == null || userPostDTO.getLastname() == null || userPostDTO.getEmail() == null || userPostDTO.getPassword() == null) {
+            throw new UnProcessableEntityException();
+        }
         userPostDTO.setEmail(userPostDTO.getEmail().toLowerCase(Locale.ROOT));
         List<String> checks = checkPostFields(userPostDTO);
         if (!checks.isEmpty()) {
@@ -140,6 +143,9 @@ public class UserService {
     }
 
     public boolean editPassword(UserPasswordDTO userPasswordDTO, HttpServletRequest req) {
+        if (userPasswordDTO.getCurrentPassword() == null || userPasswordDTO.getNewPassword() == null){
+            throw new UnProcessableEntityException();
+        }
         String token = jwtTokenProvider.resolveToken(req);
         System.out.println(token);
         if (userPasswordDTO.getCurrentPassword() != null || userPasswordDTO.getNewPassword() != null) {
@@ -289,6 +295,9 @@ public class UserService {
         return this.userRepo.findById(dtoUtils.convertToUUID(id)).orElseThrow(() -> new ResourceNotFoundException("User with id: '" + id + "' not found"));
     }
 
+    public User bla() {
+        return userRepo.findByEmail("ruben@student.inholland.nl");
+    }
 
     public TokenRefreshResponseDTO refreshToken(TokenRefreshRequestDTO requestDTO) {
         String requestRefreshToken = requestDTO.getRefreshToken();

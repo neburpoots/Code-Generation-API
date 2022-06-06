@@ -25,10 +25,10 @@ class UserRepositoryTest {
     @Autowired
     private UserRepository userRepository;
 
-    @Test
-    void createNewUser() {
-        userRepository.save(createMockUser());
-    }
+//    @Test
+//    void createNewUser() {
+//        userRepository.save(createMockUser());
+//    }
 
     private User createMockUser() {
         User user = new User();
