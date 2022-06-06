@@ -76,7 +76,7 @@ public class UserLoginReturnDTO implements DTOEntity {
      * Get firstname
      * @return firstname
      **/
-    @Schema(example = "Kiana", description = "")
+    @Schema(example = "Ruben", description = "")
 
     public String getFirstname() {
         return firstname;
@@ -95,7 +95,7 @@ public class UserLoginReturnDTO implements DTOEntity {
      * Get lastname
      * @return lastname
      **/
-    @Schema(example = "Padilla", description = "")
+    @Schema(example = "Stoop", description = "")
 
     public String getLastname() {
         return lastname;
@@ -114,7 +114,7 @@ public class UserLoginReturnDTO implements DTOEntity {
      * Get email
      * @return email
      **/
-    @Schema(example = "Kiana.Padilla@gmail.com", description = "")
+    @Schema(example = "ruben@student.inholland.nl", description = "")
 
     public String getEmail() {
         return email;
@@ -171,7 +171,7 @@ public class UserLoginReturnDTO implements DTOEntity {
      * Get accessToken
      * @return accessToken
      **/
-    @Schema(example = "", description = "")
+    @Schema(example = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJydWJlbkBzdHVkZW50LmluaG9sbGFuZC5ubCIsImF1dGgiOltdLCJhdWQiOiIzODYwZWY1NS0xZThmLTRkYzQtODY4ZC0yMjYxOTIzMjE4OTgiLCJpYXQiOjE2NTQ1MjI4MTEsImV4cCI6MTY1NDU1ODgxMX0.s4Z9hKgfsFWNdEYfx40W66GAdKkDPObtuSfMfymQaIM", description = "")
 
     public String getAccessToken() {
         return accessToken;

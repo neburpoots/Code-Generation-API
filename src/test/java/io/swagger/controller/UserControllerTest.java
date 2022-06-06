@@ -3,6 +3,7 @@ package io.swagger.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.model.user.UserLoginDTO;
 import io.swagger.model.user.UserLoginReturnDTO;
+import io.swagger.model.user.UserSearchDTO;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.repository.RoleRepository;
 import io.swagger.repository.UserRepository;
@@ -110,9 +111,6 @@ public class UserControllerTest {
     }
 
 
-
-
-
     @Test
     public void testLoginUserShouldReturn200() throws Exception {
 
@@ -120,12 +118,12 @@ public class UserControllerTest {
                 new UserLoginDTO()
                         .password("Secret123!")
                         .email("ruben@student.inholland.nl")))
-                .thenReturn(new ResponseEntity<DTOEntity>(new UserLoginReturnDTO()
-                                .user_id(UUID.randomUUID())
-                                .accessToken("flajsdfoiaewfase.fasjeofjasefjoas.afejoasfjaesi")
-                                .refreshToken("fjaoesfjasef.aefjasiofjioasf.asjifoasjefoie")
-                                .email("ruben@student.inholland.nl"), HttpStatus.OK)
-                        );
+                .thenReturn(new ResponseEntity<UserLoginReturnDTO>(new UserLoginReturnDTO()
+                        .user_id(UUID.randomUUID())
+                        .accessToken("flajsdfoiaewfase.fasjeofjasefjoas.afejoasfjaesi")
+                        .refreshToken("fjaoesfjasef.aefjasiofjioasf.asjifoasjefoie")
+                        .email("ruben@student.inholland.nl"), HttpStatus.OK)
+                );
 
 
 //        MockHttpServletRequest request = new MockHttpServletRequest();
@@ -155,5 +153,18 @@ public class UserControllerTest {
 //        mockMvc.perform(MockMvcRequestBuilders.get("/test")
 //                        .header("Authorization", "Bearer " + token))
 //                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testGetByIdShouldReturnUserObject() {
+        String uuid = "f963d334-2a06-4e75-96d9-16cbb8b0c2b3";
+
+        when(userController.getUserById(uuid))
+                .thenReturn(new ResponseEntity<DTOEntity>(new UserSearchDTO()
+                        .user_id(UUID.randomUUID())
+                        .firstname("Ruben")
+                        .lastname("Stoop")
+                        .email("ruben@student.inholland.nl"), HttpStatus.OK)
+                );
     }
 }
