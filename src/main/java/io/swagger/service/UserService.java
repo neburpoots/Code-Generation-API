@@ -48,32 +48,28 @@ public class UserService {
         this.refreshTokenService = refreshTokenService;
     }
 
-    public DTOEntity login(UserLoginDTO userLoginDTO) {
-        try {
-            User user = userRepo.findByEmail(userLoginDTO.getEmail());
-            if (user == null) {
-                throw new ResourceNotFoundException("No account found with given email");
-            }
-            if (userLoginDTO.getPassword() == null) {
-                throw new BadRequestException("Password missing");
-            }
-            if (verifyPassword(userLoginDTO.getPassword(), user.getPassword())) {
-                String jwt = jwtTokenProvider.createToken(user.getEmail(), new ArrayList<Role>(), user.getUser_id());
-                UserLoginReturnDTO userLoginReturnDTO = (UserLoginReturnDTO) dtoUtils.convertToDto(user, new UserLoginReturnDTO());
-                userLoginReturnDTO.setAccessToken(jwt);
-
-                //added code for refresh tokens
-                RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getUser_id());
-                userLoginReturnDTO.setRefreshToken(refreshToken.getToken());
-                return userLoginReturnDTO;
-            }
-            throw new UnauthorizedException("Invalid login credentials");
-        } catch (Exception ae) {
-            throw new testException(ae.getMessage());
+    public UserLoginReturnDTO login(UserLoginDTO userLoginDTO) {
+        User user = userRepo.findByEmail(userLoginDTO.getEmail());
+        if (user == null) {
+            throw new ResourceNotFoundException("No account found with given email");
         }
+        if (userLoginDTO.getPassword() == null) {
+            throw new BadRequestException("Password missing");
+        }
+        if (verifyPassword(userLoginDTO.getPassword(), user.getPassword())) {
+            String jwt = jwtTokenProvider.createToken(user.getEmail(), new ArrayList<Role>(), user.getUser_id());
+            UserLoginReturnDTO userLoginReturnDTO = (UserLoginReturnDTO) dtoUtils.convertToDto(user, new UserLoginReturnDTO());
+            userLoginReturnDTO.setAccessToken(jwt);
+
+            //added code for refresh tokens
+            RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getUser_id());
+            userLoginReturnDTO.setRefreshToken(refreshToken.getToken());
+            return userLoginReturnDTO;
+        }
+        throw new UnauthorizedException("Invalid login credentials");
     }
 
-    public DTOEntity addUser(UserPostDTO userPostDTO) {
+    public UserGetDTO addUser(UserPostDTO userPostDTO) {
         userPostDTO.setEmail(userPostDTO.getEmail().toLowerCase(Locale.ROOT));
         List<String> checks = checkPostFields(userPostDTO);
         if (!checks.isEmpty()) {
@@ -86,7 +82,7 @@ public class UserService {
             user.setTransactionLimit(new BigDecimal(50));
             user.setRolesForUser(List.of(roleRepo.findById(1).orElse(null)));
 
-            return dtoUtils.convertToDto(this.userRepo.save(user), new UserGetDTO());
+            return (UserGetDTO) dtoUtils.convertToDto(this.userRepo.save(user), new UserGetDTO());
         } else {
             throw new ConflictException("This email is already in use");
         }
@@ -145,6 +141,7 @@ public class UserService {
 
     public boolean editPassword(UserPasswordDTO userPasswordDTO, HttpServletRequest req) {
         String token = jwtTokenProvider.resolveToken(req);
+        System.out.println(token);
         if (userPasswordDTO.getCurrentPassword() != null || userPasswordDTO.getNewPassword() != null) {
             User user = getUserObjectById(jwtTokenProvider.getAudience(token));
             if (verifyPassword(userPasswordDTO.getCurrentPassword(), user.getPassword())) {
@@ -281,11 +278,11 @@ public class UserService {
         if (!id.equals(jwtTokenProvider.getAudience(token))) {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             if (!auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"))) {
-                return dtoUtils.convertToDto(getUserObjectById(id), new UserSearchDTO());
+                return (UserSearchDTO) dtoUtils.convertToDto(getUserObjectById(id), new UserSearchDTO());
             }
         }
 
-        return dtoUtils.convertToDto(getUserObjectById(id), new UserGetDTO());
+        return (UserGetDTO) dtoUtils.convertToDto(getUserObjectById(id), new UserGetDTO());
     }
 
     public User getUserObjectById(String id) {

@@ -29,7 +29,7 @@ public class UserLoginDTO implements DTOEntity {
    * Get email
    * @return email
    **/
-  @Schema(example = "Kiana.Padilla@gmail.com", description = "")
+  @Schema(example = "ruben@student.inholland.nl", description = "")
   
     public String getEmail() {
     return email;
@@ -48,7 +48,7 @@ public class UserLoginDTO implements DTOEntity {
    * Get password
    * @return password
    **/
-  @Schema(example = "Padilla123", description = "")
+  @Schema(example = "Secret123!", description = "")
   
     public String getPassword() {
     return password;

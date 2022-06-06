@@ -23,6 +23,7 @@ import javax.annotation.Generated;
 import javax.validation.constraints.*;
 import javax.validation.Valid;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 import java.util.List;
 
 @Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-05T18:12:07.854Z[GMT]")
@@ -45,9 +46,9 @@ public class UserController implements UserControllerInterface {
         this.userService = userService;
     }
 
-    public ResponseEntity<DTOEntity> addUser(@Parameter(in = ParameterIn.DEFAULT, description = "Created User object", required = true, schema = @Schema()) @Valid @RequestBody UserPostDTO body) {
+    public ResponseEntity<UserGetDTO> addUser(@Parameter(in = ParameterIn.DEFAULT, description = "Created User object", required = true, schema = @Schema()) @Valid @RequestBody UserPostDTO body) {
         try {
-            return new ResponseEntity<DTOEntity>(this.userService.addUser(body), HttpStatus.OK);
+            return new ResponseEntity<UserGetDTO>(this.userService.addUser(body), HttpStatus.OK);
         } catch (Exception exception) {
             throw exception;
         }
@@ -92,9 +93,9 @@ public class UserController implements UserControllerInterface {
         }
     }
 
-    public ResponseEntity<DTOEntity> loginUser(@Parameter(in = ParameterIn.DEFAULT, description = "Login credentials", required = true, schema = @Schema()) @Valid @RequestBody UserLoginDTO body) {
+    public ResponseEntity<UserLoginReturnDTO> loginUser(@Parameter(in = ParameterIn.DEFAULT, description = "Login credentials", required = true, schema = @Schema()) @Valid @RequestBody UserLoginDTO body) {
         try {
-            return new ResponseEntity<DTOEntity>(this.userService.login(body), HttpStatus.OK);
+            return new ResponseEntity<UserLoginReturnDTO>(this.userService.login(body), HttpStatus.OK);
         } catch (Exception exception) {
             throw exception;
         }

@@ -7,14 +7,11 @@ package io.swagger.controller;
 
 import io.swagger.model.user.*;
 import io.swagger.model.utils.DTOEntity;
-import io.swagger.model.utils.Error;
-import io.swagger.model.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -29,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
 import javax.validation.constraints.*;
-import java.util.List;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-05T18:12:07.854Z[GMT]")
 @Validated
@@ -37,24 +33,24 @@ public interface UserControllerInterface {
 
     @Operation(summary = "User registration", description = "Returns a list of Users, filtered by parameters and pagination.", tags = {"users"})
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Created", content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))),
+            @ApiResponse(responseCode = "201", description = "Created"),
 
-            @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served."),
 
-            @ApiResponse(responseCode = "401", description = "Credentials invalid or missing.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "401", description = "Credentials invalid or missing."),
 
-            @ApiResponse(responseCode = "403", description = "You are not authorized to make this request.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "403", description = "You are not authorized to make this request."),
 
-            @ApiResponse(responseCode = "404", description = "Resource not found.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "404", description = "Resource not found."),
 
-            @ApiResponse(responseCode = "409", description = "There was a conflict processing your request.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "409", description = "There was a conflict processing your request."),
 
-            @ApiResponse(responseCode = "500", description = "Internal server error.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class)))})
+            @ApiResponse(responseCode = "500", description = "Internal server error.")})
     @RequestMapping(value = "/api/users/register",
             produces = {"application/json"},
             consumes = {"application/json"},
             method = RequestMethod.POST)
-    ResponseEntity<DTOEntity> addUser(@Parameter(in = ParameterIn.DEFAULT, description = "Created User object", required = true, schema = @Schema()) @Valid @RequestBody UserPostDTO body);
+    ResponseEntity<UserGetDTO> addUser(@Parameter(in = ParameterIn.DEFAULT, description = "Created User object", required = true, schema = @Schema()) @Valid @RequestBody UserPostDTO body);
 
 
     @Operation(summary = "Changes password of the logged in User", description = "", security = {
@@ -62,15 +58,15 @@ public interface UserControllerInterface {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Successfully changed the password."),
 
-            @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served."),
 
-            @ApiResponse(responseCode = "401", description = "Credentials invalid or missing.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "401", description = "Credentials invalid or missing."),
 
-            @ApiResponse(responseCode = "403", description = "You are not authorized to make this request.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "403", description = "You are not authorized to make this request."),
 
-            @ApiResponse(responseCode = "404", description = "Resource not found.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "404", description = "Resource not found."),
 
-            @ApiResponse(responseCode = "500", description = "Internal server error.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class)))})
+            @ApiResponse(responseCode = "500", description = "Internal server error.")})
     @RequestMapping(value = "/api/users/password",
             produces = {"application/json"},
             consumes = {"application/json"},
@@ -83,15 +79,15 @@ public interface UserControllerInterface {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Successfully saved changes."),
 
-            @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served."),
 
-            @ApiResponse(responseCode = "401", description = "Credentials invalid or missing.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "401", description = "Credentials invalid or missing."),
 
-            @ApiResponse(responseCode = "403", description = "You are not authorized to make this request.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "403", description = "You are not authorized to make this request."),
 
-            @ApiResponse(responseCode = "404", description = "Resource not found.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "404", description = "Resource not found."),
 
-            @ApiResponse(responseCode = "500", description = "Internal server error.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class)))})
+            @ApiResponse(responseCode = "500", description = "Internal server error.")})
     @RequestMapping(value = "/api/users/{id}",
             produces = {"application/json"},
             consumes = {"application/json"},
@@ -102,17 +98,17 @@ public interface UserControllerInterface {
     @Operation(summary = "Find a User by id", description = "", security = {
             @SecurityRequirement(name = "bearerAuth")}, tags = {"users"})
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))),
+            @ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserSearchDTO.class))),
 
-            @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served."),
 
-            @ApiResponse(responseCode = "401", description = "Credentials invalid or missing.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "401", description = "Credentials invalid or missing."),
 
-            @ApiResponse(responseCode = "403", description = "You are not authorized to make this request.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "403", description = "You are not authorized to make this request."),
 
-            @ApiResponse(responseCode = "404", description = "Resource not found.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "404", description = "Resource not found."),
 
-            @ApiResponse(responseCode = "500", description = "Internal server error.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class)))})
+            @ApiResponse(responseCode = "500", description = "Internal server error.")})
     @RequestMapping(value = "/api/users/{id}",
             produces = {"application/json"},
             method = RequestMethod.GET)
@@ -122,17 +118,17 @@ public interface UserControllerInterface {
     @Operation(summary = "Finds Users by name and/or iban", description = "Returns a list of Users, filtered by parameters and pagination.", security = {
             @SecurityRequirement(name = "bearerAuth")}, tags = {"users"})
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Object.class)))),
+            @ApiResponse(responseCode = "200", description = "Success"),
 
-            @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served."),
 
-            @ApiResponse(responseCode = "401", description = "Credentials invalid or missing.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "401", description = "Credentials invalid or missing."),
 
-            @ApiResponse(responseCode = "403", description = "You are not authorized to make this request.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "403", description = "You are not authorized to make this request."),
 
-            @ApiResponse(responseCode = "404", description = "Resource not found.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "404", description = "Resource not found."),
 
-            @ApiResponse(responseCode = "500", description = "Internal server error.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class)))})
+            @ApiResponse(responseCode = "500", description = "Internal server error.")})
     @RequestMapping(value = "/api/users",
             produces = {"application/json"},
             method = RequestMethod.GET)
@@ -141,22 +137,22 @@ public interface UserControllerInterface {
 
     @Operation(summary = "Logs User into the system", description = "", tags = {"users"})
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))),
+            @ApiResponse(responseCode = "200", description = "Success"),
 
-            @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served."),
 
-            @ApiResponse(responseCode = "401", description = "Credentials invalid or missing.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "401", description = "Credentials invalid or missing."),
 
-            @ApiResponse(responseCode = "403", description = "You are not authorized to make this request.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "403", description = "You are not authorized to make this request."),
 
-            @ApiResponse(responseCode = "404", description = "Resource not found.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "404", description = "Resource not found."),
 
-            @ApiResponse(responseCode = "500", description = "Internal server error.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class)))})
+            @ApiResponse(responseCode = "500", description = "Internal server error.")})
     @RequestMapping(value = "/api/users/login",
             produces = {"application/json"},
             consumes = {"application/json"},
             method = RequestMethod.POST)
-    ResponseEntity<DTOEntity> loginUser(@Parameter(in = ParameterIn.DEFAULT, description = "Login credentials", required = true, schema = @Schema()) @Valid @RequestBody UserLoginDTO body);
+    ResponseEntity<UserLoginReturnDTO> loginUser(@Parameter(in = ParameterIn.DEFAULT, description = "Login credentials", required = true, schema = @Schema()) @Valid @RequestBody UserLoginDTO body);
 
     @Operation(summary = "Refreshes token", description = "", tags = {"users"})
     @ApiResponses(value = {

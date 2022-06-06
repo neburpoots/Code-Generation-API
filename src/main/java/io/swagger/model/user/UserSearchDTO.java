@@ -74,7 +74,7 @@ public class UserSearchDTO implements DTOEntity {
      * Get firstname
      * @return firstname
      **/
-    @Schema(example = "Kiana", description = "")
+    @Schema(example = "Ruben", description = "")
 
     public String getFirstname() {
         return firstname;
@@ -93,7 +93,7 @@ public class UserSearchDTO implements DTOEntity {
      * Get lastname
      * @return lastname
      **/
-    @Schema(example = "Padilla", description = "")
+    @Schema(example = "Stoop", description = "")
 
     public String getLastname() {
         return lastname;
@@ -112,7 +112,7 @@ public class UserSearchDTO implements DTOEntity {
      * Get email
      * @return email
      **/
-    @Schema(example = "Kiana.Padilla@gmail.com", description = "")
+    @Schema(example = "ruben@student.inholland.nl", description = "")
 
     public String getEmail() {
         return email;

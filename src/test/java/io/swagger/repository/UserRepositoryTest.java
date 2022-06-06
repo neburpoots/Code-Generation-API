@@ -32,7 +32,7 @@ class UserRepositoryTest {
 
     private User createMockUser() {
         User user = new User();
-        user.setUser_id(UUID.randomUUID());
+        user.setUser_id(UUID.fromString("f963d334-2a06-4e75-96d9-16cbb8b0c2b3"));
         user.setEmail("ruben@student.inholland.nl");
         user.setLastname("Stoop");
         user.setFirstname("Ruben");
