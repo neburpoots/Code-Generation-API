@@ -47,7 +47,6 @@ public class AccountService {
     private final JwtTokenProvider jwtTokenProvider;
     private ModelMapper modelMapper;
 
-    @Autowired
     public AccountService(AccountRepository accountRepo, UserService userService, AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider) {
         this.accountRepo = accountRepo;
         this.userService = userService;
@@ -64,7 +63,7 @@ public class AccountService {
 
         boolean updated = false;
 
-        //Checks if
+        //Checks if account type is bank
         if(newAccount.getAccountType() == AccountType.BANK) {
             throw new BadRequestException("Can't edit this account");
         }

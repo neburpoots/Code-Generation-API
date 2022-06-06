@@ -1,5 +1,6 @@
 package io.swagger.controller;
 
+import io.swagger.Swagger2SpringBoot;
 import io.swagger.model.account.AccountGetDTO;
 import io.swagger.model.account.AccountPostDTO;
 import io.swagger.model.entity.Account;
@@ -12,6 +13,7 @@ import io.swagger.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
@@ -41,10 +43,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
-@ContextConfiguration(classes = {AccountService.class, AccountController.class})
-@WebMvcTest
+@ContextConfiguration(classes = {Swagger2SpringBoot.class, AccountService.class, AccountController.class})
 public class AccountControllerTest {
 
+    @Mock
     private AccountService accountService;
 
     @Autowired
@@ -58,7 +60,7 @@ public class AccountControllerTest {
     private AccountController accountController;
 
 
-    @MockBean
+    @Autowired
     private AccountRepository accountRepo;
     @MockBean
     private UserService userService;
@@ -74,7 +76,6 @@ public class AccountControllerTest {
         MockitoAnnotations.initMocks(this);
         modelMapper = new ModelMapper();
         mockMvc = MockMvcBuilders.webAppContextSetup(this.webApplicationContext).build();
-        accountService = new AccountService(accountRepo, userService, authenticationManager, jwtTokenProvider);
     }
 
     @Test

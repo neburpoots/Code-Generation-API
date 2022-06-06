@@ -1,6 +1,9 @@
 package io.swagger.service;
 
 import io.swagger.controller.AccountController;
+import io.swagger.controller.NotFoundException;
+import io.swagger.exception.BadRequestException;
+import io.swagger.exception.ResourceNotFoundException;
 import io.swagger.model.account.AccountGetDTO;
 import io.swagger.model.account.AccountPostDTO;
 import io.swagger.model.entity.Account;
@@ -13,71 +16,79 @@ import io.swagger.repository.AccountRepository;
 import io.swagger.repository.RoleRepository;
 import io.swagger.repository.UserRepository;
 import io.swagger.security.JwtTokenProvider;
+import io.swagger.seed.MainSeeder;
+import io.swagger.seed.RoleSeeder;
 import io.swagger.utils.DtoUtils;
+import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-
-import javax.servlet.http.HttpServletRequest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockHttpServletRequest;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
+@ExtendWith(MockitoExtension.class)
+@SpringBootTest
 public class AccountServiceTest {
 
 
-    private AccountService accountService;
+
 
     @Autowired
-    private MockMvc mockMvc;
-
-    @MockBean
     private AccountRepository accountRepo;
-    @MockBean
+
+    @Autowired
+    private UserRepository userRepo;
+
+    @Autowired
     private UserService userService;
-    @MockBean
-    private AuthenticationManager authenticationManager;
-    @MockBean
-    private JwtTokenProvider jwtTokenProvider;
-    @MockBean
+
+    private AccountService accountService;
+
+
+
     private ModelMapper modelMapper;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
         modelMapper = new ModelMapper();
-        accountService = new AccountService(accountRepo, userService,authenticationManager, jwtTokenProvider);
+        accountService = Mockito.mock(AccountService.class, RETURNS_DEEP_STUBS);
     }
 
-//    @Test
-//    @DisplayName("getAccountWhichDoesNotExistShouldReturn404")
-//    public void getAccountWhichDoesNotExistShouldReturn404() {
-//        AccountService accountService = new AccountService(null,null,null,null);
-//        accountService.getAccount("NL9999999999", HttpServletRequest req);
-//    }
-//
     @Test
     @DisplayName("getAccountWhichDoesNotExistShouldReturn404")
-    public void getAccountWhichDoesNotExistShouldReturn404() {
+    public void getAccountWhichDoesNotExistShouldReturnNotFoundException() {
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+
+        when(accountService.getAccount("NLINHO9999999999", request)).thenThrow(ResourceNotFoundException.class);
 
     }
+
+    @Test
+    @DisplayName("getAccountWhichDoesExistShouldReturnAccountGetDTO")
+    public void getAccountWhichDoesExistShouldReturnAccountGetDTO() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+
+        List<Account> accounts = accountRepo.findAll();
+
+        when(accountService.getAccount(accounts.get(0).getAccount_id(), request))
+                .thenReturn(this.modelMapper.map(accounts.get(0), AccountGetDTO.class));
+    }
+
+
 
     private Account createMockAccount() {
         User mockUser = new User();
@@ -94,28 +105,32 @@ public class AccountServiceTest {
     }
 
     @Test
-    public void createAccountSuccesfullyShouldReturn201() throws Exception {
+    public void createAccountShouldReturnAGetAccountDto() throws Exception {
 
+        List<User> users = userRepo.findAll();
 
-
-        Mockito.when(accountService.createAccount(
+        AccountGetDTO account = accountService.createAccount(
                 new AccountPostDTO()
                         .absoluteLimit(new BigDecimal(-4500))
-                        .accountType(AccountType.PRIMARY)
-                        .user_id(UUID.randomUUID()))).thenReturn(this.modelMapper.map(createMockAccount(), AccountGetDTO.class));
+                        .accountType(AccountType.SAVINGS)
+                        .user_id(users.get(0).getUser_id()));
 
-//
-//
-//        String email = "ruben@student.inholland.nl";
-//        String password = "Secret123!";
-////
-//        String body = "{\"email\":\"" + email + "\", \"password\":\""
-//                + password + "\"}";
-////        //Initial login request
-//        mockMvc.perform(MockMvcRequestBuilders.post("/api/users/login")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(body))
-//                .andExpect(status().isOk()).andReturn();
+        assertNotNull(account);
 
+
+    }
+
+    @Test
+    public void createAccountShouldReturnA400BadRequestBecauseOfAbsoluteLimit() throws BadRequestException {
+
+        List<User> users = userRepo.findAll();
+
+        AccountGetDTO account = accountService.createAccount(
+                new AccountPostDTO()
+                        .absoluteLimit(new BigDecimal(-100000))
+                        .accountType(AccountType.BANK)
+                        .user_id(users.get(0).getUser_id()));
+
+        assertNotNull(account);
     }
 }
