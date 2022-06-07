@@ -6,15 +6,18 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.swagger.model.entity.Account;
+import io.swagger.model.entity.Role;
 import io.swagger.model.entity.User;
 import io.swagger.repository.AccountRepository;
 import io.swagger.repository.UserRepository;
+import io.swagger.security.JwtTokenProvider;
+import io.swagger.utils.DtoUtils;
+import io.swagger.utils.RestPageImpl;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.*;
 
 import java.io.IOException;
 import java.util.*;
@@ -38,14 +41,26 @@ public class AccountSteps {
 
     private List<Account> actualAccounts;
 
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
+
+    private HttpHeaders headers;
+
     @Before
     public void setup()
     {
         expectedAccounts = new ArrayList<>();
         actualAccounts = new ArrayList<>();
         accountRepository.deleteAll();
-        HttpHeaders headers = new HttpHeaders();
+        headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+
+        List<Role> roles = new ArrayList<>();
+        roles.add(new Role(1, "EMPLOYEE"));
+        roles.add(new Role(2, "CUSTOMER"));
+
+
+        headers.add("Authorization", "Bearer " + jwtTokenProvider.createToken("ruben@student.inholland.nl", roles, UUID.randomUUID()));
     }
 
     @Given("^the following accounts$")
@@ -58,28 +73,27 @@ public class AccountSteps {
 
         expectedAccounts.forEach(c -> c.setUser(testUser.get(0)));
 
-
         //Might need users
         accountRepository.saveAll(accounts);
-    }
-
-    private HttpHeaders createHttpHeaders(String user, String password)
-    {
-        String notEncoded = user + ":" + password;
-        String encodedAuth = "Basic " + Base64.getEncoder().encodeToString(notEncoded.getBytes());
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.add("Authorization", encodedAuth);
-        return headers;
     }
 
 
     @When("^the user requests all the accounts")
     public void whenTheUserRequestAllTheAccounts() throws IOException {
-        actualAccounts.addAll(Arrays.asList(
-                objectMapper.readValue(
-                        testRestTemplate.getForEntity("/api/accounts", String.class)
-                                .getBody(), Account[].class)));
+
+        HttpEntity request = new HttpEntity(headers);
+
+        ResponseEntity<RestPageImpl<Account>> accounts =
+
+                        testRestTemplate.exchange("/api/accounts", HttpMethod.GET, request, new ParameterizedTypeReference<RestPageImpl<Account>>() {
+                        });
+
+        actualAccounts = accounts.getBody().getContent();
+
+//        actualAccounts.addAll(Arrays.asList(
+//                objectMapper.readValue(
+//                        testRestTemplate.exchange("/api/accounts", HttpMethod.GET, request, String.class)
+//                                .getBody(), Account[].class)));
     }
 
     @Then("^all the accounts are returned")
