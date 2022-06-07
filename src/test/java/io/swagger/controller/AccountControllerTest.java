@@ -1,13 +1,8 @@
 package io.swagger.controller;
 
-import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.Swagger2SpringBoot;
-import io.swagger.cucumber.CucumberIT;
-import io.swagger.exception.BadRequestException;
 import io.swagger.exception.ErrorMessage;
 import io.swagger.model.account.AccountGetDTO;
-import io.swagger.model.account.AccountPostDTO;
 import io.swagger.model.entity.Account;
 import io.swagger.model.entity.AccountType;
 import io.swagger.model.entity.Role;
@@ -16,49 +11,27 @@ import io.swagger.repository.AccountRepository;
 import io.swagger.repository.UserRepository;
 import io.swagger.security.JwtTokenProvider;
 import io.swagger.service.AccountService;
-import io.swagger.service.UserService;
 import io.swagger.utils.RestPageImpl;
-import org.hamcrest.core.IsNull;
-import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestTemplate;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
-import org.springframework.http.client.BufferingClientHttpRequestFactory;
-import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
-import org.springframework.http.client.support.BasicAuthorizationInterceptor;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.test.context.support.WithMockUser;
-
-import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.IntStream;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 @SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -81,7 +54,11 @@ public class AccountControllerTest {
 
     private ModelMapper modelMapper;
 
+    //jwt token for employee
     private HttpHeaders headers;
+
+    //jwt token for customer
+    private HttpHeaders customerHeaders;
 
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
@@ -101,66 +78,429 @@ public class AccountControllerTest {
 
     //Creates header tokens for requests
     private void InitHeaderTokens() {
+
+        List<Role> roles = new ArrayList<>();
+        roles.add(new Role(1, "CUSTOMER"));
+
+        User customerUser = userRepository.findByEmail("customer@student.inholland.nl");
+
+        customerHeaders = new HttpHeaders();
+        customerHeaders.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        customerHeaders.add("Authorization", "Bearer " + jwtTokenProvider.createToken("customer@student.inholland.nl", roles, customerUser.getUser_id()));
+
+        roles.add(new Role(2, "EMPLOYEE"));
+
         headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        List<Role> roles = new ArrayList<>();
-        roles.add(new Role(1, "EMPLOYEE"));
-        roles.add(new Role(2, "CUSTOMER"));
-
         headers.add("Authorization", "Bearer " + jwtTokenProvider.createToken("ruben@student.inholland.nl", roles, UUID.randomUUID()));
+    }
 
+    private void validateAccount(final Account expected, final Account actual) {
+        Assertions.assertEquals(expected.getBalance(), actual.getBalance());
+        Assertions.assertEquals(expected.getAccount_id(), actual.getAccount_id());
+        Assertions.assertEquals(expected.getAbsoluteLimit(), actual.getAbsoluteLimit());
     }
 
     @Test
-    public void createAccountWithWrongAbsoluteLimitShouldReturn400() {
-        List<User> users = userRepository.findAll();
-
-        // request body parameters
-        Map<String, Object> map = new HashMap<>();
-        map.put("absolute_limit", -20000);
-        map.put("account_type", "SAVINGS");
-        map.put("user_id", users.get(users.size() - 1).getUser_id());
-
-        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, headers);
-
-        ResponseEntity<AccountGetDTO> account =
-                testRestTemplate.exchange("/api/accounts", HttpMethod.POST, entity, AccountGetDTO.class);
-
-        System.out.println(account);
-        Assertions.assertEquals(account.getStatusCodeValue(),400);
-
+    public void getAllAccountsSuccessfullyChecksListShouldReturn200() throws IOException {
+        getALlAccountsSuccesfullyWithGivenUrlAndChecksEntirePage(0, 5,"/api/accounts");
     }
 
     @Test
-    public void createAccountWithWrongAccountType() {
-        List<User> users = userRepository.findAll();
+    public void getAllAccountsSuccessfullyWithPaginationParametersReturns200() throws IOException {
+        getALlAccountsSuccesfullyWithGivenUrlAndChecksEntirePage(0, 5,"/api/accounts?page=0&size=5");
+    }
 
+    public void getALlAccountsSuccesfullyWithGivenUrlAndChecksEntirePage(Integer page, Integer size, String url) throws IOException {
+
+        //EXPECTED RETURN RESULT TO COMPARE
         // request body parameters
-        Map<String, Object> map = new HashMap<>();
-        map.put("absolute_limit", -20000);
-        map.put("account_type", "WRONGTYPE");
-        map.put("user_id", users.get(users.size() - 1).getUser_id());
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Account> expectedAccounts = accountRepository.findByAccountTypeIsNot(AccountType.BANK, pageable);
 
-        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, headers);
+        HttpEntity request = new HttpEntity(headers);
 
-        ResponseEntity<AccountGetDTO> account =
-                testRestTemplate.exchange("/api/accounts", HttpMethod.POST, entity, AccountGetDTO.class);
+        ResponseEntity<RestPageImpl<Account>> accounts =
 
-        System.out.println(account);
+                testRestTemplate.exchange(url, HttpMethod.GET, request, new ParameterizedTypeReference<RestPageImpl<Account>>() {
+                });
+
+        Assertions.assertEquals(accounts.getStatusCodeValue(), 200);
+
+        List<Account> actualAccounts = accounts.getBody().getContent();
+
+        Assertions.assertEquals(accounts.getBody().getTotalElements(), expectedAccounts.getTotalElements());
+        IntStream.range(0, actualAccounts.size())
+                .forEach(index -> validateAccount(expectedAccounts.getContent().get(index), actualAccounts.get(index)));
+    }
+
+    @Test
+    public void getAllAccountsWithIncorrectPaginationAndSizeShouldThrow400() throws IOException {
+
+        HttpEntity request = new HttpEntity(headers);
+
+        ResponseEntity<String> account =
+                testRestTemplate.exchange("/api/accounts?page=-10&size=-10", HttpMethod.GET, request, String.class);
+
+        //Converts String to object
+        ErrorMessage mappedToErrorMessage = objectMapper.readValue(account.getBody(), ErrorMessage.class);
+
+        Assertions.assertNotNull(mappedToErrorMessage.getMessage());
+        Assertions.assertEquals(mappedToErrorMessage.getMessage(), "Invalid page or page size");
+        Assertions.assertNotNull(mappedToErrorMessage.getTimestamp());
+
         Assertions.assertEquals(account.getStatusCodeValue(),400);
+    }
 
+    @Test
+    public void getAllAccountsWithCustomerJWTShouldReturn403() throws IOException {
+
+        HttpEntity request = new HttpEntity(customerHeaders);
+
+        ResponseEntity<String> account =
+                testRestTemplate.exchange("/api/accounts", HttpMethod.GET, request, String.class);
+
+        //Converts String to object
+        ErrorMessage mappedToErrorMessage = objectMapper.readValue(account.getBody(), ErrorMessage.class);
+
+        Assertions.assertNotNull(mappedToErrorMessage.getMessage());
+        Assertions.assertEquals(mappedToErrorMessage.getMessage(), "You are not authorized to make this request.");
+        Assertions.assertNotNull(mappedToErrorMessage.getTimestamp());
+
+        Assertions.assertEquals(account.getStatusCodeValue(),403);
+    }
+
+    @Test
+    public void getAllAccountsWithoutAValidJWTTokenShouldThrow403() throws IOException {
+
+        ResponseEntity<String> account =
+                testRestTemplate.exchange("/api/accounts", HttpMethod.GET, null, String.class);
+
+        //Converts String to object
+        ErrorMessage mappedToErrorMessage = objectMapper.readValue(account.getBody(), ErrorMessage.class);
+
+        Assertions.assertNotNull(mappedToErrorMessage.getMessage());
+        Assertions.assertEquals(mappedToErrorMessage.getMessage(), "Access Denied");
+        Assertions.assertNotNull(mappedToErrorMessage.getTimestamp());
+
+        Assertions.assertEquals(account.getStatusCodeValue(),403);
+    }
+
+    @Test
+    public void getAllAccountsWithUserParameterShouldReturn200() throws IOException {
+
+        User user = userRepository.findByEmail("ruben@student.inholland.nl");
+
+        //EXPECTED RETURN RESULT TO COMPARE
+        // request body parameters
+        Pageable pageable = PageRequest.of(0, 5);
+        Page<Account> expectedAccounts = accountRepository.findByUserAndAccountTypeIsNot(user, AccountType.BANK, pageable);
+
+        HttpEntity request = new HttpEntity(headers);
+
+        ResponseEntity<RestPageImpl<Account>> accounts =
+                testRestTemplate.exchange("/api/accounts?user_id=" + user.getUser_id(), HttpMethod.GET, request, new ParameterizedTypeReference<RestPageImpl<Account>>() {
+                });
+
+        Assertions.assertEquals(accounts.getStatusCodeValue(), 200);
+
+        List<Account> actualAccounts = accounts.getBody().getContent();
+
+        Assertions.assertEquals(accounts.getBody().getTotalElements(), expectedAccounts.getTotalElements());
+        IntStream.range(0, actualAccounts.size())
+                .forEach(index -> validateAccount(expectedAccounts.getContent().get(index), actualAccounts.get(index)));
+    }
+
+    @Test
+    public void getAllAccountsWithUserParameterAndUserJWTShouldReturn200() throws IOException {
+
+        User user = userRepository.findByEmail("customer@student.inholland.nl");
+
+        //EXPECTED RETURN RESULT TO COMPARE
+        // request body parameters
+        Pageable pageable = PageRequest.of(0, 5);
+        Page<Account> expectedAccounts = accountRepository.findByUserAndAccountTypeIsNot(user, AccountType.BANK, pageable);
+
+        HttpEntity request = new HttpEntity(customerHeaders);
+
+        ResponseEntity<RestPageImpl<Account>> accounts =
+                testRestTemplate.exchange("/api/accounts?user_id=" + user.getUser_id(), HttpMethod.GET, request, new ParameterizedTypeReference<RestPageImpl<Account>>() {
+                });
+
+        Assertions.assertEquals(accounts.getStatusCodeValue(), 200);
+
+        List<Account> actualAccounts = accounts.getBody().getContent();
+
+        Assertions.assertEquals(accounts.getBody().getTotalElements(), expectedAccounts.getTotalElements());
+        IntStream.range(0, actualAccounts.size())
+                .forEach(index -> validateAccount(expectedAccounts.getContent().get(index), actualAccounts.get(index)));
+    }
+
+    @Test
+    public void getAllAccountsWithWrongUserParameterAndUserJWTShouldReturn200() throws IOException {
+
+        User user = userRepository.findByEmail("ruben@student.inholland.nl");
+
+        //EXPECTED RETURN RESULT TO COMPARE
+        // request body parameters
+        Pageable pageable = PageRequest.of(0, 5);
+        Page<Account> expectedAccounts = accountRepository.findByUserAndAccountTypeIsNot(user, AccountType.BANK, pageable);
+
+        HttpEntity request = new HttpEntity(customerHeaders);
+
+        ResponseEntity<String> account =
+                testRestTemplate.exchange("/api/accounts?user_id=" + user.getUser_id(), HttpMethod.GET, request, String.class);
+
+        //Converts String to object
+        ErrorMessage mappedToErrorMessage = objectMapper.readValue(account.getBody(), ErrorMessage.class);
+
+        Assertions.assertNotNull(mappedToErrorMessage.getMessage());
+        Assertions.assertEquals(mappedToErrorMessage.getMessage(), "You are not authorized to make this request.");
+        Assertions.assertNotNull(mappedToErrorMessage.getTimestamp());
+
+        Assertions.assertEquals(account.getStatusCodeValue(),403);
+    }
+
+    @Test
+    public void getAllAccountsWithNonExistsUserShouldThrow400() throws IOException {
+
+        HttpEntity request = new HttpEntity(headers);
+
+        String uuid = UUID.randomUUID().toString();
+
+        ResponseEntity<String> account =
+                testRestTemplate.exchange("/api/accounts?user_id=" + uuid, HttpMethod.GET, request, String.class);
+
+        //Converts String to object
+        ErrorMessage mappedToErrorMessage = objectMapper.readValue(account.getBody(), ErrorMessage.class);
+
+        Assertions.assertNotNull(mappedToErrorMessage.getMessage());
+        Assertions.assertEquals(mappedToErrorMessage.getMessage(), "User with id: '" + uuid + "' not found");
+        Assertions.assertNotNull(mappedToErrorMessage.getTimestamp());
+
+        Assertions.assertEquals(account.getStatusCodeValue(),404);
+    }
+
+    @Test
+    public void getAllAccountsWithCustomerAccountsShouldReturn403() throws IOException {
+
+        HttpEntity request = new HttpEntity(customerHeaders);
+
+        String uuid = UUID.randomUUID().toString();
+
+        ResponseEntity<String> account =
+                testRestTemplate.exchange("/api/accounts", HttpMethod.GET, request, String.class);
+
+        //Converts String to object
+        ErrorMessage mappedToErrorMessage = objectMapper.readValue(account.getBody(), ErrorMessage.class);
+
+        Assertions.assertNotNull(mappedToErrorMessage.getMessage());
+        Assertions.assertEquals(mappedToErrorMessage.getMessage(), "You are not authorized to make this request.");
+        Assertions.assertNotNull(mappedToErrorMessage.getTimestamp());
+
+        Assertions.assertEquals(account.getStatusCodeValue(),403);
+    }
+
+    @Test
+    public void getAllAccountsWithTypeParameterShouldReturn200() throws IOException {
+
+        //EXPECTED RETURN RESULT TO COMPARE
+        // request body parameters
+        Pageable pageable = PageRequest.of(0, 5);
+        Page<Account> expectedAccounts = accountRepository.findByAccountType(AccountType.PRIMARY, pageable);
+
+        HttpEntity request = new HttpEntity(headers);
+
+        ResponseEntity<RestPageImpl<Account>> accounts =
+                testRestTemplate.exchange("/api/accounts?type=PRIMARY", HttpMethod.GET, request, new ParameterizedTypeReference<RestPageImpl<Account>>() {
+                });
+
+        Assertions.assertEquals(accounts.getStatusCodeValue(), 200);
+
+        List<Account> actualAccounts = accounts.getBody().getContent();
+
+        Assertions.assertEquals(accounts.getBody().getTotalElements(), expectedAccounts.getTotalElements());
+        IntStream.range(0, actualAccounts.size())
+                .forEach(index -> validateAccount(expectedAccounts.getContent().get(index), actualAccounts.get(index)));
+    }
+
+    @Test
+    public void getAllAccountsWithAccountTypeAndUserShouldReturn400() throws IOException {
+
+        HttpEntity request = new HttpEntity(headers);
+
+        ResponseEntity<String> account =
+                testRestTemplate.exchange("/api/accounts?type=WRONGTYPE", HttpMethod.GET, request, String.class);
+
+        //Converts String to object
+        ErrorMessage mappedToErrorMessage = objectMapper.readValue(account.getBody(), ErrorMessage.class);
+
+        Assertions.assertNotNull(mappedToErrorMessage.getMessage());
+        Assertions.assertEquals(mappedToErrorMessage.getMessage(), "Filter type is incorrect.");
+        Assertions.assertNotNull(mappedToErrorMessage.getTimestamp());
+
+        Assertions.assertEquals(account.getStatusCodeValue(),400);
+    }
+
+    @Test
+    public void getAllAccountsWithAccountTypeAndUserShouldReturn200() throws IOException {
+
+        User user = userRepository.findByEmail("ruben@student.inholland.nl");
+
+        //EXPECTED RETURN RESULT TO COMPARE
+        // request body parameters
+        Pageable pageable = PageRequest.of(0, 5);
+        Page<Account> expectedAccounts = accountRepository.findByUserAndAccountType(user, AccountType.PRIMARY, pageable);
+
+        HttpEntity request = new HttpEntity(headers);
+
+        ResponseEntity<RestPageImpl<Account>> accounts =
+                testRestTemplate.exchange("/api/accounts?type=PRIMARY&user_id=" + user.getUser_id(), HttpMethod.GET, request, new ParameterizedTypeReference<RestPageImpl<Account>>() {
+                });
+
+        Assertions.assertEquals(accounts.getStatusCodeValue(), 200);
+
+        List<Account> actualAccounts = accounts.getBody().getContent();
+
+        Assertions.assertEquals(accounts.getBody().getTotalElements(), expectedAccounts.getTotalElements());
+        IntStream.range(0, actualAccounts.size())
+                .forEach(index -> validateAccount(expectedAccounts.getContent().get(index), actualAccounts.get(index)));
+    }
+
+    @Test
+    public void getAllAccountsWithAccountTypeAndUserAndSizeAndPageShouldReturn200() throws IOException {
+
+        User user = userRepository.findByEmail("ruben@student.inholland.nl");
+
+        //EXPECTED RETURN RESULT TO COMPARE
+        // request body parameters
+        Pageable pageable = PageRequest.of(0, 5);
+        Page<Account> expectedAccounts = accountRepository.findByUserAndAccountType(user, AccountType.PRIMARY, pageable);
+
+        HttpEntity request = new HttpEntity(headers);
+
+        ResponseEntity<RestPageImpl<Account>> accounts =
+                testRestTemplate.exchange("/api/accounts?type=PRIMARY&page=0&size=5&user_id=" + user.getUser_id(), HttpMethod.GET, request, new ParameterizedTypeReference<RestPageImpl<Account>>() {
+                });
+
+        Assertions.assertEquals(accounts.getStatusCodeValue(), 200);
+
+        List<Account> actualAccounts = accounts.getBody().getContent();
+
+        Assertions.assertEquals(accounts.getBody().getTotalElements(), expectedAccounts.getTotalElements());
+        IntStream.range(0, actualAccounts.size())
+                .forEach(index -> validateAccount(expectedAccounts.getContent().get(index), actualAccounts.get(index)));
+    }
+
+    @Test
+    public void getOneAccountSuccesfullyShouldReturn200() throws IOException {
+        //EXPECTED RETURN RESULT TO COMPARE
+        // request body parameters
+        Account testAccount = accountRepository.findAll().get(2);
+
+        HttpEntity request = new HttpEntity(headers);
+
+        ResponseEntity<Account> account =
+                testRestTemplate.exchange("/api/accounts/" + testAccount.getAccount_id(), HttpMethod.GET, request, new ParameterizedTypeReference<Account>() {
+                });
+
+        Assertions.assertEquals(account.getStatusCodeValue(), 200);
+
+        Account actualAccount = account.getBody();
+
+        validateAccount(testAccount, actualAccount);
+    }
+
+    @Test
+    public void getOneAccountSuccesfullyWithUserJWTOwnAccountShouldReturn200() throws IOException {
+        //EXPECTED RETURN RESULT TO COMPARE
+        // request body parameters
+        User user = userRepository.findByEmail("customer@student.inholland.nl");
+        List<Account> testAccounts = accountRepository.findByUser(user);
+
+        HttpEntity request = new HttpEntity(headers);
+
+        ResponseEntity<Account> account =
+                testRestTemplate.exchange("/api/accounts/" + testAccounts.get(0).getAccount_id(), HttpMethod.GET, request, new ParameterizedTypeReference<Account>() {
+                });
+
+        Assertions.assertEquals(account.getStatusCodeValue(), 200);
+
+        Account actualAccount = account.getBody();
+
+        validateAccount(testAccounts.get(0), actualAccount);
+    }
+
+    @Test
+    public void getOneAccountWithIncorrectIbanShouldReturn404() throws IOException {
+        //EXPECTED RETURN RESULT TO COMPARE
+        // request body parameters
+
+        HttpEntity request = new HttpEntity(headers);
+
+        ResponseEntity<String> account =
+                testRestTemplate.exchange("/api/accounts/" + "NOTANIBAN123", HttpMethod.GET, request, String.class);
+
+        //Converts String to object
+        ErrorMessage mappedToErrorMessage = objectMapper.readValue(account.getBody(), ErrorMessage.class);
+
+        Assertions.assertNotNull(mappedToErrorMessage.getMessage());
+        Assertions.assertEquals(mappedToErrorMessage.getMessage(), "Could not find account");
+        Assertions.assertNotNull(mappedToErrorMessage.getTimestamp());
+
+        Assertions.assertEquals(account.getStatusCodeValue(),404);
+    }
+
+    @Test
+    public void getOneAccountWithNoHeadersShouldReturn403() throws IOException {
+        //EXPECTED RETURN RESULT TO COMPARE
+        // request body parameters
+        Account testAccount = accountRepository.findAll().get(2);
+
+        ResponseEntity<String> account =
+                testRestTemplate.exchange("/api/accounts/" + testAccount.getAccount_id(), HttpMethod.GET, null, String.class);
+
+        //Converts String to object
+        ErrorMessage mappedToErrorMessage = objectMapper.readValue(account.getBody(), ErrorMessage.class);
+
+        Assertions.assertNotNull(mappedToErrorMessage.getMessage());
+        Assertions.assertEquals(mappedToErrorMessage.getMessage(), "Access Denied");
+        Assertions.assertNotNull(mappedToErrorMessage.getTimestamp());
+
+        Assertions.assertEquals(account.getStatusCodeValue(),403);
+    }
+
+    @Test
+    public void getOneAccountThatDoesNotBelongToCustomerWithCustomerJWTShouldReturn403() throws IOException {
+        //EXPECTED RETURN RESULT TO COMPARE
+        // request body parameters
+        Account testAccount = accountRepository.findAll().get(2);
+
+        HttpEntity request = new HttpEntity(customerHeaders);
+
+        ResponseEntity<String> account =
+                testRestTemplate.exchange("/api/accounts/" + testAccount.getAccount_id(), HttpMethod.GET, null, String.class);
+
+        //Converts String to object
+        ErrorMessage mappedToErrorMessage = objectMapper.readValue(account.getBody(), ErrorMessage.class);
+
+        Assertions.assertNotNull(mappedToErrorMessage.getMessage());
+        Assertions.assertEquals(mappedToErrorMessage.getMessage(), "Access Denied");
+        Assertions.assertNotNull(mappedToErrorMessage.getTimestamp());
+
+        Assertions.assertEquals(account.getStatusCodeValue(),403);
     }
 
     @Test
     public void createAccountSuccesfullyChecksAllPropertiesShouldReturn201Created() throws IOException {
-        List<User> users = userRepository.findAll();
+        User user = userRepository.findByEmail("noaccount@student.inholland.nl");
         Long accountRepoCountBefore = accountRepository.count();
 
         // request body parameters
         Map<String, Object> map = new HashMap<>();
         map.put("absolute_limit", -10000);
         map.put("account_type", "SAVINGS");
-        map.put("user_id", users.get(users.size() - 1).getUser_id());
+        map.put("user_id", user.getUser_id());
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, headers);
 
@@ -188,16 +528,16 @@ public class AccountControllerTest {
     }
 
     @Test
-    public void createAccountWithNoJWTTokenShouldReturn403() throws IOException {
-        List<User> users = userRepository.findAll();
+    public void createAccountWithWrongAbsoluteLimitShouldReturn400() throws IOException {
+        User user = userRepository.findByEmail("noaccount@student.inholland.nl");
 
         // request body parameters
         Map<String, Object> map = new HashMap<>();
-        map.put("absolute_limit", -10000);
+        map.put("absolute_limit", -20000);
         map.put("account_type", "SAVINGS");
-        map.put("user_id", users.get(users.size() - 1).getUser_id());
+        map.put("user_id", user.getUser_id());
 
-        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, headers);
 
         ResponseEntity<String> account =
                 testRestTemplate.exchange("/api/accounts", HttpMethod.POST, entity, String.class);
@@ -208,13 +548,116 @@ public class AccountControllerTest {
         Assertions.assertNotNull(mappedToErrorMessage.getMessage());
         Assertions.assertNotNull(mappedToErrorMessage.getTimestamp());
 
+        Assertions.assertEquals(account.getStatusCodeValue(),400);
+
+    }
+
+    @Test
+    public void createAccountWithCustomerJWTShouldReturn403() throws IOException {
+        User user = userRepository.findByEmail("noaccount@student.inholland.nl");
+
+        // request body parameters
+        Map<String, Object> map = new HashMap<>();
+        map.put("absolute_limit", -10000);
+        map.put("account_type", "SAVINGS");
+        map.put("user_id", user.getUser_id());
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, customerHeaders);
+
+        ResponseEntity<String> account =
+                testRestTemplate.exchange("/api/accounts", HttpMethod.POST, entity, String.class);
+
+        //Converts String to object
+        ErrorMessage mappedToErrorMessage = objectMapper.readValue(account.getBody(), ErrorMessage.class);
+
+        Assertions.assertNotNull(mappedToErrorMessage.getMessage());
+        Assertions.assertEquals(mappedToErrorMessage.getMessage(), "Forbidden");
+        Assertions.assertNotNull(mappedToErrorMessage.getTimestamp());
+
+        Assertions.assertEquals(account.getStatusCodeValue(),403);
+
+    }
+
+    @Test
+    public void createAccountWithWrongAccountType() throws IOException {
+        User user = userRepository.findByEmail("noaccount@student.inholland.nl");
+
+        // request body parameters
+        Map<String, Object> map = new HashMap<>();
+        map.put("absolute_limit", -20000);
+        map.put("account_type", "WRONGTYPE");
+        map.put("user_id", user.getUser_id());
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, headers);
+
+        ResponseEntity<String> account =
+                testRestTemplate.exchange("/api/accounts", HttpMethod.POST, entity, String.class);
+
+        //Converts String to object
+        ErrorMessage mappedToErrorMessage = objectMapper.readValue(account.getBody(), ErrorMessage.class);
+
+        Assertions.assertNotNull(mappedToErrorMessage.getMessage());
+        Assertions.assertEquals(mappedToErrorMessage.getMessage(), "JSON parse error: Cannot deserialize value of type `io.swagger.model.entity.AccountType` from String \"WRONGTYPE\": value not one of declared Enum instance names: [SAVINGS, PRIMARY, BANK]; nested exception is com.fasterxml.jackson.databind.exc.InvalidFormatException: Cannot deserialize value of type `io.swagger.model.entity.AccountType` from String \"WRONGTYPE\": value not one of declared Enum instance names: [SAVINGS, PRIMARY, BANK]\n" +
+                " at [Source: (PushbackInputStream); line: 1, column: 17] (through reference chain: io.swagger.model.account.AccountPostDTO[\"account_type\"])");
+        Assertions.assertNotNull(mappedToErrorMessage.getTimestamp());
+
+        Assertions.assertEquals(account.getStatusCodeValue(),400);
+
+    }
+
+    @Test
+    public void createAccountWithWrongHTTPMethodShouldReturn405() throws IOException {
+        User user = userRepository.findByEmail("noaccount@student.inholland.nl");
+
+        // request body parameters
+        Map<String, Object> map = new HashMap<>();
+        map.put("absolute_limit", -10000);
+        map.put("account_type", "PRIMARY");
+        map.put("user_id", user.getUser_id());
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, headers);
+
+        ResponseEntity<String> account =
+                testRestTemplate.exchange("/api/accounts", HttpMethod.PUT, entity, String.class);
+
+        //Converts String to object
+        ErrorMessage mappedToErrorMessage = objectMapper.readValue(account.getBody(), ErrorMessage.class);
+
+        Assertions.assertNotNull(mappedToErrorMessage.getMessage());
+        Assertions.assertEquals(mappedToErrorMessage.getMessage(), "Request method 'PUT' not supported");
+        Assertions.assertNotNull(mappedToErrorMessage.getTimestamp());
+
+        Assertions.assertEquals(account.getStatusCodeValue(),405);
+
+    }
+
+    @Test
+    public void createAccountWithNoJWTTokenShouldReturn403() throws IOException {
+        User user = userRepository.findByEmail("noaccount@student.inholland.nl");
+
+        // request body parameters
+        Map<String, Object> map = new HashMap<>();
+        map.put("absolute_limit", -10000);
+        map.put("account_type", "SAVINGS");
+        map.put("user_id", user.getUser_id());
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map);
+
+        ResponseEntity<String> account =
+                testRestTemplate.exchange("/api/accounts", HttpMethod.POST, entity, String.class);
+
+        //Converts String to object
+        ErrorMessage mappedToErrorMessage = objectMapper.readValue(account.getBody(), ErrorMessage.class);
+
+        Assertions.assertNotNull(mappedToErrorMessage.getMessage());
+        Assertions.assertEquals(mappedToErrorMessage.getMessage(), "Access Denied");
+        Assertions.assertNotNull(mappedToErrorMessage.getTimestamp());
+
         Assertions.assertEquals(account.getStatusCodeValue(),403);
     }
 
     @Test
     public void createAccountWithANonExistentUserShouldReturn404UserNotFound() throws IOException {
-        List<User> users = userRepository.findAll();
-        Long accountRepoCountBefore = accountRepository.count();
 
         // request body parameters
         Map<String, Object> map = new HashMap<>();
@@ -236,6 +679,342 @@ public class AccountControllerTest {
         Assertions.assertEquals(account.getStatusCodeValue(),404);
 
     }
+
+    @Test
+    public void createAccountWithBankAccountUserShouldNotBeAllowedThrows400() throws IOException {
+
+        User user = userRepository.findByEmail("bankaccount@bankaccount.nl");
+
+        // request body parameters
+        Map<String, Object> map = new HashMap<>();
+        map.put("absolute_limit", -10000);
+        map.put("account_type", "SAVINGS");
+        map.put("user_id", user.getUser_id());
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, headers);
+
+        ResponseEntity<String> account =
+                testRestTemplate.exchange("/api/accounts", HttpMethod.POST, entity, String.class);
+
+        //Converts String to object
+        ErrorMessage mappedToErrorMessage = objectMapper.readValue(account.getBody(), ErrorMessage.class);
+
+        System.out.println(mappedToErrorMessage.getMessage());
+        Assertions.assertNotNull(mappedToErrorMessage.getMessage());
+        Assertions.assertEquals(mappedToErrorMessage.getMessage(),"You can't create a account for the bank user");
+        Assertions.assertNotNull(mappedToErrorMessage.getTimestamp());
+
+        Assertions.assertEquals(account.getStatusCodeValue(),400);
+
+    }
+
+    @Test
+    public void createAccountWithUserThatHasBothAccountsThrows409() throws IOException {
+
+        User user = userRepository.findByEmail("ruben@student.inholland.nl");
+
+        // request body parameters
+        Map<String, Object> map = new HashMap<>();
+        map.put("absolute_limit", -10000);
+        map.put("account_type", "SAVINGS");
+        map.put("user_id", user.getUser_id());
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, headers);
+
+        ResponseEntity<String> account =
+                testRestTemplate.exchange("/api/accounts", HttpMethod.POST, entity, String.class);
+
+        //Converts String to object
+        ErrorMessage mappedToErrorMessage = objectMapper.readValue(account.getBody(), ErrorMessage.class);
+
+        System.out.println(mappedToErrorMessage.getMessage());
+        Assertions.assertNotNull(mappedToErrorMessage.getMessage());
+        Assertions.assertEquals(mappedToErrorMessage.getMessage(),"Customer already has a primary and savings account");
+        Assertions.assertNotNull(mappedToErrorMessage.getTimestamp());
+
+        Assertions.assertEquals(account.getStatusCodeValue(),409);
+
+    }
+
+    @Test
+    public void editAccountSuccesfullyShouldReturn200() throws IOException {
+
+        //Necessary for testresttemplate to use PATCH requests
+        testRestTemplate.getRestTemplate().setRequestFactory(new HttpComponentsClientHttpRequestFactory());
+
+        Account testAccount = accountRepository.findAll().get(2);
+
+        // request body parameters
+        Map<String, Object> map = new HashMap<>();
+        map.put("absolute_limit", -4999);
+        map.put("status", "false");
+
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, headers);
+
+        ResponseEntity<String> account =
+                testRestTemplate.exchange("/api/accounts/" + testAccount.getAccount_id(), HttpMethod.PATCH, entity, String.class);
+
+        AccountGetDTO mappedtoAccountGetDTO = objectMapper.readValue(account.getBody(), AccountGetDTO.class);
+
+
+        Assertions.assertEquals(account.getStatusCodeValue(),200);
+
+        Assertions.assertNotNull(mappedtoAccountGetDTO.getAccount_id());
+        Assertions.assertNotEquals(mappedtoAccountGetDTO.getAbsoluteLimit(),testAccount.getAbsoluteLimit());
+        Assertions.assertNotEquals(mappedtoAccountGetDTO.getStatus(), testAccount.getStatus());
+
+    }
+
+    @Test
+    public void editAccountWithIncorrectStatusThrows400() throws IOException {
+
+        //Necessary for testresttemplate to use PATCH requests
+        testRestTemplate.getRestTemplate().setRequestFactory(new HttpComponentsClientHttpRequestFactory());
+
+        Account testAccount = accountRepository.findAll().get(2);
+
+        // request body parameters
+        Map<String, Object> map = new HashMap<>();
+        map.put("absolute_limit", -4999);
+        map.put("status", "notABoolean");
+
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, headers);
+
+        ResponseEntity<String> account =
+                testRestTemplate.exchange("/api/accounts/" + testAccount.getAccount_id(), HttpMethod.PATCH, entity, String.class);
+
+        //Converts String to object
+        ErrorMessage mappedToErrorMessage = objectMapper.readValue(account.getBody(), ErrorMessage.class);
+
+        System.out.println(mappedToErrorMessage.getMessage());
+        Assertions.assertNotNull(mappedToErrorMessage.getMessage());
+        Assertions.assertEquals(mappedToErrorMessage.getMessage(),"JSON parse error: Cannot deserialize value of type `java.lang.Boolean` from String \"notABoolean\": only \"true\" or \"false\" recognized; nested exception is com.fasterxml.jackson.databind.exc.InvalidFormatException: Cannot deserialize value of type `java.lang.Boolean` from String \"notABoolean\": only \"true\" or \"false\" recognized\n" +
+                " at [Source: (PushbackInputStream); line: 1, column: 34] (through reference chain: io.swagger.model.account.AccountPatchDTO[\"status\"])");
+        Assertions.assertNotNull(mappedToErrorMessage.getTimestamp());
+
+        Assertions.assertEquals(account.getStatusCodeValue(),400);
+
+    }
+
+    @Test
+    public void editAccountWithWrongHTTPMethodShouldReturn405() throws IOException {
+
+        //Necessary for testresttemplate to use PATCH requests
+        testRestTemplate.getRestTemplate().setRequestFactory(new HttpComponentsClientHttpRequestFactory());
+
+        Account testAccount = accountRepository.findAll().get(2);
+
+        // request body parameters
+        Map<String, Object> map = new HashMap<>();
+        map.put("absolute_limit", -4999);
+        map.put("status", "notABoolean");
+
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, headers);
+
+        ResponseEntity<String> account =
+                testRestTemplate.exchange("/api/accounts/" + testAccount.getAccount_id(), HttpMethod.POST, entity, String.class);
+
+        //Converts String to object
+        ErrorMessage mappedToErrorMessage = objectMapper.readValue(account.getBody(), ErrorMessage.class);
+
+        System.out.println(mappedToErrorMessage.getMessage());
+        Assertions.assertNotNull(mappedToErrorMessage.getMessage());
+        Assertions.assertEquals(mappedToErrorMessage.getMessage(),"Request method 'POST' not supported");
+        Assertions.assertNotNull(mappedToErrorMessage.getTimestamp());
+
+        Assertions.assertEquals(account.getStatusCodeValue(),405);
+    }
+
+    @Test
+    public void editAccountWithIncorrectAbsoluteLimitThrows400() throws IOException {
+
+        //Necessary for testresttemplate to use PATCH requests
+        testRestTemplate.getRestTemplate().setRequestFactory(new HttpComponentsClientHttpRequestFactory());
+
+        Account testAccount = accountRepository.findAll().get(2);
+
+        // request body parameters
+        Map<String, Object> map = new HashMap<>();
+        map.put("absolute_limit", 15000);
+        map.put("status", "true");
+
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, headers);
+
+        ResponseEntity<String> account =
+                testRestTemplate.exchange("/api/accounts/" + testAccount.getAccount_id(), HttpMethod.PATCH, entity, String.class);
+
+        //Converts String to object
+        ErrorMessage mappedToErrorMessage = objectMapper.readValue(account.getBody(), ErrorMessage.class);
+
+        System.out.println(mappedToErrorMessage.getMessage());
+        Assertions.assertNotNull(mappedToErrorMessage.getMessage());
+        Assertions.assertEquals(mappedToErrorMessage.getMessage(),"Validation failed for object='accountPatchDTO'. Error count: 1");
+        Assertions.assertNotNull(mappedToErrorMessage.getTimestamp());
+
+        Assertions.assertEquals(account.getStatusCodeValue(),400);
+    }
+
+    @Test
+    public void editAccountWithIncorrectAccountThrows404() throws IOException {
+
+        //Necessary for testresttemplate to use PATCH requests
+        testRestTemplate.getRestTemplate().setRequestFactory(new HttpComponentsClientHttpRequestFactory());
+
+        // request body parameters
+        Map<String, Object> map = new HashMap<>();
+        map.put("absolute_limit", -5000);
+        map.put("status", "true");
+
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, headers);
+
+        ResponseEntity<String> account =
+                testRestTemplate.exchange("/api/accounts/" + "NOTAUSER", HttpMethod.PATCH, entity, String.class);
+
+        //Converts String to object
+        ErrorMessage mappedToErrorMessage = objectMapper.readValue(account.getBody(), ErrorMessage.class);
+
+        System.out.println(mappedToErrorMessage.getMessage());
+        Assertions.assertNotNull(mappedToErrorMessage.getMessage());
+        Assertions.assertEquals(mappedToErrorMessage.getMessage(),"Could not find account");
+        Assertions.assertNotNull(mappedToErrorMessage.getTimestamp());
+
+        Assertions.assertEquals(account.getStatusCodeValue(),404);
+
+    }
+
+    @Test
+    public void editAccountWithCustomerJWTShouldReturn403() throws IOException {
+
+        //Necessary for testresttemplate to use PATCH requests
+        testRestTemplate.getRestTemplate().setRequestFactory(new HttpComponentsClientHttpRequestFactory());
+
+        Account testAccount = accountRepository.findAll().get(2);
+
+        // request body parameters
+        Map<String, Object> map = new HashMap<>();
+        map.put("absolute_limit", -5000);
+        map.put("status", "true");
+
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, customerHeaders);
+
+        ResponseEntity<String> account =
+                testRestTemplate.exchange("/api/accounts/" + testAccount.getAccount_id(), HttpMethod.PATCH, entity, String.class);
+
+        //Converts String to object
+        ErrorMessage mappedToErrorMessage = objectMapper.readValue(account.getBody(), ErrorMessage.class);
+
+        System.out.println(mappedToErrorMessage.getMessage());
+        Assertions.assertNotNull(mappedToErrorMessage.getMessage());
+        Assertions.assertEquals(mappedToErrorMessage.getMessage(),"Forbidden");
+        Assertions.assertNotNull(mappedToErrorMessage.getTimestamp());
+        Assertions.assertEquals(account.getStatusCodeValue(),403);
+    }
+
+
+
+    @Test
+    public void editAccountWithoutJWTTokenReturns403() throws IOException {
+
+        //Necessary for testresttemplate to use PATCH requests
+        testRestTemplate.getRestTemplate().setRequestFactory(new HttpComponentsClientHttpRequestFactory());
+
+        Account testAccount = accountRepository.findAll().get(2);
+
+        // request body parameters
+        Map<String, Object> map = new HashMap<>();
+        map.put("absolute_limit", -5000);
+        map.put("status", "true");
+
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map);
+
+        ResponseEntity<String> account =
+                testRestTemplate.exchange("/api/accounts/" + testAccount.getAccount_id(), HttpMethod.PATCH, entity, String.class);
+
+        //Converts String to object
+        ErrorMessage mappedToErrorMessage = objectMapper.readValue(account.getBody(), ErrorMessage.class);
+
+        System.out.println(mappedToErrorMessage.getMessage());
+        Assertions.assertNotNull(mappedToErrorMessage.getMessage());
+        Assertions.assertEquals(mappedToErrorMessage.getMessage(),"Access Denied");
+        Assertions.assertNotNull(mappedToErrorMessage.getTimestamp());
+
+        Assertions.assertEquals(account.getStatusCodeValue(),403);
+
+    }
+
+    @Test
+    public void editAccountWithoutUpdatingAnythingReturns422() throws IOException {
+
+        //Necessary for testresttemplate to use PATCH requests
+        testRestTemplate.getRestTemplate().setRequestFactory(new HttpComponentsClientHttpRequestFactory());
+
+        Account testAccount = accountRepository.findAll().get(2);
+
+        // request body parameters
+        Map<String, Object> map = new HashMap<>();
+        map.put("absolute_limit", testAccount.getAbsoluteLimit());
+        map.put("status", testAccount.getStatus());
+
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, headers);
+
+        ResponseEntity<String> account =
+                testRestTemplate.exchange("/api/accounts/" + testAccount.getAccount_id(), HttpMethod.PATCH, entity, String.class);
+
+        //Converts String to object
+        ErrorMessage mappedToErrorMessage = objectMapper.readValue(account.getBody(), ErrorMessage.class);
+
+        System.out.println(mappedToErrorMessage.getMessage());
+        Assertions.assertNotNull(mappedToErrorMessage.getMessage());
+        Assertions.assertEquals(mappedToErrorMessage.getMessage(),"Nothing is updated");
+        Assertions.assertNotNull(mappedToErrorMessage.getTimestamp());
+
+        Assertions.assertEquals(account.getStatusCodeValue(),422);
+
+    }
+
+    @Test
+    public void editAccountWithTypeBankShouldThrow400() throws IOException {
+
+        //Necessary for testresttemplate to use PATCH requests
+        testRestTemplate.getRestTemplate().setRequestFactory(new HttpComponentsClientHttpRequestFactory());
+
+        Account testAccount = accountRepository.findAll().get(0);
+
+        // request body parameters
+        Map<String, Object> map = new HashMap<>();
+        map.put("absolute_limit", testAccount.getAbsoluteLimit());
+        map.put("status", testAccount.getStatus());
+
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, headers);
+
+        ResponseEntity<String> account =
+                testRestTemplate.exchange("/api/accounts/" + testAccount.getAccount_id(), HttpMethod.PATCH, entity, String.class);
+
+        //Converts String to object
+        ErrorMessage mappedToErrorMessage = objectMapper.readValue(account.getBody(), ErrorMessage.class);
+
+        System.out.println(mappedToErrorMessage.getMessage());
+        Assertions.assertNotNull(mappedToErrorMessage.getMessage());
+        Assertions.assertEquals(mappedToErrorMessage.getMessage(),"You do not have access to this account");
+        Assertions.assertNotNull(mappedToErrorMessage.getTimestamp());
+
+        Assertions.assertEquals(account.getStatusCodeValue(),400);
+
+    }
+
+
+
+
+
 
 
 }

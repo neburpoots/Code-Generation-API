@@ -1,7 +1,5 @@
 package io.swagger.service;
 
-import io.swagger.controller.ApiException;
-import io.swagger.controller.NotFoundException;
 import io.swagger.exception.*;
 import io.swagger.model.account.AccountGetDTO;
 import io.swagger.model.account.AccountPatchDTO;
@@ -9,34 +7,22 @@ import io.swagger.model.account.AccountPostDTO;
 import io.swagger.model.entity.Account;
 import io.swagger.model.entity.AccountType;
 import io.swagger.model.entity.User;
-import io.swagger.model.user.UserGetDTO;
-import io.swagger.model.user.UserSearchDTO;
-import io.swagger.model.utils.DTOEntity;
 import io.swagger.repository.AccountRepository;
-import io.swagger.repository.UserRepository;
 import io.swagger.security.JwtTokenProvider;
 import io.swagger.utils.DtoUtils;
-import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.CollectionUtils;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
-import java.lang.reflect.Array;
 import java.math.BigDecimal;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AccountService {
@@ -60,22 +46,16 @@ public class AccountService {
         //Retrieves account
         Account newAccount = retrieveAccount(account_id);
 
-
         boolean updated = false;
 
-        //Checks if account type is bank
-        if(newAccount.getAccountType() == AccountType.BANK) {
-            throw new BadRequestException("Can't edit this account");
-        }
-
         //updates absolute limit in case of not being null
-        if (accountPatchDTO.getAbsoluteLimit() != null) {
+        if (accountPatchDTO.getAbsoluteLimit() != null && !newAccount.getAbsoluteLimit().equals(accountPatchDTO.getAbsoluteLimit())) {
             newAccount.setAbsoluteLimit(accountPatchDTO.getAbsoluteLimit());
             updated = true;
         }
 
         //updates status in case of not being null
-        if (accountPatchDTO.getStatus() != null) {
+        if (accountPatchDTO.getStatus() != null && newAccount.getStatus() != accountPatchDTO.getStatus()) {
             newAccount.setStatus(accountPatchDTO.getStatus());
             updated = true;
         }
@@ -108,7 +88,7 @@ public class AccountService {
         }
 
         if (existingAccounts.size() >= 2) {
-            throw new ConflictException("Customer already has a primary and savings account ");
+            throw new ConflictException("Customer already has a primary and savings account");
         } else if (existingAccounts.size() == 1) {
 
             switch (account.getAccountType()) {
@@ -182,8 +162,7 @@ public class AccountService {
         else if(getWithType) accounts = accountRepo.findByAccountType(accountType, pageable);
         else accounts = accountRepo.findByAccountTypeIsNot(AccountType.BANK, pageable);
 
-        //Checks if page number is valid
-        if((accounts.getTotalPages() - 1) < page) {
+        if ((accounts.getTotalPages() - 1) < page && page != 0) {
             throw new BadRequestException("Page number is invalid");
         }
 

@@ -90,10 +90,6 @@ public class AccountSteps {
 
         actualAccounts = accounts.getBody().getContent();
 
-//        actualAccounts.addAll(Arrays.asList(
-//                objectMapper.readValue(
-//                        testRestTemplate.exchange("/api/accounts", HttpMethod.GET, request, String.class)
-//                                .getBody(), Account[].class)));
     }
 
     @Then("^all the accounts are returned")
