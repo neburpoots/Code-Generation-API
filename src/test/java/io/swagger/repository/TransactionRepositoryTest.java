@@ -57,15 +57,15 @@ class TransactionRepositoryTest {
 
 
         for(Transaction t : transactions){
-            Assertions.assertThat(t.getAmount().compareTo(new BigDecimal(10)) == 1);
-            Assertions.assertThat(t.getFromAccount() == p.get(0).toString());
-            Assertions.assertThat(t.getToAccount() == p.get(1).toString());
-            Assertions.assertThat(t.getAmount().compareTo(new BigDecimal(30)) == 0);
-            Assertions.assertThat(t.getAmount().compareTo(new BigDecimal(1000)) == -1);
+            Assertions.assertThat(t.getAmount().compareTo(new BigDecimal(10)) == 1).isTrue();
+            Assertions.assertThat(t.getFromAccount() == p.get(0).toString()).isTrue();
+            Assertions.assertThat(t.getToAccount() == p.get(1).toString()).isTrue();
+            Assertions.assertThat(t.getAmount().compareTo(new BigDecimal(30)) == 0).isTrue();
+            Assertions.assertThat(t.getAmount().compareTo(new BigDecimal(1000)) == -1).isTrue();
         }
 
         //Assert that filtering has removed transactions from results.
-        Assertions.assertThat(transactions.size() < 5);
+        Assertions.assertThat(transactions.size() < 5).isTrue();
     }
 
     @Test
@@ -79,12 +79,12 @@ class TransactionRepositoryTest {
 
         //Assert that transactions are filtered correctly.
         for(Transaction t : transactions){
-            Assertions.assertThat(t.getFromAccount() == iban);
+            Assertions.assertThat(t.getFromAccount().equals(iban) || t.getToAccount().equals(iban)).isTrue();
             Assertions.assertThat(LocalDateTime.now().isAfter(t.getTimestamp()) &&
-                    LocalDateTime.now().minusHours(24).isBefore(t.getTimestamp()));
+                    LocalDateTime.now().minusHours(24).isBefore(t.getTimestamp())).isTrue();
         }
         //Assert that filtered is shorter.
-        Assertions.assertThat(transactions.size() < startList.size());
+        Assertions.assertThat(transactions.size() < startList.size()).isTrue();
     }
 
     @Test
@@ -95,20 +95,20 @@ class TransactionRepositoryTest {
 
         List<Transaction> allTransactions = repo.findAll();
         for(Transaction t : allTransactions){
-            if(t.getFromAccount() != iban || t.getToAccount() != iban){
+            if(t.getFromAccount().equals(iban) || t.getToAccount().equals(iban)){
                 checkThatListContainsNonMatchingTransactions = true;
             }
         }
-        Assertions.assertThat(checkThatListContainsNonMatchingTransactions);
+        Assertions.assertThat(checkThatListContainsNonMatchingTransactions).isTrue();
 
         boolean checkThatListContainsOnlyMatchingTransactions = false;
         List<Transaction> transactions = repo.findByFromAccountOrToAccount(iban, iban, pageable);
 
         for(Transaction t : transactions){
-            if(t.getFromAccount() != iban || t.getToAccount() != iban){
+            if(!t.getFromAccount().equals(iban) && !t.getToAccount().equals(iban)){
                 checkThatListContainsOnlyMatchingTransactions = true;
             }
         }
-        Assertions.assertThat(checkThatListContainsOnlyMatchingTransactions == false);
+        Assertions.assertThat(checkThatListContainsOnlyMatchingTransactions == false).isTrue();
     }
 }
