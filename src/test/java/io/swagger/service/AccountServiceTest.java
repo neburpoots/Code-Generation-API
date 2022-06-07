@@ -21,6 +21,7 @@ import io.swagger.seed.RoleSeeder;
 import io.swagger.utils.DtoUtils;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Before;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -54,6 +55,7 @@ public class AccountServiceTest {
     @Autowired
     private UserService userService;
 
+    @Autowired
     private AccountService accountService;
 
 
@@ -64,7 +66,7 @@ public class AccountServiceTest {
     void setUp() {
         MockitoAnnotations.initMocks(this);
         modelMapper = new ModelMapper();
-        accountService = Mockito.mock(AccountService.class, RETURNS_DEEP_STUBS);
+//        accountService = Mockito.mock(AccountService.class, RETURNS_MOCKS);
     }
 
     @Test
@@ -84,9 +86,37 @@ public class AccountServiceTest {
 
         List<Account> accounts = accountRepo.findAll();
 
-        when(accountService.getAccount(accounts.get(0).getAccount_id(), request))
-                .thenReturn(this.modelMapper.map(accounts.get(0), AccountGetDTO.class));
+        AccountGetDTO account = accountService.getAccount(accounts.get(0).getAccount_id(), request);
+
+        assertNotNull(account.getAbsoluteLimit());
+
+        System.out.println(account.getAccount_id());
+        assertNotNull(account.getAccount_id());
+//        when(accountService.getAccount(accounts.get(0).getAccount_id(), request))
+//                .thenReturn(this.modelMapper.map(accounts.get(0), AccountGetDTO.class));
     }
+
+    @Test
+    @DisplayName("getAccountWhichDoesExistShouldReturnAccountGetDTO")
+    public void getAccountWhichShouldNotExistReturnsException() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+
+        List<Account> accounts = accountRepo.findAll();
+
+
+        ResourceNotFoundException thrown = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            AccountGetDTO account = accountService.getAccount("NLINHO12938712312", request);
+
+        });
+
+//        assertNotNull(account.getAbsoluteLimit());
+//
+//        System.out.println(account.getAccount_id());
+//        assertNotNull(account.getAccount_id());
+//        when(accountService.getAccount(accounts.get(0).getAccount_id(), request))
+//                .thenReturn(this.modelMapper.map(accounts.get(0), AccountGetDTO.class));
+    }
+
 
 
 
