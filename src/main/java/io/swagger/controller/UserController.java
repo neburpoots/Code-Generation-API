@@ -48,7 +48,7 @@ public class UserController implements UserControllerInterface {
 
     public ResponseEntity<UserGetDTO> addUser(@Parameter(in = ParameterIn.DEFAULT, description = "Created User object", required = true, schema = @Schema()) @Valid @RequestBody UserPostDTO body) {
         try {
-            return new ResponseEntity<UserGetDTO>(this.userService.addUser(body), HttpStatus.OK);
+            return new ResponseEntity<UserGetDTO>(this.userService.addUser(body), HttpStatus.CREATED);
         } catch (Exception exception) {
             throw exception;
         }
@@ -57,7 +57,7 @@ public class UserController implements UserControllerInterface {
     public ResponseEntity<Void> editPassword(@Parameter(in = ParameterIn.DEFAULT, description = "Password information", required = true, schema = @Schema()) @Valid @RequestBody UserPasswordDTO body) {
         try {
             if (this.userService.editPassword(body, request)) {
-                return new ResponseEntity<Void>(HttpStatus.OK);
+                return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
             } else {
                 throw new InternalServerErrorException();
             }
@@ -70,7 +70,7 @@ public class UserController implements UserControllerInterface {
     public ResponseEntity<Void> editUserById(@Parameter(in = ParameterIn.PATH, description = "Id of the user you want to edit", required = true, schema = @Schema()) @PathVariable("id") String id, @Parameter(in = ParameterIn.DEFAULT, description = "Created User object", required = true, schema = @Schema()) @Valid @RequestBody UserPatchDTO body) {
         try {
             this.userService.editUserById(body, id);
-            return new ResponseEntity<Void>(HttpStatus.OK);
+            return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
         } catch (Exception exception) {
             throw exception;
         }

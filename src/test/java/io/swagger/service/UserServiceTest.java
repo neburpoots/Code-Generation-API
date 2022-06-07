@@ -12,6 +12,7 @@ import io.swagger.repository.RoleRepository;
 import io.swagger.repository.UserRepository;
 import io.swagger.security.JwtTokenProvider;
 import io.swagger.utils.DtoUtils;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -103,20 +104,6 @@ class UserServiceTest {
     public void createNewUserFromServiceLayer() {
         DTOEntity userGetDTO = this.userService.addUser(new UserPostDTO().firstname("Test").lastname("User").email("ruben@student.inholland.nl").password("Secret123!"));
 
-    }
-
-    @Test
-    public void getAllUsers() throws Exception {
-
-        List<DTOEntity> users = Arrays.asList(createMockUser(), createMockUser());
-
-        Page<DTOEntity> page = new PageImpl<>(users);
-
-        when(userController.getUsers(0, 5, null, null, null, null))
-                .thenReturn(new ResponseEntity<Page<DTOEntity>>(page, HttpStatus.OK));
-
-//        userService.getUsers("Ruben","Stoop","NL123123","true",0,5);
-//        verify(userRepo).findAll();
     }
 
     @Test
