@@ -13,8 +13,10 @@ Tim Roffelsen 672395
 ## Introduction
 
 This is our Banking Website for Project Code-Generation. Made by generating a Spring boot server stub through Swagger.
-<br><br>Url:
+<br><br>Back-end url:
 https://swaggerbankinholland.herokuapp.com/swagger-ui/
+<br>Front-end url:
+https://prismatic-gnome-a37c9f.netlify.app/
 
 ## Login info
 
