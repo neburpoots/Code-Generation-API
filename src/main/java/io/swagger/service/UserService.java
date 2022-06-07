@@ -49,6 +49,9 @@ public class UserService {
     }
 
     public UserLoginReturnDTO login(UserLoginDTO userLoginDTO) {
+        if (userLoginDTO.getEmail() == null) {
+            throw new BadRequestException("Email missing");
+        }
         User user = userRepo.findByEmail(userLoginDTO.getEmail());
         if (user == null) {
             throw new ResourceNotFoundException("No account found with given email");
@@ -249,7 +252,7 @@ public class UserService {
                 Page<UserIbanSearchDTO> users = new PageImpl<>(List.of(user));
                 return users.map(source -> new ModelMapper().map(source, UserIbanSearchDTO.class));
             } catch (Exception e) {
-                throw new BadRequestException("User with iban: " + iban + " not found.");
+                throw new ResourceNotFoundException("User with iban: " + iban + " not found.");
             }
         } else {
             if (pageNo < 0) {
