@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -54,15 +55,60 @@ class TransactionRepositoryTest {
                 new BigDecimal(1000),
                 new BigDecimal(10), pageable);
 
+
+        for(Transaction t : transactions){
+            Assertions.assertThat(t.getAmount().compareTo(new BigDecimal(10)) == 1);
+            Assertions.assertThat(t.getFromAccount() == p.get(0).toString());
+            Assertions.assertThat(t.getToAccount() == p.get(1).toString());
+            Assertions.assertThat(t.getAmount().compareTo(new BigDecimal(30)) == 0);
+            Assertions.assertThat(t.getAmount().compareTo(new BigDecimal(1000)) == -1);
+        }
+
+        //Assert that filtering has removed transactions from results.
         Assertions.assertThat(transactions.size() < 5);
     }
 
     @Test
     void findByFromAccountAndTimestampAfterAndTypeOrType() {
+        List<Transaction> startList = repo.findAll();
 
+        //getting filtered list
+        String iban = "NL01INHO0000000004";
+        LocalDateTime d = LocalDateTime.now().minusHours(24);
+        List<Transaction> transactions = repo.findByFromAccountAndTimestampAfterAndTypeOrType(iban, d, 0, 1);
+
+        //Assert that transactions are filtered correctly.
+        for(Transaction t : transactions){
+            Assertions.assertThat(t.getFromAccount() == iban);
+            Assertions.assertThat(LocalDateTime.now().isAfter(t.getTimestamp()) &&
+                    LocalDateTime.now().minusHours(24).isBefore(t.getTimestamp()));
+        }
+        //Assert that filtered is shorter.
+        Assertions.assertThat(transactions.size() < startList.size());
     }
 
     @Test
     void findByFromAccountOrToAccount() {
+        String iban = "NL01INHO0000000004";
+        Pageable pageable = PageRequest.of(0, 5);
+        boolean checkThatListContainsNonMatchingTransactions = false;
+
+        List<Transaction> allTransactions = repo.findAll();
+        for(Transaction t : allTransactions){
+            if(t.getFromAccount() != iban || t.getToAccount() != iban){
+                checkThatListContainsNonMatchingTransactions = true;
+            }
+        }
+        Assertions.assertThat(checkThatListContainsNonMatchingTransactions);
+
+        boolean checkThatListContainsOnlyMatchingTransactions = false;
+        List<Transaction> transactions = repo.findByFromAccountOrToAccount(iban, iban, pageable);
+
+        for(Transaction t : transactions){
+            if(t.getFromAccount() != iban || t.getToAccount() != iban){
+                checkThatListContainsOnlyMatchingTransactions = true;
+            }
+        }
+        Assertions.assertThat(checkThatListContainsOnlyMatchingTransactions == false);
     }
 }

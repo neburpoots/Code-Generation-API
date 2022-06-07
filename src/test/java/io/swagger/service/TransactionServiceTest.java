@@ -29,7 +29,7 @@ class TransactionServiceTest {
     @Test
     void validateBigDecimal() {
 
-        boolean validated = this.transactionsService.validateBigDecimal("20");
+
     }
 
     @Test
@@ -37,7 +37,7 @@ class TransactionServiceTest {
 
 
 
-        assertTrue(true);
+
 
     }
 
