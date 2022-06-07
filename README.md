@@ -12,7 +12,9 @@ Tim Roffelsen 672395
 
 ## Introduction
 
-This is our Banking Website for Project Code-Generation. Made by generating a Spring boot server stub through Swagger. 
+This is our Banking Website for Project Code-Generation. Made by generating a Spring boot server stub through Swagger.
+<br><br>Url:
+https://swaggerbankinholland.herokuapp.com/swagger-ui/
 
 ## Login info
 
