@@ -143,11 +143,11 @@ public class UserService {
     }
 
     public boolean editPassword(UserPasswordDTO userPasswordDTO, HttpServletRequest req) {
-        if (userPasswordDTO.getCurrentPassword() == null || userPasswordDTO.getNewPassword() == null){
+        if (userPasswordDTO.getCurrentPassword() == null || userPasswordDTO.getNewPassword() == null) {
             throw new UnProcessableEntityException();
         }
         String token = jwtTokenProvider.resolveToken(req);
-        System.out.println(token);
+
         if (userPasswordDTO.getCurrentPassword() != null || userPasswordDTO.getNewPassword() != null) {
             User user = getUserObjectById(jwtTokenProvider.getAudience(token));
             if (verifyPassword(userPasswordDTO.getCurrentPassword(), user.getPassword())) {
@@ -171,20 +171,23 @@ public class UserService {
         User user = getUserObjectById(id);
 
         if (userPatchDTO.getFirstname() != null && !userPatchDTO.getFirstname().isEmpty() && !user.getFirstname().equals(userPatchDTO.getFirstname())) {
+            if (userPatchDTO.getFirstname().length() < 2){
+                throw new BadRequestException("Invalid first name length");
+            }
             user.setFirstname(userPatchDTO.getFirstname());
-            System.out.println("first");
             edit = true;
         }
         if (userPatchDTO.getLastname() != null && !userPatchDTO.getLastname().isEmpty() && !user.getLastname().equals(userPatchDTO.getLastname())) {
+            if (userPatchDTO.getLastname().length() < 2){
+                throw new BadRequestException("Invalid last name length");
+            }
             user.setLastname(userPatchDTO.getLastname());
-            System.out.println("last");
             edit = true;
         }
         if (userPatchDTO.getEmail() != null && !userPatchDTO.getEmail().isEmpty() && !user.getEmail().equals(userPatchDTO.getEmail())) {
             if (verifyEmail(userPatchDTO.getEmail())) {
                 if (findUserByEmail(userPatchDTO.getEmail()) == null) {
                     user.setEmail(userPatchDTO.getEmail());
-                    System.out.println("email");
                     edit = true;
                 } else {
                     throw new ConflictException("Email is already in use");
@@ -193,15 +196,21 @@ public class UserService {
                 throw new BadRequestException("Email is invalid");
             }
         }
-        if (userPatchDTO.getTransactionLimit() != null && userPatchDTO.getTransactionLimit().compareTo(new BigDecimal(0)) >= 0 && userPatchDTO.getTransactionLimit().compareTo(user.getTransactionLimit()) != 0 && userPatchDTO.getTransactionLimit().compareTo(new BigDecimal(1000000)) <= 0) {
-            user.setTransactionLimit(userPatchDTO.getTransactionLimit());
-            System.out.println("trans");
-            edit = true;
+        if (userPatchDTO.getTransactionLimit() != null) {
+            if (userPatchDTO.getTransactionLimit().compareTo(new BigDecimal(0)) >= 0 && userPatchDTO.getTransactionLimit().compareTo(user.getTransactionLimit()) != 0 && userPatchDTO.getTransactionLimit().compareTo(new BigDecimal(1000000)) <= 0) {
+                user.setTransactionLimit(userPatchDTO.getTransactionLimit());
+                edit = true;
+            } else {
+                throw new BadRequestException("Transaction limit should be between 1 and 1.000.000");
+            }
         }
-        if (userPatchDTO.getDailyLimit() != null && userPatchDTO.getDailyLimit().compareTo(new BigDecimal(0)) >= 0 && userPatchDTO.getDailyLimit().compareTo(user.getDailyLimit()) != 0 && userPatchDTO.getDailyLimit().compareTo(new BigDecimal(1000000)) <= 0) {
-            user.setDailyLimit(userPatchDTO.getDailyLimit());
-            System.out.println("dail");
-            edit = true;
+        if (userPatchDTO.getDailyLimit() != null) {
+            if (userPatchDTO.getDailyLimit().compareTo(new BigDecimal(0)) >= 0 && userPatchDTO.getDailyLimit().compareTo(user.getDailyLimit()) != 0 && userPatchDTO.getDailyLimit().compareTo(new BigDecimal(1000000)) <= 0) {
+                user.setDailyLimit(userPatchDTO.getDailyLimit());
+                edit = true;
+            } else {
+                throw new BadRequestException("Daily limit should be between 1 and 1.000.000");
+            }
         }
         if (userPatchDTO.getRoles() != null) {
             if (setEditRoles(userPatchDTO.getRoles(), user.getRoles())) {
@@ -210,7 +219,6 @@ public class UserService {
                     roles.add(roleRepo.findById(number).orElse(null));
                 }
                 user.setRolesForUser(roles);
-                System.out.println("roles");
                 edit = true;
             }
         }
