@@ -40,17 +40,17 @@ public interface TransactionControllerInterface {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Transaction.class))),
 
-            @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served."),
 
-            @ApiResponse(responseCode = "401", description = "Credentials invalid or missing.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "401", description = "Credentials invalid or missing."),
 
-            @ApiResponse(responseCode = "403", description = "You are not authorized to make this request.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "403", description = "You are not authorized to make this request."),
 
-            @ApiResponse(responseCode = "404", description = "Resource not found.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "404", description = "Resource not found."),
 
-            @ApiResponse(responseCode = "409", description = "There was a conflict processing your request.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "409", description = "There was a conflict processing your request."),
 
-            @ApiResponse(responseCode = "500", description = "Internal server error.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))) })
+            @ApiResponse(responseCode = "500", description = "Internal server error.") })
     @RequestMapping(value = "/api/transactions",
             produces = { "application/json" },
             consumes = { "application/json" },
@@ -63,15 +63,15 @@ public interface TransactionControllerInterface {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Transaction.class))),
 
-            @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served."),
 
-            @ApiResponse(responseCode = "401", description = "Credentials invalid or missing.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "401", description = "Credentials invalid or missing."),
 
-            @ApiResponse(responseCode = "403", description = "You are not authorized to make this request.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "403", description = "You are not authorized to make this request."),
 
-            @ApiResponse(responseCode = "404", description = "Resource not found.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "404", description = "Resource not found."),
 
-            @ApiResponse(responseCode = "500", description = "Internal server error.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))) })
+            @ApiResponse(responseCode = "500", description = "Internal server error.") })
     @RequestMapping(value = "/api/transactions/{id}",
             produces = { "application/json" },
             method = RequestMethod.GET)
@@ -87,15 +87,15 @@ public interface TransactionControllerInterface {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Object.class)))),
 
-            @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "400", description = "The request was invalid or cannot be served."),
 
-            @ApiResponse(responseCode = "401", description = "Credentials invalid or missing.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "401", description = "Credentials invalid or missing."),
 
-            @ApiResponse(responseCode = "403", description = "You are not authorized to make this request.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "403", description = "You are not authorized to make this request."),
 
-            @ApiResponse(responseCode = "404", description = "Resource not found.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "404", description = "Resource not found."),
 
-            @ApiResponse(responseCode = "500", description = "Internal server error.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Error.class))) })
+            @ApiResponse(responseCode = "500", description = "Internal server error.") })
     @RequestMapping(value = "/api/transactions",
             produces = { "application/json" },
             method = RequestMethod.GET)

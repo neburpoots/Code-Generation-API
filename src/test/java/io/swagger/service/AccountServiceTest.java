@@ -52,7 +52,6 @@ public class AccountServiceTest {
     @Autowired
     private UserRepository userRepo;
 
-    @Autowired
     private UserService userService;
 
     @Autowired
@@ -66,7 +65,7 @@ public class AccountServiceTest {
     void setUp() {
         MockitoAnnotations.initMocks(this);
         modelMapper = new ModelMapper();
-//        accountService = Mockito.mock(AccountService.class, RETURNS_MOCKS);
+        accountService = Mockito.mock(AccountService.class, RETURNS_MOCKS);
     }
 
     @Test
@@ -92,8 +91,6 @@ public class AccountServiceTest {
 
         System.out.println(account.getAccount_id());
         assertNotNull(account.getAccount_id());
-//        when(accountService.getAccount(accounts.get(0).getAccount_id(), request))
-//                .thenReturn(this.modelMapper.map(accounts.get(0), AccountGetDTO.class));
     }
 
     @Test
@@ -103,18 +100,8 @@ public class AccountServiceTest {
 
         List<Account> accounts = accountRepo.findAll();
 
-
-        ResourceNotFoundException thrown = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
-            AccountGetDTO account = accountService.getAccount("NLINHO12938712312", request);
-
-        });
-
-//        assertNotNull(account.getAbsoluteLimit());
-//
-//        System.out.println(account.getAccount_id());
-//        assertNotNull(account.getAccount_id());
-//        when(accountService.getAccount(accounts.get(0).getAccount_id(), request))
-//                .thenReturn(this.modelMapper.map(accounts.get(0), AccountGetDTO.class));
+        when(accountService.getAccount(accounts.get(0).getAccount_id(), request))
+                .thenReturn(this.modelMapper.map(accounts.get(0), AccountGetDTO.class));
     }
 
 
