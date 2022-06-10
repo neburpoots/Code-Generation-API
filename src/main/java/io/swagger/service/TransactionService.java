@@ -4,9 +4,7 @@ import io.swagger.configuration.LocalDateConverter;
 import io.swagger.configuration.LocalDateValidator;
 import io.swagger.exception.BadRequestException;
 import io.swagger.exception.ResourceNotFoundException;
-import io.swagger.model.entity.Account;
-import io.swagger.model.entity.Transaction;
-import io.swagger.model.entity.TransactionType;
+import io.swagger.model.entity.*;
 import io.swagger.model.transaction.TransactionGetDTO;
 import io.swagger.model.transaction.TransactionPostDTO;
 import io.swagger.model.utils.DTOEntity;
@@ -125,6 +123,20 @@ public class TransactionService {
 
     public BadRequestException validateSome(Account account, TransactionPostDTO body) {
         BigDecimal transactionsMadeToday = this.getTotalDailyTransactions(body.getFromAccount());
+
+        Account account1 = this.accountService.retrieveAccount(body.getFromAccount());
+        Account account2 = this.accountService.retrieveAccount(body.getToAccount());
+
+        if(account2.getAccountType().equals(AccountType.SAVINGS)){
+            if(!account1.getUser().getUser_id().equals(account2.getUser().getUser_id())){
+                throw new BadRequestException("The to account was a savings account of another person. ");
+            }
+        }
+        if(account1.getAccountType().equals(AccountType.SAVINGS)){
+            if(!account1.getUser().getUser_id().equals(account2.getUser().getUser_id())){
+                throw new BadRequestException("You cant transfer from a savings account to another persons primary account. ");
+            }
+        }
 
         if (account.getUser().getTransactionLimit().compareTo(body.getAmount()) == -1)
             throw new BadRequestException("Transaction limit of " + account.getUser().getTransactionLimit() + "was reached. ");
