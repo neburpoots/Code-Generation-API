@@ -54,6 +54,12 @@ public class AccountService {
             updated = true;
         }
 
+        //Checks if new absolute limit is lower then the current balance
+        if(accountPatchDTO.getAbsoluteLimit().compareTo(newAccount.getBalance()) >= 0) {
+            throw new BadRequestException("The balance can not be lower then the new absolute limit");
+        }
+
+
         //updates status in case of not being null
         if (accountPatchDTO.getStatus() != null && newAccount.getStatus() != accountPatchDTO.getStatus()) {
             newAccount.setStatus(accountPatchDTO.getStatus());

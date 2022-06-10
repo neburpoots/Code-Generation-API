@@ -237,7 +237,7 @@ public class AccountControllerTest {
     }
 
     @Test
-    public void getAllAccountsWithWrongUserParameterAndUserJWTShouldReturn200() throws IOException {
+    public void getAllAccountsWithWrongUserParameterAndUserJWTShouldReturn403() throws IOException {
 
         User user = userRepository.findByEmail("ruben@student.inholland.nl");
 
