@@ -24,19 +24,19 @@ public class TransactionSeeder {
     public List <Transaction> seed(){
         List<Account> accounts = this.accountRepo.findAll();
 
-        Transaction t = new Transaction(accounts.get(0).getAccount_id(), accounts.get(1).getAccount_id(), new BigDecimal(30), 1);
-        Transaction t2 = new Transaction(accounts.get(1).getAccount_id(), accounts.get(1).getAccount_id(), new BigDecimal(10), 2);
-        Transaction t3 = new Transaction(accounts.get(1).getAccount_id(), accounts.get(0).getAccount_id(), new BigDecimal(80), 1);
-        Transaction t4 = new Transaction(accounts.get(1).getAccount_id(), accounts.get(1).getAccount_id(), new BigDecimal(80), 0);
-        Transaction t5 = new Transaction(accounts.get(0).getAccount_id(), accounts.get(1).getAccount_id(), new BigDecimal(30), 1);
-        Transaction t6 = new Transaction(accounts.get(1).getAccount_id(), accounts.get(1).getAccount_id(), new BigDecimal(10), 2);
-        Transaction t7 = new Transaction(accounts.get(1).getAccount_id(), accounts.get(0).getAccount_id(), new BigDecimal(80), 1);
-        Transaction t8 = new Transaction(accounts.get(1).getAccount_id(), accounts.get(1).getAccount_id(), new BigDecimal(0), 0);
-        Transaction t9 = new Transaction(accounts.get(0).getAccount_id(), accounts.get(1).getAccount_id(), new BigDecimal(30), 1);
-        Transaction t10 = new Transaction(accounts.get(1).getAccount_id(), accounts.get(1).getAccount_id(), new BigDecimal(10), 2);
-        Transaction t11 = new Transaction(accounts.get(1).getAccount_id(), accounts.get(0).getAccount_id(), new BigDecimal(80), 1);
-        Transaction t12 = new Transaction(accounts.get(1).getAccount_id(), accounts.get(1).getAccount_id(), new BigDecimal(80), 0);
-        //List<Transaction> transactions
+        Transaction t = new Transaction(accounts.get(0).getAccount_id(), accounts.get(1).getAccount_id(), new BigDecimal(30), TransactionType.regular_transaction);
+        Transaction t2 = new Transaction(accounts.get(1).getAccount_id(), accounts.get(1).getAccount_id(), new BigDecimal(10), TransactionType.withdrawal);
+        Transaction t3 = new Transaction(accounts.get(1).getAccount_id(), accounts.get(0).getAccount_id(), new BigDecimal(80), TransactionType.withdrawal);
+        Transaction t4 = new Transaction(accounts.get(1).getAccount_id(), accounts.get(1).getAccount_id(), new BigDecimal(80), TransactionType.regular_transaction);
+        Transaction t5 = new Transaction(accounts.get(0).getAccount_id(), accounts.get(1).getAccount_id(), new BigDecimal(30), TransactionType.deposit);
+        Transaction t6 = new Transaction(accounts.get(1).getAccount_id(), accounts.get(1).getAccount_id(), new BigDecimal(10), TransactionType.regular_transaction);
+        Transaction t7 = new Transaction(accounts.get(1).getAccount_id(), accounts.get(0).getAccount_id(), new BigDecimal(80), TransactionType.deposit);
+        Transaction t8 = new Transaction(accounts.get(1).getAccount_id(), accounts.get(1).getAccount_id(), new BigDecimal(0), TransactionType.regular_transaction);
+        Transaction t9 = new Transaction(accounts.get(0).getAccount_id(), accounts.get(1).getAccount_id(), new BigDecimal(30), TransactionType.withdrawal);
+        Transaction t10 = new Transaction(accounts.get(1).getAccount_id(), accounts.get(1).getAccount_id(), new BigDecimal(10), TransactionType.regular_transaction);
+        Transaction t11 = new Transaction(accounts.get(1).getAccount_id(), accounts.get(0).getAccount_id(), new BigDecimal(80), TransactionType.deposit);
+        Transaction t12 = new Transaction(accounts.get(1).getAccount_id(), accounts.get(1).getAccount_id(), new BigDecimal(80), TransactionType.regular_transaction);
+
         return (List<Transaction>)this.transactionRepo.saveAll(
                 List.of(t, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12)
         );

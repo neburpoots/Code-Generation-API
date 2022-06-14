@@ -2,16 +2,17 @@ package io.swagger.model.transaction;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.model.entity.TransactionType;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 
-import org.apache.tomcat.jni.Local;
+import lombok.NonNull;
 import org.springframework.validation.annotation.Validated;
-import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalDateTime;
 
 import javax.validation.Valid;
+import javax.validation.constraints.*;
 
 /**
  * TransactionPostDTO
@@ -20,17 +21,24 @@ import javax.validation.Valid;
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-05T18:12:07.854Z[GMT]")
 
 public class TransactionPostDTO implements DTOEntity {
-
-
   @JsonProperty("toAccount")
-  private String toAccount = null;
+  @Pattern(regexp="[A-Z]{2}[0-9]{2}[A-Z]{4}[0-9]{8,14}",message="Iban of the to account was in invalid form.")
+  @NotBlank(message = "IBAN of to account has to be entered.")
+  private String toAccount;
 
   @JsonProperty("fromAccount")
-  private String fromAccount = null;
+  @Pattern(regexp="[A-Z]{2}[0-9]{2}[A-Z]{4}[0-9]{8,14}",message="Iban of the from account was in invalid form.")
+  @NotBlank(message = "IBAN of from account has to be entered.")
+  private String fromAccount;
 
   @JsonProperty("amount")
-  @Valid
-  private BigDecimal amount = null;
+  @DecimalMin(value = "0.01", message = "Transaction amount can not be lower than (0.01). ")
+  @NotNull(message = "Transaction amount must be entered. ")
+  private BigDecimal amount;
+
+  @JsonProperty("transaction_type")
+  @NonNull
+  private TransactionType type;
 
   @JsonProperty("timestamp")
   private LocalDateTime timestamp = LocalDateTime.now();
@@ -43,20 +51,6 @@ public class TransactionPostDTO implements DTOEntity {
     this.timestamp = timestamp;
   }
 
-  public LocalDate getDate() {
-    return date;
-  }
-
-  public void setDate(LocalDate date) {
-    this.date = date;
-  }
-
-  @JsonProperty("date")
-  private LocalDate date = LocalDate.now();
-
-  @JsonProperty("type")
-  private Integer type = null;
-
   public TransactionPostDTO toAccount(String toAccount) {
     this.toAccount = toAccount;
     return this;
@@ -67,8 +61,8 @@ public class TransactionPostDTO implements DTOEntity {
    * @return toAccount
    **/
   @Schema(example = "NL41INHO0546284337", description = "")
-  
-    public String getToAccount() {
+
+  public String getToAccount() {
     return toAccount;
   }
 
@@ -80,7 +74,6 @@ public class TransactionPostDTO implements DTOEntity {
     this.fromAccount = fromAccount;
     return this;
   }
-
   /**
    * Get fromAccount
    * @return fromAccount
@@ -99,7 +92,6 @@ public class TransactionPostDTO implements DTOEntity {
     this.amount = amount;
     return this;
   }
-
   /**
    * Get amount
    * @return amount
@@ -115,48 +107,23 @@ public class TransactionPostDTO implements DTOEntity {
     this.amount = amount;
   }
 
-  public TransactionPostDTO type(Integer type) {
-    this.type = type;
-    return this;
-  }
-
   /**
    * Get type
    * @return type
    **/
-  @Schema(description = "")
-  
-    @Valid
-    public Integer getType() {
-    return type;
+
+    public TransactionType getType() {
+    return this.type;
   }
 
-  public void setType(Integer type) {
+  public void setType(TransactionType type) {
     this.type = type;
-  }
-
-
-  @Override
-  public boolean equals(java.lang.Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    TransactionPostDTO transactionPostDTO = (TransactionPostDTO) o;
-    return Objects.equals(this.toAccount, transactionPostDTO.toAccount) &&
-        Objects.equals(this.fromAccount, transactionPostDTO.fromAccount) &&
-        Objects.equals(this.amount, transactionPostDTO.amount) &&
-        Objects.equals(this.type, transactionPostDTO.type);
   }
 
   @Override
   public int hashCode() {
     return Objects.hash(toAccount, fromAccount, amount, type);
   }
-
-
 
   /**
    * Convert the given object to string with each line indented by 4 spaces

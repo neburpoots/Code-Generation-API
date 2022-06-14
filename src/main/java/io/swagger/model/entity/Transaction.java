@@ -7,11 +7,10 @@ import java.util.UUID;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
-import org.apache.tomcat.jni.Local;
-import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalDateTime;
 
 import javax.persistence.*;
+import javax.validation.constraints.*;
 
 @Entity
 @Getter
@@ -30,31 +29,20 @@ public class Transaction   {
   private String fromAccount;
 
   @NonNull
+  @Min(value = 0, message = "Entered amount can not be below 0.01.")
   private BigDecimal amount;
-
-  public Integer getType() {
-    return type;
-  }
-
-  public void setType(Integer type) {
-    this.type = type;
-  }
-
-  @NonNull
-  private Integer type;
 
   @NonNull
   private LocalDateTime timestamp;
 
   @NonNull
-  private LocalDate date;
+  private TransactionType transactionType;
 
-  public Transaction(String toAccount, String fromAccount, BigDecimal amount, Integer type){
+  public Transaction(String toAccount, String fromAccount, BigDecimal amount, TransactionType transactionType){
     this.toAccount = toAccount;
     this.fromAccount = fromAccount;
     this.amount = amount;
-    this.type = type;
-    this.date = LocalDate.now();
+    this.transactionType = transactionType;
     this.timestamp = LocalDateTime.now();
   }
 
@@ -63,6 +51,6 @@ public class Transaction   {
   }
   @Override
   public int hashCode() {
-    return Objects.hash(toAccount, fromAccount, amount, type, timestamp);
+    return Objects.hash(toAccount, fromAccount, amount, transactionType, timestamp);
   }
 }

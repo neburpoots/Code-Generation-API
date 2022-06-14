@@ -75,11 +75,8 @@ public interface TransactionControllerInterface {
     @RequestMapping(value = "/api/transactions/{id}",
             produces = { "application/json" },
             method = RequestMethod.GET)
-    ResponseEntity<List<TransactionGetDTO>> getTransactionsById(@Parameter(in = ParameterIn.PATH, description = "All transaction of given iban (id)", required=true, schema=@Schema()) @PathVariable("id") String id, @NotNull @Parameter(in = ParameterIn.QUERY, description = "Page number for pagination",
-            required = true, schema = @Schema()) @Valid @RequestParam(value = "page",
-            required = true, defaultValue = "0") Integer page, @NotNull @Parameter(in = ParameterIn.QUERY, description = "Page size for pagination",
-            required = true, schema = @Schema()) @Valid @RequestParam(value = "pageSize",
-            required = true, defaultValue = "10") Integer pageSize);
+    ResponseEntity<DTOEntity>  getTransactionById(
+            @Parameter(in = ParameterIn.PATH, description = "All transaction of given iban (id)", required=true, schema=@Schema()) @PathVariable("id") String id);
 
 
     @Operation(summary = "Finds Transactions by date, user, iban or by amount", description = "Returns a list of Transactions, filtered by parameters and pagination.", security = {
@@ -99,8 +96,10 @@ public interface TransactionControllerInterface {
     @RequestMapping(value = "/api/transactions",
             produces = { "application/json" },
             method = RequestMethod.GET)
-    ResponseEntity<List<TransactionGetDTO>> getTransactions(@NotNull @Parameter(in = ParameterIn.QUERY, description = "Page number for pagination" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "page", required = true) Integer page, @NotNull @Parameter(in = ParameterIn.QUERY, description = "Page size for pagination",
+    ResponseEntity<List<DTOEntity>> getTransactions(
+            @NotNull @Parameter(in = ParameterIn.QUERY, description = "Page number for pagination" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "page", required = true, defaultValue = "0") Integer page,
+            @NotNull @Parameter(in = ParameterIn.QUERY, description = "Page size for pagination",
             required = true, schema = @Schema()) @Valid @RequestParam(value = "pageSize",
-            required = true, defaultValue = "10") Integer pageSize ,@Parameter(in = ParameterIn.QUERY, description = "Date value that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "date", required = false) String userId, @Parameter(in = ParameterIn.QUERY, description = "From IBAN account that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "from_iban", required = false) String fromIban, @Parameter(in = ParameterIn.QUERY, description = "To IBAN account that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "to_iban", required = false) String toIban, @Parameter(in = ParameterIn.QUERY, description = "Equals given amount that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "as_eq", required = false) String asEq, @Parameter(in = ParameterIn.QUERY, description = "Less than given amount that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "as_lt", required = false) String asLt, @Parameter(in = ParameterIn.QUERY, description = "More than given amount that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "as_mt", required = false) String asMt);
+            required = true, defaultValue = "10") Integer pageSize ,@Parameter(in = ParameterIn.QUERY, description = "Date value that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "date", required = false, defaultValue = "") String userId, @Parameter(in = ParameterIn.QUERY, description = "From IBAN account that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "from_iban", required = false, defaultValue = "") String fromIban, @Parameter(in = ParameterIn.QUERY, description = "To IBAN account that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "to_iban", required = false, defaultValue = "") String toIban, @Parameter(in = ParameterIn.QUERY, description = "Equals given amount that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "as_eq", required = false, defaultValue = "") String asEq, @Parameter(in = ParameterIn.QUERY, description = "Less than given amount that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "as_lt", required = false, defaultValue = "") String asLt, @Parameter(in = ParameterIn.QUERY, description = "More than given amount that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "as_mt", required = false, defaultValue = "") String asMt);
 }
 

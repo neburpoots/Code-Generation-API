@@ -57,21 +57,6 @@ class TransactionServiceTest {
                 .andExpect(status().isOk()).andReturn();
     }
 
-
-    @Test
-    void validateBigDecimal() {
-        Assertions.assertThat(service.validateBigDecimal("30")).isTrue();
-        Assertions.assertThat(service.validateBigDecimal("MM")).isFalse();
-
-    }
-
-    @Test
-    void validateIban() {
-        Assertions.assertThat(service.validateIban("NL01INHO0000000004")).isTrue();
-        Assertions.assertThat(service.validateIban("failedShit")).isFalse();
-    }
-
-
     @Test
     void createTransaction() throws Exception{
         JSONObject payload = new JSONObject();

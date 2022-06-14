@@ -17,6 +17,8 @@ import java.util.Optional;
             this.userRepository = userRepository;
         }
 
+
+
         @Override
         public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
             User user = Optional.ofNullable(userRepository.findByEmail(email)).orElseThrow(() -> new UsernameNotFoundException("User not found"));

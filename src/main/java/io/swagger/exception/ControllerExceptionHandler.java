@@ -1,16 +1,89 @@
 package io.swagger.exception;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import io.swagger.controller.ApiException;
+import javassist.NotFoundException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
 @RestControllerAdvice
+@SuppressWarnings({"unchecked","rawtypes"})
 public class ControllerExceptionHandler
 {
+    //Response for non-readable http messages, mostly thrown by invalid json objects in posts.
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public final ErrorMessage handleUnreadableHttpMessage(HttpMessageNotReadableException exception, WebRequest request){
+        return new ErrorMessage(
+                HttpStatus.BAD_REQUEST.value(),
+                new Date(),
+                exception.getMostSpecificCause().toString());
+    }
+
+    //This exception is returned by the spring boot validator, and displays the validation messages concatenated as one string.
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public final ErrorMessage handleAllSpringBootExceptions(MethodArgumentNotValidException exception, WebRequest request) {
+        List<String> details = new ArrayList<>();
+        for(ObjectError error : exception.getBindingResult().getAllErrors()) {
+            details.add(error.getDefaultMessage());
+        }
+        return new ErrorMessage(
+                HttpStatus.BAD_REQUEST.value(),
+                new Date(),
+                details.toString());
+    }
+
+    //Thrown during e.g converting string to number. (Invalid parsing)
+    @ExceptionHandler(java.lang.NumberFormatException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ErrorMessage numberFormatExceptionHandler(Exception ex, WebRequest request){
+        return new ErrorMessage(
+                HttpStatus.BAD_REQUEST.value(),
+                new Date(),
+                (ex.getMessage().isEmpty()) ? "Numbers/amount are entered in incorrect form, enters numbers/amounts like 10.00 or 10." : ex.getMessage()
+        );
+    }
+
+    //Catches the ApiException
+    @ExceptionHandler(ApiException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ErrorMessage apiExceptionHandler(Exception ex, WebRequest request){
+        return new ErrorMessage(
+                HttpStatus.BAD_REQUEST.value(),
+                new Date(),
+                ex.getMessage());
+    }
+
+    //General exception handling for IllegalArgumentException.
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public final ErrorMessage handleIllegalArgumentException(IllegalArgumentException exception, WebRequest request){
+        return new ErrorMessage(
+                HttpStatus.BAD_REQUEST.value(),
+                new Date(),
+                exception.getMessage());
+    }
+
+    //General exception handling for NullPointers.
+    @ExceptionHandler(NullPointerException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public final ErrorMessage handleUnreadableHttpMessage(NullPointerException exception, WebRequest request){
+        return new ErrorMessage(
+                HttpStatus.BAD_REQUEST.value(),
+                new Date(),
+                exception.getMessage());
+    }
+
     @ExceptionHandler(BadRequestException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public ErrorMessage badRequestException(BadRequestException ex, WebRequest request)
@@ -80,6 +153,4 @@ public class ControllerExceptionHandler
                 new Date(),
                 ex.getMessage());
     }
-
-
 }

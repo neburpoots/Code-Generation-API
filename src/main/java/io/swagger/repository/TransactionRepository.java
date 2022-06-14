@@ -16,18 +16,20 @@ public interface TransactionRepository extends JpaRepository <Transaction, UUID>
 
     @Query("SELECT t FROM Transaction t WHERE (:fromAccount is null or t.fromAccount = :fromAccount) " +
             "and (:toAccount is null or t.toAccount = :toAccount)" +
-            "and (:timestamp is null or t.date = :timestamp)" +
+            "and (:timestamp is null or t.timestamp = :timestamp)" +
             "and (:asEq is null or t.amount = :asEq)" +
             "and (:asLt is null or t.amount < :asLt)" +
             "and (:asMt is null or t.amount > :asMt)")
     List<Transaction> filterTransactions(@Param("fromAccount") String fromAccount,
                                          @Param("toAccount") String toAccount,
-                                         @Param("timestamp") LocalDate date,
+                                         @Param("timestamp") LocalDateTime date,
                                          @Param("asEq") BigDecimal asEq,
                                          @Param("asLt") BigDecimal asLt,
                                          @Param("asMt") BigDecimal asMt, Pageable pageable);
 
-    List<Transaction> findByFromAccountAndTimestampAfterAndTypeOrType(String iban, LocalDateTime datetime, Integer payment, Integer withdrawal);
-
     List<Transaction> findByFromAccountOrToAccount(String iban, String iban2, Pageable pageable);
+
+    //Returns sum of all the transactions that were made within the last 24 hours, with the provided IBAN.
+    @Query("SELECT sum(transaction.amount) FROM Transaction  transaction WHERE (transaction.fromAccount = :fromAccount) and (transaction.timestamp > :oneDayAgo)")
+    BigDecimal getTransactionsAmountForIbanFromLastDay(@Param("fromAccount") String fromAccount, @Param("oneDayAgo") LocalDateTime oneDayAgo);
 }

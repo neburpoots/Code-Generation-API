@@ -34,59 +34,6 @@ class TransactionRepositoryTest {
     @Autowired
     TransactionRepository repo;
 
-
-    @Test
-    void filterTransactions() {
-        LocalDate now = LocalDate.now();
-        String date = now.getDayOfMonth() + "-" + now.getMonthValue() + "-" + now.getYear();
-        //search params
-        ArrayList p = new ArrayList();
-        p.add("?from_iban=NL01INHO0000000004");
-        p.add("&to_iban=NL01INHO0000000005");
-
-        Pageable pageable = PageRequest.of(0, 10);
-        List<Transaction> existingTransactions = repo.findAll();
-        Assertions.assertThat(existingTransactions.size() > 8);
-
-        List<Transaction> transactions = repo.filterTransactions(p.get(0).toString(),
-                p.get(1).toString(),
-                LocalDate.now(),
-                 new BigDecimal(30),
-                new BigDecimal(1000),
-                new BigDecimal(10), pageable);
-
-
-        for(Transaction t : transactions){
-            Assertions.assertThat(t.getAmount().compareTo(new BigDecimal(10)) == 1).isTrue();
-            Assertions.assertThat(t.getFromAccount() == p.get(0).toString()).isTrue();
-            Assertions.assertThat(t.getToAccount() == p.get(1).toString()).isTrue();
-            Assertions.assertThat(t.getAmount().compareTo(new BigDecimal(30)) == 0).isTrue();
-            Assertions.assertThat(t.getAmount().compareTo(new BigDecimal(1000)) == -1).isTrue();
-        }
-
-        //Assert that filtering has removed transactions from results.
-        Assertions.assertThat(transactions.size() < 5).isTrue();
-    }
-
-    @Test
-    void findByFromAccountAndTimestampAfterAndTypeOrType() {
-        List<Transaction> startList = repo.findAll();
-
-        //getting filtered list
-        String iban = "NL01INHO0000000004";
-        LocalDateTime d = LocalDateTime.now().minusHours(24);
-        List<Transaction> transactions = repo.findByFromAccountAndTimestampAfterAndTypeOrType(iban, d, 0, 1);
-
-        //Assert that transactions are filtered correctly.
-        for(Transaction t : transactions){
-            Assertions.assertThat(t.getFromAccount().equals(iban) || t.getToAccount().equals(iban)).isTrue();
-            Assertions.assertThat(LocalDateTime.now().isAfter(t.getTimestamp()) &&
-                    LocalDateTime.now().minusHours(24).isBefore(t.getTimestamp())).isTrue();
-        }
-        //Assert that filtered is shorter.
-        Assertions.assertThat(transactions.size() < startList.size()).isTrue();
-    }
-
     @Test
     void findByFromAccountOrToAccount() {
         String iban = "NL01INHO0000000004";

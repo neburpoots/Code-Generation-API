@@ -7,9 +7,9 @@ import io.swagger.model.entity.TransactionType;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
+import java.util.UUID;
 
 import org.springframework.validation.annotation.Validated;
-import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalDateTime;
 
 import javax.validation.Valid;
@@ -22,6 +22,17 @@ import javax.validation.Valid;
 
 
 public class TransactionGetDTO implements DTOEntity {
+    public UUID getTransaction_id() {
+        return transaction_id;
+    }
+
+    public void setTransaction_id(UUID transaction_id) {
+        this.transaction_id = transaction_id;
+    }
+
+    @JsonProperty("transaction_id")
+    private UUID transaction_id;
+
     @JsonProperty("toAccount")
     private String toAccount = null;
 
@@ -39,33 +50,11 @@ public class TransactionGetDTO implements DTOEntity {
     @JsonProperty("timestamp")
     private LocalDateTime timestamp;
 
-    public LocalDate getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
-
-    @JsonProperty("date")
-    private LocalDate date;
-
     @JsonProperty("amount")
     private BigDecimal amount;
 
-    @JsonProperty("type")
-    private Integer type = null;
-
-    public TransactionType getTypeTransaction() {
-        return typeTransaction;
-    }
-
-    public void setTypeTransaction(TransactionType typeTransaction) {
-        this.typeTransaction = typeTransaction;
-    }
-
     @JsonProperty("transaction_type")
-    private TransactionType typeTransaction;
+    private TransactionType type = null;
 
 
     public TransactionGetDTO toAccount(String toAccount) {
@@ -126,23 +115,17 @@ public class TransactionGetDTO implements DTOEntity {
         this.amount = amount;
     }
 
-    public TransactionGetDTO type(Integer type) {
-        this.type = type;
-        return this;
-    }
-
     /**
      * Get type
      * @return type
      **/
     @Schema(description = "")
 
-    @Valid
-    public Integer getType() {
+    public TransactionType getType() {
         return type;
     }
 
-    public void setType(Integer type) {
+    public void setType(TransactionType type) {
         this.type = type;
     }
 
