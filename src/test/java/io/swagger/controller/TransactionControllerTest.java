@@ -1,6 +1,5 @@
 package io.swagger.controller;
 
-import org.apache.tomcat.jni.Local;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -1,18 +1,17 @@
 package io.swagger.model.entity;
 
+import io.swagger.model.user.UserIbanSearchDTO;
+import io.swagger.model.user.UserSearchDTO;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
+
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.swagger.model.user.UserIbanSearchDTO;
-import io.swagger.model.user.UserSearchDTO;
-import lombok.*;
-
-import javax.persistence.*;
-import javax.transaction.Transactional;
 
 
 @Entity

@@ -1,18 +1,20 @@
 package io.swagger.model.transaction;
 
-import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.model.entity.TransactionType;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.math.BigDecimal;
-
 import lombok.NonNull;
 import org.springframework.validation.annotation.Validated;
 import org.threeten.bp.LocalDateTime;
 
 import javax.validation.Valid;
-import javax.validation.constraints.*;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import java.math.BigDecimal;
+import java.util.Objects;
 
 /**
  * TransactionPostDTO

@@ -1,9 +1,9 @@
 package io.swagger.model.user;
 
-import java.util.Objects;
-import java.util.ArrayList;
-
 import org.springframework.validation.annotation.Validated;
+
+import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * Users

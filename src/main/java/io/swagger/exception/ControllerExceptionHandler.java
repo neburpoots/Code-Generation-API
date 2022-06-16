@@ -1,19 +1,18 @@
 package io.swagger.exception;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import io.swagger.controller.ApiException;
-import javassist.NotFoundException;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @RestControllerAdvice
 @SuppressWarnings({"unchecked","rawtypes"})

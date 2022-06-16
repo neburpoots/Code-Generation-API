@@ -3,7 +3,6 @@ package io.swagger.seed;
 import io.swagger.model.entity.Role;
 import io.swagger.repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

@@ -6,14 +6,15 @@ import io.swagger.model.entity.Role;
 import io.swagger.model.entity.User;
 import io.swagger.model.user.*;
 import io.swagger.model.utils.DTOEntity;
-import io.swagger.models.auth.In;
 import io.swagger.repository.RoleRepository;
 import io.swagger.repository.UserRepository;
 import io.swagger.security.JwtTokenProvider;
 import io.swagger.utils.DtoUtils;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.*;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -295,11 +296,11 @@ public class UserService {
         if (!id.equals(jwtTokenProvider.getAudience(token))) {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             if (!auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"))) {
-                return (UserSearchDTO) dtoUtils.convertToDto(getUserObjectById(id), new UserSearchDTO());
+                return dtoUtils.convertToDto(getUserObjectById(id), new UserSearchDTO());
             }
         }
 
-        return (UserGetDTO) dtoUtils.convertToDto(getUserObjectById(id), new UserGetDTO());
+        return dtoUtils.convertToDto(getUserObjectById(id), new UserGetDTO());
     }
 
     public User getUserObjectById(String id) {

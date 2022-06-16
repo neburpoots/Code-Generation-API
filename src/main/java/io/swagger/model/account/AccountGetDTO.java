@@ -5,7 +5,6 @@ import io.swagger.model.entity.AccountType;
 import io.swagger.model.user.UserGetDTO;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;

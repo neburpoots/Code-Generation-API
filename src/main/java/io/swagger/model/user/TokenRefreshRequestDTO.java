@@ -1,6 +1,5 @@
 package io.swagger.model.user;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 public class TokenRefreshRequestDTO {

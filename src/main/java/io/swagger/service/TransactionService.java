@@ -4,7 +4,10 @@ import io.swagger.configuration.LocalDateTimeConverter;
 import io.swagger.exception.BadRequestException;
 import io.swagger.exception.ResourceNotFoundException;
 import io.swagger.exception.UnauthorizedException;
-import io.swagger.model.entity.*;
+import io.swagger.model.entity.Account;
+import io.swagger.model.entity.AccountType;
+import io.swagger.model.entity.Transaction;
+import io.swagger.model.entity.TransactionType;
 import io.swagger.model.transaction.TransactionGetDTO;
 import io.swagger.model.transaction.TransactionPostDTO;
 import io.swagger.model.utils.DTOEntity;
@@ -20,8 +23,9 @@ import org.threeten.bp.LocalDateTime;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
-import java.lang.Integer;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class TransactionService {

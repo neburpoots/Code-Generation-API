@@ -1,12 +1,13 @@
 package io.swagger.model.user;
 
-import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.math.BigDecimal;
 import org.springframework.validation.annotation.Validated;
+
 import javax.validation.Valid;
+import java.math.BigDecimal;
+import java.util.Objects;
 
 /**
  * UserPatchDTO

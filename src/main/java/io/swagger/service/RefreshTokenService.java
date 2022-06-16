@@ -4,8 +4,8 @@ import io.swagger.exception.ForbiddenException;
 import io.swagger.model.entity.RefreshToken;
 import io.swagger.repository.RefreshTokenRepository;
 import io.swagger.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;

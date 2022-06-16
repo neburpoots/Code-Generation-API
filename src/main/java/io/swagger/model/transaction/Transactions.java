@@ -1,10 +1,10 @@
 package io.swagger.model.transaction;
 
-import java.util.Objects;
 import io.swagger.model.entity.Transaction;
-import java.util.ArrayList;
-
 import org.springframework.validation.annotation.Validated;
+
+import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * Transactions

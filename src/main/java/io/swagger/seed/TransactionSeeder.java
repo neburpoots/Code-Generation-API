@@ -2,7 +2,6 @@ package io.swagger.seed;
 
 import io.swagger.model.entity.Account;
 import io.swagger.model.entity.Transaction;
-import io.swagger.model.entity.TransactionType;
 import io.swagger.repository.AccountRepository;
 import io.swagger.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +36,7 @@ public class TransactionSeeder {
         Transaction t11 = new Transaction(accounts.get(1).getAccount_id(), accounts.get(0).getAccount_id(), new BigDecimal(80), TransactionType.deposit);
         Transaction t12 = new Transaction(accounts.get(1).getAccount_id(), accounts.get(1).getAccount_id(), new BigDecimal(80), TransactionType.regular_transaction);
 
-        return (List<Transaction>)this.transactionRepo.saveAll(
+        return this.transactionRepo.saveAll(
                 List.of(t, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12)
         );
     }

@@ -1,8 +1,5 @@
 package io.swagger.model.entity;
 
-import io.swagger.repository.AccountRepository;
-import io.swagger.repository.RoleRepository;
-import io.swagger.repository.UserRepository;
 import org.hibernate.MappingException;
 import org.hibernate.Session;
 import org.hibernate.dialect.Dialect;
@@ -15,13 +12,11 @@ import org.hibernate.id.enhanced.SequenceStyleGenerator;
 import org.hibernate.internal.util.config.ConfigurationHelper;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.type.Type;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.io.Serializable;
 import java.util.Properties;
-import java.util.Random;
 
 
 //THIS CLASS GENERATES IBANS AS THE PRIMARY KEY FOR ACCOUNT
@@ -104,7 +99,7 @@ public class StringSequenceIdentifier implements
             Object obj) {
 
         long seqValue = ((Number)
-                Session.class.cast(session)
+                ((Session) session)
                         .createNativeQuery(sequenceCallSyntax)
                         .uniqueResult()
         ).longValue();
