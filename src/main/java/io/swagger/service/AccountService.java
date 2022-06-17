@@ -25,20 +25,13 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class AccountService {
+public class AccountService extends BaseService {
 
     private final AccountRepository accountRepo;
-    private final UserService userService;
-    private final AuthenticationManager authenticationManager;
-    private final JwtTokenProvider jwtTokenProvider;
-    private final ModelMapper modelMapper;
 
     public AccountService(AccountRepository accountRepo, UserService userService, AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider) {
+        super(userService, authenticationManager, jwtTokenProvider);
         this.accountRepo = accountRepo;
-        this.userService = userService;
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.authenticationManager = authenticationManager;
-        this.modelMapper = new ModelMapper();
     }
 
     public AccountGetDTO editAccount(AccountPatchDTO accountPatchDTO, String account_id) {
@@ -161,7 +154,7 @@ public class AccountService {
             }
         }
 
-        //Gets the users depending on the
+        //Gets the users depending on the filters
         Pageable pageable = PageRequest.of(page, size);
         if(getWithUser && getWithType) accounts = accountRepo.findByUserAndAccountType(user, accountType, pageable);
         else if(getWithUser) accounts = accountRepo.findByUserAndAccountTypeIsNot(user, AccountType.BANK, pageable);
