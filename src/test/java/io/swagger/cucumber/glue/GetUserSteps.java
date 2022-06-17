@@ -51,9 +51,13 @@ public class GetUserSteps {
 
     private UUID uuid;
 
+    @Before("@getuser")
+    public void setup() {
+        makeExampleUser();
+    }
+
     @Given("^A valid UUID$")
     public void givenAValidUUID() {
-        makeExampleUser();
         this.uuid = exampleUser.getUser_id();
     }
 
