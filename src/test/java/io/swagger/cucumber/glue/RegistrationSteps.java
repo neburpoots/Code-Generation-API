@@ -16,9 +16,11 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.math.BigDecimal;
 
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class RegistrationSteps {
     @Autowired
     private TestRestTemplate restTemplate;
@@ -34,8 +36,8 @@ public class RegistrationSteps {
     private ResponseEntity<String> response;
     private UserGetDTO actualUser;
 
-    @Given("^the following information$")
-    public void givenTheFollowingInformation(final UserPostDTO registrationUser) {
+    @Given("^the following register information$")
+    public void givenTheFollowingRegisterInformation(final UserPostDTO registrationUser) {
         this.registrationUser = registrationUser;
     }
 
