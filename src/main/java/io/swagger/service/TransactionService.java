@@ -46,11 +46,12 @@ public class TransactionService {
         Optional<Transaction> transaction = this.transactionRepo.findById(UUID.fromString(transactionId));
 
         //Check if the provided iban belongs to the logged-in user.
-        boolean checkIfToAccountMatchesUser = !Objects.equals(this.getLoggedInUserIban(request), transaction.get().getFromAccount());
-        boolean checkIfFromAccountMatchesUser = !Objects.equals(this.getLoggedInUserIban(request), transaction.get().getToAccount());
-
         if(transaction.isPresent() && !isEmployee(request)){
-            if(!checkIfFromAccountMatchesUser || !checkIfToAccountMatchesUser)
+
+            boolean checkIfToAccountMatchesUser = !Objects.equals(this.getLoggedInUserIban(request), transaction.get().getFromAccount());
+            boolean checkIfFromAccountMatchesUser = !Objects.equals(this.getLoggedInUserIban(request), transaction.get().getToAccount());
+
+            if(!checkIfFromAccountMatchesUser && !checkIfToAccountMatchesUser)
                 throw new ResourceNotFoundException("No Transaction found.");
 
             return new DtoUtils().convertToDto(transaction.get(), new TransactionGetDTO());
@@ -121,10 +122,6 @@ public class TransactionService {
             if (account.getAccountType() == AccountType.PRIMARY)
                 return account.getAccount_id();
         }
-        for (Account account : accounts) {
-            if (account.getAccountType() == AccountType.SAVINGS)
-                return account.getAccount_id();
-        }
         return null;
     }
 
@@ -156,6 +153,10 @@ public class TransactionService {
 
         //Check what type of transaction it is, and perform the methods needed.
         switch (transaction.getTransactionType()) {
+            case regular_transaction:
+                fromAccount.setBalance(fromAccount.getBalance().subtract(transaction.getAmount()));
+                toAccount.setBalance(toAccount.getBalance().add(transaction.getAmount()));
+                break;
             case withdrawal:
                 transaction.setToAccount(fromAccount.getAccount_id());
                 fromAccount.setBalance(fromAccount.getBalance().subtract(transaction.getAmount()));
@@ -165,9 +166,8 @@ public class TransactionService {
                 fromAccount.setBalance(fromAccount.getBalance().add(transaction.getAmount()));
                 break;
             default:
-                fromAccount.setBalance(fromAccount.getBalance().subtract(transaction.getAmount()));
-                toAccount.setBalance(toAccount.getBalance().add(transaction.getAmount()));
-                break;
+                //Should never execute.
+                throw new BadRequestException("Transaction could not be created, try again later.");
         }
         //Save changes to recipients account when changes have been made.
         if(transaction.getTransactionType() == TransactionType.regular_transaction)
@@ -193,6 +193,9 @@ public class TransactionService {
         if(!this.isEmployee(request) && fromAccount != null)
             this.checkUserHasRightsToAccount(fromAccount, request);
 
+        if(fromIban == null && !this.isEmployee(request))
+            fromIban = this.getLoggedInUserIban(request);
+
         LocalDateTime frommDate = (fromDate == null) ? null : fromDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         LocalDateTime toDate = (untilDate == null) ? null : untilDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
@@ -201,9 +204,6 @@ public class TransactionService {
         BigDecimal amountMax  = (amountMoreThan == null) ? null : new BigDecimal(amountMoreThan);
 
         Pageable pageable = PageRequest.of(page, pageSize);
-
-        if(fromIban == null && !this.isEmployee(request))
-            fromIban = this.getLoggedInUserIban(request);
 
         if(this.isEmployee(request))
             return new DtoUtils().convertListToDto(this.transactionRepo.filterTransactions(fromIban, toIban, frommDate, toDate, amountEqual,
