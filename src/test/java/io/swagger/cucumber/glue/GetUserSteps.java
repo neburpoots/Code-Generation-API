@@ -55,12 +55,12 @@ public class GetUserSteps {
     }
 
     @Given("^A valid UUID$")
-    public void givenTheFollowingInformation() {
+    public void givenAValidUUID() {
         this.uuid = exampleUser.getUser_id();
     }
 
     @When("^A user is requested")
-    public void whenTheCustomerLogsIn() throws Exception {
+    public void whenAUserIsRequested() throws Exception {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Content-Type",
                 "application/json");
@@ -76,7 +76,7 @@ public class GetUserSteps {
     }
 
     @Then("^The user object is returned")
-    public void theUserDetailsAndJwtAreReturned() {
+    public void theUserObjectIsReturned() {
         validateOutput();
     }
 
