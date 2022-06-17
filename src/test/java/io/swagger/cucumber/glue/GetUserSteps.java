@@ -17,11 +17,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.*;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.UUID;
 
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class GetUserSteps {
     @Autowired
     private TestRestTemplate restTemplate;
@@ -50,7 +52,7 @@ public class GetUserSteps {
 
     @Before
     public void setup() {
-        this.exampleUser = new User("Example", "User", "email@example.com", new BigDecimal(50), new BigDecimal(1500), webSecurityConfig.passwordEncoder().encode("Secret123!"));
+        this.exampleUser = new User("Example", "User", "emailUser@example.com", new BigDecimal(50), new BigDecimal(1500), webSecurityConfig.passwordEncoder().encode("Secret123!"));
         this.exampleUser = this.userRepository.save(exampleUser);
     }
 
