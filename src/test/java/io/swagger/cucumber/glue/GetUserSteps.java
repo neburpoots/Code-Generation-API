@@ -52,7 +52,6 @@ public class GetUserSteps {
     public void setup() {
         this.exampleUser = new User("Example", "User", "email@example.com", new BigDecimal(50), new BigDecimal(1500), webSecurityConfig.passwordEncoder().encode("Secret123!"));
         this.exampleUser = this.userRepository.save(exampleUser);
-
     }
 
     @Given("^the following login information$")

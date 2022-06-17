@@ -9,10 +9,9 @@ import org.springframework.data.repository.query.Param;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
-public interface TransactionRepository extends JpaRepository <Transaction, UUID> {
+public interface TransactionRepository extends JpaRepository<Transaction, UUID> {
 
     @Query("SELECT t FROM Transaction t WHERE (:fromAccount is null or t.fromAccount = :fromAccount) " +
             "and (:toAccount is null or t.toAccount = :toAccount)" +
