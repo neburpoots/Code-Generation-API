@@ -38,30 +38,21 @@ import java.util.List;
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-05T18:12:07.854Z[GMT]")
 @RestController
 @Api(tags = {"accounts"})
-public class AccountController implements AccountControllerInterface {
+public class AccountController extends BaseController implements AccountControllerInterface {
 
     private static final Logger log = LoggerFactory.getLogger(AccountController.class);
-
-    private final ObjectMapper objectMapper;
-
-    private final HttpServletRequest request;
 
     private final AccountService accountService;
 
     @Autowired
-    private UserService userService;
-
-
-    @org.springframework.beans.factory.annotation.Autowired
     public AccountController(ObjectMapper objectMapper, HttpServletRequest request, AccountService accountService) {
-        this.objectMapper = objectMapper;
-        this.request = request;
+        super(objectMapper, request);
         this.accountService = accountService;
     }
 
     @PreAuthorize("hasRole('EMPLOYEE')")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<AccountGetDTO> createAccount(@Parameter(in = ParameterIn.DEFAULT, description = "Created User object", required=true, schema=@Schema()) @Valid @RequestBody AccountPostDTO body)
+    public ResponseEntity<AccountGetDTO> createAccount(AccountPostDTO body)
     {
         try {
             return new ResponseEntity<AccountGetDTO>(accountService.createAccount(body), HttpStatus.CREATED);
@@ -72,7 +63,7 @@ public class AccountController implements AccountControllerInterface {
 
     @PreAuthorize("hasRole('EMPLOYEE')")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<AccountGetDTO> editAccount(@Parameter(in = ParameterIn.PATH, description = "Iban of account", required=true, schema=@Schema()) @PathVariable("iban") String iban,@Parameter(in = ParameterIn.DEFAULT, description = "Edit information", required=true, schema=@Schema()) @Valid @RequestBody AccountPatchDTO body) {
+    public ResponseEntity<AccountGetDTO> editAccount(String iban, AccountPatchDTO body) {
         try {
             return new ResponseEntity<AccountGetDTO>(accountService.editAccount(body, iban), HttpStatus.OK);
         } catch(Exception exception) {
@@ -82,7 +73,7 @@ public class AccountController implements AccountControllerInterface {
 
     @PreAuthorize("hasRole('CUSTOMER')")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<AccountGetDTO> getAccountByIban(@Parameter(in = ParameterIn.PATH, description = "Iban of account", required=true, schema=@Schema()) @PathVariable("iban") String iban) {
+    public ResponseEntity<AccountGetDTO> getAccountByIban(String iban) {
         try {
             return new ResponseEntity<AccountGetDTO>(accountService.getAccount(iban, request), HttpStatus.OK);
         } catch(Exception exception) {
@@ -92,8 +83,7 @@ public class AccountController implements AccountControllerInterface {
 
     @PreAuthorize("hasRole('CUSTOMER')")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Page<AccountGetDTO>> getAccounts(@Parameter(in = ParameterIn.QUERY, description = "This query will get both accounts that belong to the matching user id." ,schema=@Schema()) @Valid @RequestParam(value = "user_id", required = false) String userId, @Parameter(in = ParameterIn.QUERY, description = "This query will filter either the 'primary' or 'savings' account." ,schema=@Schema(allowableValues={ "primary", "savings" }
-    )) @Valid @RequestParam(value = "type", required = false) List<String> type, @Parameter(in = ParameterIn.QUERY, description = "This query will filter for a page" ,schema=@Schema()) @Valid @RequestParam(value = "page", defaultValue = "0", required = false) Integer page, @Parameter(in = ParameterIn.QUERY, description = "This query is the number of items returned" ,schema=@Schema()) @Valid @RequestParam(value = "size", defaultValue = "5", required = false) Integer size) {
+    public ResponseEntity<Page<AccountGetDTO>> getAccounts(String userId, List<String> type, Integer page, Integer size) {
         try {
             return new ResponseEntity<Page<AccountGetDTO>>(accountService.getAccounts(userId, type, request, page, size), HttpStatus.OK);
         } catch(Exception exception) {
