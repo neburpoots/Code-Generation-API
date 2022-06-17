@@ -1,7 +1,6 @@
 package io.swagger.cucumber.glue;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -47,7 +46,7 @@ public class TransactionSteps {
 
     private HttpHeaders headers;
 
-    @Before
+//    @Before
     public void setup()
     {
         expectedTransaction = new Transaction();
