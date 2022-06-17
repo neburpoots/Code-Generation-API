@@ -17,6 +17,7 @@ import io.swagger.repository.AccountRepository;
 import io.swagger.repository.UserRepository;
 import io.swagger.security.JwtTokenProvider;
 import io.swagger.utils.RestPageImpl;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -25,11 +26,10 @@ import org.springframework.http.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.IntStream;
+
+import static org.junit.Assert.assertThat;
 
 public class AccountSteps {
 
@@ -101,18 +101,22 @@ public class AccountSteps {
 
     @When("^a employee posts a new account with absolute limit ([0-9]) for customer (.*)$")
     public void whenAEmployeeCreatesAnAccount(final Integer absoluteLimit, final String email) {
+        System.out.println("noaccount@student.inholland.nl");
         User user = userRepository.findByEmail(email);
-
-        HttpEntity request = new HttpEntity(headers);
 
         Account newAccount = new Account(new BigDecimal(0), new BigDecimal(absoluteLimit), AccountType.PRIMARY, true);
 
         expectedAccounts.add(newAccount);
 
-        AccountPostDTO accountPostDTO = objectMapper.convertValue(newAccount, AccountPostDTO.class);
+        Map<String, Object> map = new HashMap<>();
+        map.put("absolute_limit", absoluteLimit);
+        map.put("account_type", "PRIMARY");
+        map.put("user_id", user.getUser_id());
 
-        ResponseEntity<String> account =
-                testRestTemplate.exchange("/api/accounts", HttpMethod.POST, request, String.class);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, headers);
+
+
+        testRestTemplate.exchange("/api/accounts", HttpMethod.POST, entity, String.class);
 
     }
 
@@ -122,7 +126,7 @@ public class AccountSteps {
     }
 
     @Then("^it is in the database$")
-    public void thenItisInTheDatabase() {
+    public void thenItIsInTheDatabase() {
         actualAccounts.addAll(accountRepository.findAll());
         validateAccounts();
     }
@@ -139,7 +143,7 @@ public class AccountSteps {
     }
 
     private void validateAccount(final Account expected, final Account actual) {
-        Assertions.assertEquals(expected.getBalance(), actual.getBalance());
-        Assertions.assertEquals(expected.getAbsoluteLimit(), actual.getAbsoluteLimit());
+        assertThat(expected.getBalance(),  Matchers.comparesEqualTo(actual.getBalance()));
+        assertThat(expected.getAbsoluteLimit(),  Matchers.comparesEqualTo(actual.getAbsoluteLimit()));
     }
 }
