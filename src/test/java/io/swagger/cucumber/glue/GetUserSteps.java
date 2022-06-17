@@ -54,12 +54,12 @@ public class GetUserSteps {
         this.exampleUser = this.userRepository.save(exampleUser);
     }
 
-    @Given("^the following login information$")
+    @Given("^A valid UUID$")
     public void givenTheFollowingInformation() {
         this.uuid = exampleUser.getUser_id();
     }
 
-    @When("^the customer logs in")
+    @When("^A user is requested")
     public void whenTheCustomerLogsIn() throws Exception {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Content-Type",
@@ -75,7 +75,7 @@ public class GetUserSteps {
         });
     }
 
-    @Then("^their user details and a jwt token are returned")
+    @Then("^The user object is returned")
     public void theUserDetailsAndJwtAreReturned() {
         validateOutput();
     }
