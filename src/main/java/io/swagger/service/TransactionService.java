@@ -190,7 +190,7 @@ public class TransactionService {
         return auth.getAuthorities().stream().anyMatch(str -> str.getAuthority().equals("ROLE_EMPLOYEE"));
     }
 
-    public List<DTOEntity> filterTransactions(FilterDTO filterDTO, HttpServletRequest request) {
+    public List<DTOEntity> filterTransactions(Integer page, Integer pageSize, FilterDTO filterDTO, HttpServletRequest request) {
         String fromIban = filterDTO.getFromIban();
         Account fromAccount = (fromIban == null) ? null : this.accountService.retrieveAccount(fromIban);
 
@@ -207,7 +207,7 @@ public class TransactionService {
         BigDecimal amountMax = (filterDTO.getAmountMoreThan() == null) ? null : new BigDecimal(filterDTO.getAmountMoreThan());
         BigDecimal amountEqual = (filterDTO.getAmountMoreThan() != null || filterDTO.getAmountLowerThan() != null || filterDTO.getAmountEqual() == null) ? null : new BigDecimal(filterDTO.getAmountEqual());
 
-        Pageable pageable = PageRequest.of(filterDTO.getPage(), filterDTO.getPageSize());
+        Pageable pageable = PageRequest.of(page, pageSize);
 
         if (this.isEmployee(request))
             return new DtoUtils().convertListToDto(this.transactionRepo.filterTransactions(fromIban, filterDTO.getToIban(), frommDate, toDate, amountEqual,

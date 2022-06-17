@@ -53,12 +53,11 @@ public class TransactionController implements TransactionControllerInterface {
         }
     }
 
-    public ResponseEntity<List<DTOEntity>> getTransactions(FilterDTO filterDTO){
+    public ResponseEntity<List<DTOEntity>> getTransactions(Integer page, Integer pageSize, FilterDTO filterDTO){
         try {
-            FilterDTO filter = (filterDTO == null) ? new FilterDTO() : filterDTO;
-            this.transactionService.filterTransactions(filterDTO, this.request);
+            this.transactionService.filterTransactions(page, pageSize, filterDTO, this.request);
             return new ResponseEntity<List<DTOEntity>>(
-                    this.transactionService.filterTransactions(filterDTO, this.request), HttpStatus.OK);
+                    this.transactionService.filterTransactions(page, pageSize, filterDTO, this.request), HttpStatus.OK);
         } catch (Exception exception) {
             throw exception;
         }

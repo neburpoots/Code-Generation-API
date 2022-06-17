@@ -94,7 +94,8 @@ public interface TransactionControllerInterface {
     @RequestMapping(value = "/api/transactions",
             produces = {"application/json"},
             method = RequestMethod.GET)
-    ResponseEntity<List<DTOEntity>> getTransactions(@Valid FilterDTO filterDTO);
+    ResponseEntity<List<DTOEntity>> getTransactions(@Parameter(in = ParameterIn.QUERY, description = "Page number for pagination", required = true, schema = @Schema()) @Valid @RequestParam(value = "page", required = true, defaultValue = "0") Integer page,
+    @Parameter(in = ParameterIn.QUERY, description = "Page size for pagination", required = true, schema = @Schema()) @Valid @RequestParam(value = "page_size", required = true, defaultValue = "10") Integer pageSize, @Valid FilterDTO filterDTO);
 }
 
 /**
