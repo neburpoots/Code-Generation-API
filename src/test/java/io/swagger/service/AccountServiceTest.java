@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
@@ -25,13 +26,12 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Answers.RETURNS_MOCKS;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
 public class AccountServiceTest {
-
-
 
 
     @Autowired
@@ -44,7 +44,6 @@ public class AccountServiceTest {
 
     @Autowired
     private AccountService accountService;
-
 
 
     private ModelMapper modelMapper;
@@ -91,8 +90,6 @@ public class AccountServiceTest {
         when(accountService.getAccount(accounts.get(0).getAccount_id(), request))
                 .thenReturn(this.modelMapper.map(accounts.get(0), AccountGetDTO.class));
     }
-
-
 
 
     private Account createMockAccount() {

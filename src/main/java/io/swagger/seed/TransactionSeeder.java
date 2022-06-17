@@ -2,6 +2,7 @@ package io.swagger.seed;
 
 import io.swagger.model.entity.Account;
 import io.swagger.model.entity.Transaction;
+import io.swagger.model.entity.TransactionType;
 import io.swagger.repository.AccountRepository;
 import io.swagger.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
