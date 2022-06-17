@@ -2,7 +2,7 @@ Feature: Bad login
 
   Scenario: As a customer, I could fill in a bad email address
     Given the following bad email address
-      | email                   | password  |
+      | email                   | password   |
       | tim@student.inholland.n | Secret123! |
 
     When the customer logs in with the bad email
@@ -10,8 +10,8 @@ Feature: Bad login
 
   Scenario: As a customer, I could fill in a bad password
     Given the following bad login password
-      | email                    | password   |
-      | tim@student.inholland.nl | Secret123  |
+      | email                    | password  |
+      | tim@student.inholland.nl | Secret123 |
 
     When the customer logs in with the bad password
     Then an unauthorized error is returned

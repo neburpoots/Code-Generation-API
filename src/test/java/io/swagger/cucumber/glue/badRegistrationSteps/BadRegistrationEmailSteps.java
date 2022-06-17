@@ -6,8 +6,6 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.swagger.exception.ErrorMessage;
-import io.swagger.model.entity.User;
-import io.swagger.model.user.UserLoginDTO;
 import io.swagger.model.user.UserPostDTO;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
