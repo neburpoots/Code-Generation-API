@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -31,6 +32,7 @@ import java.util.stream.IntStream;
 
 import static org.junit.Assert.assertThat;
 
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class AccountSteps {
 
     @Autowired
