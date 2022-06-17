@@ -51,11 +51,19 @@ public class GetUserSteps {
 
     private UUID uuid;
 
+    @Before("@getuser")
+    public void setup() {
+        makeExampleUser();
+    }
+
     @Given("^A valid UUID$")
     public void givenAValidUUID() {
+        this.uuid = exampleUser.getUser_id();
+    }
+
+    private void makeExampleUser() {
         this.exampleUser = new User("Example", "User", "emailUser@example.com", new BigDecimal(50), new BigDecimal(1500), webSecurityConfig.passwordEncoder().encode("Secret123!"));
         this.exampleUser = this.userRepository.save(exampleUser);
-        this.uuid = exampleUser.getUser_id();
     }
 
     @When("^A user is requested")

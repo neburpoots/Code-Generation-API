@@ -56,7 +56,7 @@ public class AccountSteps {
 
     private HttpHeaders headers;
 
-    @Before
+    @Before("@accounts")
     public void setup()
     {
         expectedAccounts = new ArrayList<>();

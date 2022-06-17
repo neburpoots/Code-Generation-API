@@ -46,7 +46,6 @@ public class UserSteps {
 
     private HttpHeaders headers;
 
-    @Before
     public void setup()
     {
         expectedUser = new User();
