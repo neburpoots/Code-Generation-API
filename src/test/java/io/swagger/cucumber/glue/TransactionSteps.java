@@ -7,11 +7,9 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.swagger.model.entity.Role;
 import io.swagger.model.entity.Transaction;
-import io.swagger.model.transaction.TransactionGetDTO;
 import io.swagger.repository.TransactionRepository;
 import io.swagger.security.JwtTokenProvider;
 import io.swagger.service.TransactionService;
-import io.swagger.utils.RestPageImpl;
 import org.assertj.core.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -19,7 +17,10 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 
 public class TransactionSteps {
 

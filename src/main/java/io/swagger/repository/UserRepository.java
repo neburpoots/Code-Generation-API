@@ -3,7 +3,6 @@ package io.swagger.repository;
 import io.swagger.model.entity.User;
 import io.swagger.model.user.UserIbanSearchDTO;
 import io.swagger.model.user.UserSearchDTO;
-import io.swagger.model.utils.DTOEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

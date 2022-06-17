@@ -2,14 +2,10 @@ package io.swagger.seed;
 
 import io.swagger.model.entity.Account;
 import io.swagger.model.entity.AccountType;
-import io.swagger.model.entity.Role;
 import io.swagger.model.entity.User;
 import io.swagger.repository.AccountRepository;
-import io.swagger.repository.RoleRepository;
 import io.swagger.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;

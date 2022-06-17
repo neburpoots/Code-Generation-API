@@ -3,12 +3,8 @@ package io.swagger.configuration;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.format.DateTimeFormatter;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-
 public class LocalDateValidator {
-    private DateTimeFormatter format;
+    private final DateTimeFormatter format;
     public LocalDateValidator(String pattern){
         this.format = DateTimeFormatter.ofPattern(pattern);
     }

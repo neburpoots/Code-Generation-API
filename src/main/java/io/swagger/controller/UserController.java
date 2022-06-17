@@ -1,10 +1,9 @@
 package io.swagger.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.exception.InternalServerErrorException;
-import io.swagger.model.entity.RefreshToken;
 import io.swagger.model.user.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -20,11 +19,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Generated;
-import javax.validation.constraints.*;
-import javax.validation.Valid;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
-import java.util.List;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 @Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-05T18:12:07.854Z[GMT]")
 @RestController

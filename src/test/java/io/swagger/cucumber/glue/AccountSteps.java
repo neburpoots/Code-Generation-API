@@ -11,7 +11,6 @@ import io.swagger.model.entity.User;
 import io.swagger.repository.AccountRepository;
 import io.swagger.repository.UserRepository;
 import io.swagger.security.JwtTokenProvider;
-import io.swagger.utils.DtoUtils;
 import io.swagger.utils.RestPageImpl;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,10 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.IntStream;
 
 public class AccountSteps {

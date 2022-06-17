@@ -1,22 +1,15 @@
 package io.swagger.repository;
 
-import io.swagger.controller.AccountController;
 import io.swagger.controller.UserController;
 import io.swagger.model.entity.User;
-import io.swagger.model.user.UserGetDTO;
-import io.swagger.service.AccountService;
 import io.swagger.service.UserService;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.math.BigDecimal;
 import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
 @AutoConfigureMockMvc
 @ContextConfiguration(classes = {UserService.class, UserController.class})
 @WebMvcTest

@@ -31,7 +31,7 @@ public class AccountService {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
     public AccountService(AccountRepository accountRepo, UserService userService, AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider) {
         this.accountRepo = accountRepo;

@@ -1,7 +1,5 @@
 package io.swagger.service;
 
-import io.swagger.controller.AccountController;
-import io.swagger.controller.NotFoundException;
 import io.swagger.exception.BadRequestException;
 import io.swagger.exception.ResourceNotFoundException;
 import io.swagger.model.account.AccountGetDTO;
@@ -9,19 +7,8 @@ import io.swagger.model.account.AccountPostDTO;
 import io.swagger.model.entity.Account;
 import io.swagger.model.entity.AccountType;
 import io.swagger.model.entity.User;
-import io.swagger.model.user.UserGetDTO;
-import io.swagger.model.user.UserLoginDTO;
-import io.swagger.model.user.UserLoginReturnDTO;
 import io.swagger.repository.AccountRepository;
-import io.swagger.repository.RoleRepository;
 import io.swagger.repository.UserRepository;
-import io.swagger.security.JwtTokenProvider;
-import io.swagger.seed.MainSeeder;
-import io.swagger.seed.RoleSeeder;
-import io.swagger.utils.DtoUtils;
-import org.aspectj.lang.annotation.After;
-import org.aspectj.lang.annotation.Before;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,17 +20,18 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpServletRequest;
+
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Answers.RETURNS_MOCKS;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
 public class AccountServiceTest {
-
-
 
 
     @Autowired
@@ -56,7 +44,6 @@ public class AccountServiceTest {
 
     @Autowired
     private AccountService accountService;
-
 
 
     private ModelMapper modelMapper;
@@ -103,8 +90,6 @@ public class AccountServiceTest {
         when(accountService.getAccount(accounts.get(0).getAccount_id(), request))
                 .thenReturn(this.modelMapper.map(accounts.get(0), AccountGetDTO.class));
     }
-
-
 
 
     private Account createMockAccount() {

@@ -7,8 +7,6 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.swagger.model.entity.Role;
 import io.swagger.model.entity.User;
-import io.swagger.model.user.UserIbanSearchDTO;
-import io.swagger.model.user.UserPostDTO;
 import io.swagger.repository.UserRepository;
 import io.swagger.security.JwtTokenProvider;
 import io.swagger.service.UserService;
@@ -18,18 +16,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
-import org.springframework.security.core.parameters.P;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.IntStream;
-
-import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.isNotNull;
 
 public class UserSteps {
 

@@ -67,7 +67,7 @@ public class AccountControllerTest {
     private TestRestTemplate testRestTemplate;
 
 
-    private String url = "http://localhost:8080/api/accounts";
+    private final String url = "http://localhost:8080/api/accounts";
 
     @BeforeEach
     void setUp() {
