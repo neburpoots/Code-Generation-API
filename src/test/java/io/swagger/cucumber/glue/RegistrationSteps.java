@@ -41,7 +41,6 @@ public class RegistrationSteps {
 
     @When("^the customer registers with the given information")
     public void whenTheCustomerRegisters() throws Exception {
-        System.out.println(registrationUser.getEmail());
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Content-Type",
                 "application/json");
