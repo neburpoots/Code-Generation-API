@@ -4,6 +4,7 @@ import io.swagger.exception.BadRequestException;
 import io.swagger.exception.ResourceNotFoundException;
 import io.swagger.exception.UnauthorizedException;
 import io.swagger.model.entity.*;
+import io.swagger.model.transaction.FilterDTO;
 import io.swagger.model.transaction.TransactionGetDTO;
 import io.swagger.model.transaction.TransactionPostDTO;
 import io.swagger.model.utils.DTOEntity;
@@ -189,8 +190,8 @@ public class TransactionService {
         return auth.getAuthorities().stream().anyMatch(str -> str.getAuthority().equals("ROLE_EMPLOYEE"));
     }
 
-    public List<DTOEntity> filterTransactions(String fromIban, String toIban, String amountEquals, String amountLessThan, String amountMoreThan,
-                                              Date fromDate, Date untilDate, Integer page, Integer pageSize, HttpServletRequest request) {
+    public List<DTOEntity> filterTransactions(FilterDTO filterDTO, HttpServletRequest request) {
+        String fromIban = filterDTO.getFromIban();
         Account fromAccount = (fromIban == null) ? null : this.accountService.retrieveAccount(fromIban);
 
         if (!this.isEmployee(request) && fromAccount != null)
@@ -199,22 +200,21 @@ public class TransactionService {
         if (fromIban == null && !this.isEmployee(request))
             fromIban = this.getLoggedInUserIban(request);
 
-        LocalDateTime frommDate = (fromDate == null) ? null : fromDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-        LocalDateTime toDate = (untilDate == null) ? null : untilDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        LocalDateTime frommDate = (filterDTO.getFromDate() == null) ? null : filterDTO.getFromDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        LocalDateTime toDate = (filterDTO.getUntilDate() == null) ? null : filterDTO.getUntilDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
-        BigDecimal amountEqual = (amountMoreThan == null || amountLessThan != null) ? null : new BigDecimal(amountEquals);
-        BigDecimal amountMin = (amountLessThan == null) ? null : new BigDecimal(amountLessThan);
-        BigDecimal amountMax = (amountMoreThan == null) ? null : new BigDecimal(amountMoreThan);
+        BigDecimal amountMin = (filterDTO.getAmountLowerThan() == null) ? null : new BigDecimal(filterDTO.getAmountLowerThan());
+        BigDecimal amountMax = (filterDTO.getAmountMoreThan() == null) ? null : new BigDecimal(filterDTO.getAmountMoreThan());
+        BigDecimal amountEqual = (filterDTO.getAmountMoreThan() != null || filterDTO.getAmountLowerThan() != null || filterDTO.getAmountEqual() == null) ? null : new BigDecimal(filterDTO.getAmountEqual());
 
-        Pageable pageable = PageRequest.of(page, pageSize);
+        Pageable pageable = PageRequest.of(filterDTO.getPage(), filterDTO.getPageSize());
 
         if (this.isEmployee(request))
-            return new DtoUtils().convertListToDto(this.transactionRepo.filterTransactions(fromIban, toIban, frommDate, toDate, amountEqual,
+            return new DtoUtils().convertListToDto(this.transactionRepo.filterTransactions(fromIban, filterDTO.getToIban(), frommDate, toDate, amountEqual,
                     amountMin, amountMax, pageable), new TransactionGetDTO());
         else {
-            return new DtoUtils().convertListToDto(this.transactionRepo.filterTransactionsForCustomer(fromIban, toIban, frommDate, toDate, amountEqual,
+            return new DtoUtils().convertListToDto(this.transactionRepo.filterTransactionsForCustomer(fromIban, filterDTO.getToIban(), frommDate, toDate, amountEqual,
                     amountMin, amountMax, pageable), new TransactionGetDTO());
         }
-
     }
 }

@@ -6,6 +6,7 @@
 package io.swagger.controller;
 
 import io.swagger.model.entity.Transaction;
+import io.swagger.model.transaction.FilterDTO;
 import io.swagger.model.transaction.TransactionPostDTO;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.v3.oas.annotations.Operation;
@@ -93,15 +94,18 @@ public interface TransactionControllerInterface {
     @RequestMapping(value = "/api/transactions",
             produces = {"application/json"},
             method = RequestMethod.GET)
-    ResponseEntity<List<DTOEntity>> getTransactions(
-            @Parameter(in = ParameterIn.QUERY, description = "Page number for pagination", required = true, schema = @Schema()) @Valid @RequestParam(value = "page", required = true, defaultValue = "0") Integer page,
-            @Parameter(in = ParameterIn.QUERY, description = "Page size for pagination", required = true, schema = @Schema()) @Valid @RequestParam(value = "page_size", required = true, defaultValue = "10") Integer pageSize,
-            @Parameter(in = ParameterIn.QUERY, description = "The from date, filtering transaction after this date.  ", schema = @Schema()) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "from_date", required = false) Date fromDate,
-            @Parameter(in = ParameterIn.QUERY, description = "The untill date, filtering transactions before this date. ", schema = @Schema()) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "until_date", required = false) Date untilDate,
-            @Parameter(in = ParameterIn.QUERY, description = "From IBAN account that needs to be considered for filter", schema = @Schema()) @Pattern(regexp = "[A-Z]{2}[0-9]{2}[A-Z]{4}[0-9]{6,14}", message = "Iban of the from account was in invalid form.") @RequestParam(value = "from_iban", required = false) String fromIban,
-            @Parameter(in = ParameterIn.QUERY, description = "To IBAN account that needs to be considered for filter", schema = @Schema()) @Pattern(regexp = "[A-Z]{2}[0-9]{2}[A-Z]{4}[0-9]{6,14}", message = "Iban of the to account was in invalid form.") @RequestParam(value = "to_iban", required = false) String toIban,
-            @Parameter(in = ParameterIn.QUERY, description = "Equals given amount that needs to be considered for filter", schema = @Schema()) @Min(value = 0, message = "Equals amount must be number and can not be lower than zero. ") @RequestParam(value = "amount_equals", required = false) String amountEquals,
-            @Parameter(in = ParameterIn.QUERY, description = "Less than given amount that needs to be considered for filter", schema = @Schema()) @Min(value = 0, message = "Lower than amount must be a nummber and can not be lower than zero. ") @RequestParam(value = "amount_lower_than", required = false) String amountLowerThan,
-            @Parameter(in = ParameterIn.QUERY, description = "More than given amount that needs to be considered for filter", schema = @Schema()) @Min(value = 0, message = "More than amount must be an number and can not be lower than zero. ") @RequestParam(value = "amount_more_than", required = false) String amountMoreThan);
+    ResponseEntity<List<DTOEntity>> getTransactions(@Valid FilterDTO filterDTO);
 }
 
+/**
+ * @Parameter(in = ParameterIn.QUERY, description = "Page number for pagination", required = true, schema = @Schema()) @Valid @RequestParam(value = "page", required = true, defaultValue = "0") Integer page,
+ *             @Parameter(in = ParameterIn.QUERY, description = "Page size for pagination", required = true, schema = @Schema()) @Valid @RequestParam(value = "page_size", required = true, defaultValue = "10") Integer pageSize,
+ *             @Parameter(in = ParameterIn.QUERY, description = "The from date, filtering transaction after this date.  ", schema = @Schema()) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "from_date", required = false) Date fromDate,
+ *             @Parameter(in = ParameterIn.QUERY, description = "The untill date, filtering transactions before this date. ", schema = @Schema()) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "until_date", required = false) Date untilDate,
+ *             @Parameter(in = ParameterIn.QUERY, description = "From IBAN account that needs to be considered for filter", schema = @Schema()) @Pattern(regexp = "[A-Z]{2}[0-9]{2}[A-Z]{4}[0-9]{6,14}", message = "Iban of the from account was in invalid form.") @RequestParam(value = "from_iban", required = false) String fromIban,
+ *             @Parameter(in = ParameterIn.QUERY, description = "To IBAN account that needs to be considered for filter", schema = @Schema()) @Pattern(regexp = "[A-Z]{2}[0-9]{2}[A-Z]{4}[0-9]{6,14}", message = "Iban of the to account was in invalid form.") @RequestParam(value = "to_iban", required = false) String toIban,
+ *             @Parameter(in = ParameterIn.QUERY, description = "Equals given amount that needs to be considered for filter", schema = @Schema()) @Min(value = 0, message = "Equals amount must be number and can not be lower than zero. ") @RequestParam(value = "amount_equals", required = false) String amountEquals,
+ *             @Parameter(in = ParameterIn.QUERY, description = "Less than given amount that needs to be considered for filter", schema = @Schema()) @Min(value = 0, message = "Lower than amount must be a nummber and can not be lower than zero. ") @RequestParam(value = "amount_lower_than", required = false) String amountLowerThan,
+ *             @Parameter(in = ParameterIn.QUERY, description = "More than given amount that needs to be considered for filter", schema = @Schema()) @Min(value = 0, message = "More than amount must be an number and can not be lower than zero. ") @RequestParam(value = "amount_more_than", required = false) String amountMoreThan,
+ *             @Parameter(in = ParameterIn.QUERY, description = "Filter options for transactions. ", required = false, schema = @Schema()) @Valid @RequestBody FilterDTO filterDTO
+ */

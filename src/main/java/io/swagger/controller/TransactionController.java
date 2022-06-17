@@ -1,6 +1,8 @@
 package io.swagger.controller;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.Authorization;
+import io.swagger.model.transaction.FilterDTO;
 import io.swagger.model.transaction.TransactionPostDTO;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.service.TransactionService;
@@ -9,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.processing.Generated;
@@ -50,10 +53,12 @@ public class TransactionController implements TransactionControllerInterface {
         }
     }
 
-    public ResponseEntity<List<DTOEntity>> getTransactions(Integer page, Integer pageSize, Date fromDate, Date untilDate, String fromIban, String toIban, String amountEquals, String amountLowerThan, String amountMoreThan) {
+    public ResponseEntity<List<DTOEntity>> getTransactions(FilterDTO filterDTO){
         try {
+            FilterDTO filter = (filterDTO == null) ? new FilterDTO() : filterDTO;
+            this.transactionService.filterTransactions(filterDTO, this.request);
             return new ResponseEntity<List<DTOEntity>>(
-                    this.transactionService.filterTransactions(fromIban, toIban, amountEquals, amountLowerThan, amountMoreThan, fromDate, untilDate, page, pageSize, this.request), HttpStatus.OK);
+                    this.transactionService.filterTransactions(filterDTO, this.request), HttpStatus.OK);
         } catch (Exception exception) {
             throw exception;
         }
