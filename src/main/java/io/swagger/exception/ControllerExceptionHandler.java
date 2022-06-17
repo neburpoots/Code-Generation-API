@@ -1,18 +1,21 @@
 package io.swagger.exception;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import io.swagger.controller.ApiException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import javax.validation.ConstraintViolationException;
 
 @RestControllerAdvice
 @SuppressWarnings({"unchecked","rawtypes"})
@@ -49,7 +52,7 @@ public class ControllerExceptionHandler
         return new ErrorMessage(
                 HttpStatus.BAD_REQUEST.value(),
                 new Date(),
-                (ex.getMessage().isEmpty()) ? "Numbers/amount are entered in incorrect form, enters numbers/amounts like 10.00 or 10." : ex.getMessage()
+                (ex.getMessage().isEmpty()) ? "Numbers/amount are entered in incorrect form, enters amounts like 10.00 or 10." : ex.getMessage()
         );
     }
 
@@ -93,6 +96,28 @@ public class ControllerExceptionHandler
                 ex.getMessage());
     }
 
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
+    public ErrorMessage unauthorizedException(ConstraintViolationException ex, WebRequest request)
+    {
+        return new ErrorMessage(
+                HttpStatus.BAD_REQUEST.value(),
+                new Date(),
+                ex.getMessage());
+    }
+
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ErrorMessage unauthorizedException(MethodArgumentTypeMismatchException ex, WebRequest request)
+    {
+        return new ErrorMessage(
+                HttpStatus.BAD_REQUEST.value(),
+                new Date(),
+                "Invalid :" + ex.getParameter().getParameterName());
+    }
+
     @ExceptionHandler(UnauthorizedException.class)
     @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
     public ErrorMessage unauthorizedException(UnauthorizedException ex, WebRequest request)
@@ -112,6 +137,8 @@ public class ControllerExceptionHandler
                 new Date(),
                 ex.getMessage());
     }
+
+
 
     @ExceptionHandler(ConflictException.class)
     @ResponseStatus(value = HttpStatus.CONFLICT)

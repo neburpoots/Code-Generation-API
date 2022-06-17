@@ -5,24 +5,32 @@
  */
 package io.swagger.controller;
 
+import io.swagger.model.utils.DTOEntity;
 import io.swagger.model.entity.Transaction;
 import io.swagger.model.transaction.TransactionPostDTO;
-import io.swagger.model.utils.DTOEntity;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
+import java.util.Date;
 import java.util.List;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-05T18:12:07.854Z[GMT]")
@@ -91,9 +99,14 @@ public interface TransactionControllerInterface {
             produces = { "application/json" },
             method = RequestMethod.GET)
     ResponseEntity<List<DTOEntity>> getTransactions(
-            @NotNull @Parameter(in = ParameterIn.QUERY, description = "Page number for pagination" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "page", required = true, defaultValue = "0") Integer page,
-            @NotNull @Parameter(in = ParameterIn.QUERY, description = "Page size for pagination",
-            required = true, schema = @Schema()) @Valid @RequestParam(value = "pageSize",
-            required = true, defaultValue = "10") Integer pageSize ,@Parameter(in = ParameterIn.QUERY, description = "Date value that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "date", required = false, defaultValue = "") String userId, @Parameter(in = ParameterIn.QUERY, description = "From IBAN account that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "from_iban", required = false, defaultValue = "") String fromIban, @Parameter(in = ParameterIn.QUERY, description = "To IBAN account that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "to_iban", required = false, defaultValue = "") String toIban, @Parameter(in = ParameterIn.QUERY, description = "Equals given amount that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "as_eq", required = false, defaultValue = "") String asEq, @Parameter(in = ParameterIn.QUERY, description = "Less than given amount that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "as_lt", required = false, defaultValue = "") String asLt, @Parameter(in = ParameterIn.QUERY, description = "More than given amount that needs to be considered for filter" ,schema=@Schema()) @Valid @RequestParam(value = "as_mt", required = false, defaultValue = "") String asMt);
+            @Parameter(in = ParameterIn.QUERY, description = "Page number for pagination" ,required=true,schema=@Schema()) @Valid @RequestParam(value = "page", required = true, defaultValue = "0") Integer page,
+            @Parameter(in = ParameterIn.QUERY, description = "Page size for pagination", required = true, schema = @Schema()) @Valid @RequestParam(value = "page_size", required = true, defaultValue = "10") Integer pageSize,
+            @Parameter(in = ParameterIn.QUERY, description = "The from date, filtering transaction after this date.  " ,schema=@Schema()) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "from_date", required = false) Date fromDate,
+            @Parameter(in = ParameterIn.QUERY, description = "The untill date, filtering transactions before this date. " ,schema=@Schema()) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "until_date", required = false) Date untilDate,
+            @Parameter(in = ParameterIn.QUERY, description = "From IBAN account that needs to be considered for filter" ,schema=@Schema()) @Pattern(regexp="[A-Z]{2}[0-9]{2}[A-Z]{4}[0-9]{6,14}",message="Iban of the from account was in invalid form.") @RequestParam(value = "from_iban", required = false) String fromIban,
+            @Parameter(in = ParameterIn.QUERY, description = "To IBAN account that needs to be considered for filter" ,schema=@Schema()) @Pattern(regexp="[A-Z]{2}[0-9]{2}[A-Z]{4}[0-9]{6,14}",message="Iban of the to account was in invalid form.") @RequestParam(value = "to_iban", required = false) String toIban,
+            @Parameter(in = ParameterIn.QUERY, description = "Equals given amount that needs to be considered for filter" ,schema=@Schema())@Min(value = 0, message = "Equals amount must be number and can not be lower than zero. ") @RequestParam(value = "amount_equals", required = false) String amountEquals,
+            @Parameter(in = ParameterIn.QUERY, description = "Less than given amount that needs to be considered for filter" ,schema=@Schema()) @Min(value = 0, message = "Lower than amount must be a nummber and can not be lower than zero. ") @RequestParam(value = "amount_lower_than", required = false) String amountLowerThan,
+            @Parameter(in = ParameterIn.QUERY, description = "More than given amount that needs to be considered for filter" ,schema=@Schema()) @Min(value = 0, message = "More than amount must be an number and can not be lower than zero. ") @RequestParam(value = "amount_more_than", required = false) String amountMoreThan);
 }
 

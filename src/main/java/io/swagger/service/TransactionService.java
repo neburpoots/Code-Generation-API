@@ -1,52 +1,60 @@
 package io.swagger.service;
 
-import io.swagger.configuration.LocalDateTimeConverter;
 import io.swagger.exception.BadRequestException;
 import io.swagger.exception.ResourceNotFoundException;
 import io.swagger.exception.UnauthorizedException;
-import io.swagger.model.entity.Account;
-import io.swagger.model.entity.AccountType;
-import io.swagger.model.entity.Transaction;
-import io.swagger.model.entity.TransactionType;
+import io.swagger.model.entity.*;
 import io.swagger.model.transaction.TransactionGetDTO;
 import io.swagger.model.transaction.TransactionPostDTO;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.repository.AccountRepository;
 import io.swagger.repository.TransactionRepository;
+import io.swagger.repository.UserRepository;
 import io.swagger.security.JwtTokenProvider;
 import io.swagger.utils.DtoUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-import org.threeten.bp.LocalDateTime;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.lang.Integer;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
 
 @Service
 public class TransactionService {
     private final TransactionRepository transactionRepo;
     private final AccountService accountService;
     private final AccountRepository accountRepository;
+    private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
 
     public TransactionService(TransactionRepository transactionRepo, AccountService accountService,
-                              AccountRepository accountRepository, JwtTokenProvider jwtTokenProvider) {
+                              AccountRepository accountRepository, JwtTokenProvider jwtTokenProvider, UserRepository userRepository) {
         this.transactionRepo = transactionRepo;
         this.accountService = accountService;
         this.accountRepository = accountRepository;
+        this.userRepository = userRepository;
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
     //Returns transaction with matching id.
-    public DTOEntity getTransactionById(String transactionId){
+    public DTOEntity getTransactionById(String transactionId, HttpServletRequest request){
         Optional<Transaction> transaction = this.transactionRepo.findById(UUID.fromString(transactionId));
-        if(transaction.isPresent())
+
+        //Check if the provided iban belongs to the logged-in user.
+        boolean checkIfToAccountMatchesUser = !Objects.equals(this.getLoggedInUserIban(request), transaction.get().getFromAccount());
+        boolean checkIfFromAccountMatchesUser = !Objects.equals(this.getLoggedInUserIban(request), transaction.get().getToAccount());
+
+        if(transaction.isPresent() && !isEmployee(request)){
+            if(!checkIfFromAccountMatchesUser || !checkIfToAccountMatchesUser)
+                throw new ResourceNotFoundException("No Transaction found.");
+
             return new DtoUtils().convertToDto(transaction.get(), new TransactionGetDTO());
+        }
         else
             throw new ResourceNotFoundException("No transaction found with matching ID. ");
     }
@@ -97,10 +105,30 @@ public class TransactionService {
         boolean isAdmin = auth.getAuthorities().stream().anyMatch(str -> str.getAuthority().equals("ROLE_EMPLOYEE"));
 
         if(!isAdmin && !loggedInUserId.equals(ownerOfIbanId)){
-            throw new UnauthorizedException("You have no access to this account, you can only make transactions from your own account(s). ");
+            throw new UnauthorizedException("You have no access to this account, you can only make or view transactions from your own account(s). ");
         }
     }
 
+    //Returns Iban of the currently logged-in user.
+    private String getLoggedInUserIban(HttpServletRequest request){
+        String token = this.jwtTokenProvider.resolveToken(request);
+        UUID loggedInUserId = UUID.fromString(this.jwtTokenProvider.getAudience(token));
+
+        Optional<User> user = this.userRepository.findById(loggedInUserId);
+        List <Account> accounts = (user.isPresent()) ? this.accountRepository.findByUser(user.get()) : new ArrayList<>();
+
+        for (Account account : accounts) {
+            if (account.getAccountType() == AccountType.PRIMARY)
+                return account.getAccount_id();
+        }
+        for (Account account : accounts) {
+            if (account.getAccountType() == AccountType.SAVINGS)
+                return account.getAccount_id();
+        }
+        return null;
+    }
+
+    //Checks if user is the owner of the account, or is an employee.
     private void validateTransactionType(Account fromAccount, Account toAccount, Transaction transaction){
         TransactionType transactionType = transaction.getTransactionType();
         String fromIban = fromAccount.getAccount_id();
@@ -114,31 +142,34 @@ public class TransactionService {
     public DTOEntity createTransaction(TransactionPostDTO body, HttpServletRequest request) {
         Transaction transaction = (Transaction) new DtoUtils().convertToEntity(new Transaction(), body);
 
+        //Validates account throws exception if not found.
         Account fromAccount = this.accountService.retrieveAccount(transaction.getFromAccount());
         Account toAccount = this.accountService.retrieveAccount(transaction.getToAccount());
 
-        //Validate
+        //validates transactions routes from savings to primary and visa versa, checks types
         this.checkIfTransactionIsValid(fromAccount, toAccount);
         this.validateTransactionType(fromAccount, toAccount, transaction);
 
+        //Checks if user has rights over account to perform, and enough balance
         this.checkUserHasRightsToAccount(fromAccount, request);
         this.checkTransactionLimitsAndBalance(transaction, fromAccount);
 
         //Check what type of transaction it is, and perform the methods needed.
         switch (transaction.getTransactionType()) {
-                case withdrawal:
-                    transaction.setToAccount(fromAccount.getAccount_id());
-                    fromAccount.setBalance(fromAccount.getBalance().subtract(transaction.getAmount()));
-                    break;
-                case deposit:
-                    transaction.setToAccount(fromAccount.getAccount_id());
-                    fromAccount.setBalance(fromAccount.getBalance().add(transaction.getAmount()));
-                    break;
-                default:
-                    fromAccount.setBalance(fromAccount.getBalance().subtract(transaction.getAmount()));
-                    toAccount.setBalance(toAccount.getBalance().add(transaction.getAmount()));
-                    break;
-            }
+            case withdrawal:
+                transaction.setToAccount(fromAccount.getAccount_id());
+                fromAccount.setBalance(fromAccount.getBalance().subtract(transaction.getAmount()));
+                break;
+            case deposit:
+                transaction.setToAccount(fromAccount.getAccount_id());
+                fromAccount.setBalance(fromAccount.getBalance().add(transaction.getAmount()));
+                break;
+            default:
+                fromAccount.setBalance(fromAccount.getBalance().subtract(transaction.getAmount()));
+                toAccount.setBalance(toAccount.getBalance().add(transaction.getAmount()));
+                break;
+        }
+        //Save changes to recipients account when changes have been made.
         if(transaction.getTransactionType() == TransactionType.regular_transaction)
             this.accountRepository.save(toAccount);
 
@@ -147,17 +178,40 @@ public class TransactionService {
         return new DtoUtils().convertToDto(this.transactionRepo.save(transaction), new TransactionGetDTO());
     }
 
-    public List<DTOEntity> filterTransactions(String toAccount, String fromAccount, String asEq, String asLt, String asMt, String date, Integer page, Integer pageSize) {
-        Pageable p = PageRequest.of(page, pageSize);
+    //Checks if current employee has employee rights.
+    private boolean isEmployee(HttpServletRequest request){
+        String token = this.jwtTokenProvider.resolveToken(request);
+        Authentication auth = this.jwtTokenProvider.getAuthentication(token);
 
-        LocalDateTime transactionDate = (!date.isEmpty()) ? new LocalDateTimeConverter("dd-MM-yyyy").convert(date) : null;
-        toAccount = (!toAccount.isEmpty()) ? toAccount : null;
-        fromAccount = (!fromAccount.isEmpty()) ? fromAccount : null;
+        return auth.getAuthorities().stream().anyMatch(str -> str.getAuthority().equals("ROLE_EMPLOYEE"));
+    }
 
-        BigDecimal amount = (!asEq.isEmpty()) ? new BigDecimal(asEq) : null;
-        BigDecimal lt = (!asLt.isEmpty()) ? new BigDecimal(asLt) : null;
-        BigDecimal mt = (!asMt.isEmpty()) ? new BigDecimal(asMt) : null;
+    public List<DTOEntity> filterTransactions(String fromIban, String toIban, String amountEquals, String amountLessThan, String amountMoreThan,
+                                              Date fromDate, Date untilDate, Integer page, Integer pageSize, HttpServletRequest request) {
+        Account fromAccount = (fromIban == null) ? null : this.accountService.retrieveAccount(fromIban);
 
-        return new DtoUtils().convertListToDto(this.transactionRepo.filterTransactions(toAccount, fromAccount, transactionDate, amount, lt, mt, p), new TransactionGetDTO());
+        if(!this.isEmployee(request) && fromAccount != null)
+            this.checkUserHasRightsToAccount(fromAccount, request);
+
+        LocalDateTime frommDate = (fromDate == null) ? null : fromDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        LocalDateTime toDate = (untilDate == null) ? null : untilDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+
+        BigDecimal amountEqual = (amountMoreThan == null || amountLessThan != null) ? null : new BigDecimal(amountEquals);
+        BigDecimal amountMin  = (amountLessThan == null) ? null : new BigDecimal(amountLessThan);
+        BigDecimal amountMax  = (amountMoreThan == null) ? null : new BigDecimal(amountMoreThan);
+
+        Pageable pageable = PageRequest.of(page, pageSize);
+
+        if(fromIban == null && !this.isEmployee(request))
+            fromIban = this.getLoggedInUserIban(request);
+
+        if(this.isEmployee(request))
+            return new DtoUtils().convertListToDto(this.transactionRepo.filterTransactions(fromIban, toIban, frommDate, toDate, amountEqual,
+                    amountMin, amountMax, pageable), new TransactionGetDTO());
+        else{
+            return new DtoUtils().convertListToDto(this.transactionRepo.filterTransactionsForCustomer(fromIban, toIban, frommDate, toDate, amountEqual,
+                    amountMin, amountMax, pageable), new TransactionGetDTO());
+        }
+
     }
 }
