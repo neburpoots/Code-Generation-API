@@ -4,7 +4,7 @@ import io.swagger.exception.BadRequestException;
 import io.swagger.exception.ResourceNotFoundException;
 import io.swagger.exception.UnauthorizedException;
 import io.swagger.model.entity.*;
-import io.swagger.model.transaction.FilterDTO;
+import io.swagger.model.transaction.FilterParams;
 import io.swagger.model.transaction.TransactionGetDTO;
 import io.swagger.model.transaction.TransactionPostDTO;
 import io.swagger.model.utils.DTOEntity;
@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -96,6 +96,7 @@ public class TransactionService {
             throw new BadRequestException("You can't transfer money to this account. ");
     }
 
+    //Checks if user is admin or the owner of the supplied account for transaction.
     private void checkUserHasRightsToAccount(Account fromAccount, HttpServletRequest request) {
         String token = this.jwtTokenProvider.resolveToken(request);
         Authentication auth = this.jwtTokenProvider.getAuthentication(token);
@@ -190,30 +191,36 @@ public class TransactionService {
         return auth.getAuthorities().stream().anyMatch(str -> str.getAuthority().equals("ROLE_EMPLOYEE"));
     }
 
-    public List<DTOEntity> filterTransactions(Integer page, Integer pageSize, FilterDTO filterDTO, HttpServletRequest request) {
-        String fromIban = filterDTO.getFromIban();
+    //Filters transactions gets all for employee, gets own for customer.
+    public List<DTOEntity> filterTransactions(Integer page, Integer pageSize, FilterParams filterParams, HttpServletRequest request) {
+        String fromIban = filterParams.getFromIban();
         Account fromAccount = (fromIban == null) ? null : this.accountService.retrieveAccount(fromIban);
 
+        //If user is not an employee and user attempts to search with filter check if he owns the account.
         if (!this.isEmployee(request) && fromAccount != null)
             this.checkUserHasRightsToAccount(fromAccount, request);
 
+        //If user is not employee and not filtering by Iban, set fromIban as his own Iban (if it exists).
         if (fromIban == null && !this.isEmployee(request))
             fromIban = this.getLoggedInUserIban(request);
 
-        LocalDateTime frommDate = (filterDTO.getFromDate() == null) ? null : filterDTO.getFromDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-        LocalDateTime toDate = (filterDTO.getUntilDate() == null) ? null : filterDTO.getUntilDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        //Convert strings to date
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
+        LocalDateTime fromDate = (filterParams.getFromDate() != null) ? LocalDateTime.parse((filterParams.getFromDate() + " 00:00"), formatter) : null;
+        LocalDateTime untilDate = (filterParams.getUntilDate() != null) ? LocalDateTime.parse((filterParams.getUntilDate() +  " 00:00"), formatter) : null;
 
-        BigDecimal amountMin = (filterDTO.getAmountLowerThan() == null) ? null : new BigDecimal(filterDTO.getAmountLowerThan());
-        BigDecimal amountMax = (filterDTO.getAmountMoreThan() == null) ? null : new BigDecimal(filterDTO.getAmountMoreThan());
-        BigDecimal amountEqual = (filterDTO.getAmountMoreThan() != null || filterDTO.getAmountLowerThan() != null || filterDTO.getAmountEqual() == null) ? null : new BigDecimal(filterDTO.getAmountEqual());
+        //Retrieve amounts, and filter out equals if amountLowerThan or amountMoreThan are set.
+        BigDecimal amountMin = (filterParams.getAmountLowerThan() == null) ? null : new BigDecimal(filterParams.getAmountLowerThan());
+        BigDecimal amountMax = (filterParams.getAmountMoreThan() == null) ? null : new BigDecimal(filterParams.getAmountMoreThan());
+        BigDecimal amountEqual = (filterParams.getAmountMoreThan() != null || filterParams.getAmountLowerThan() != null || filterParams.getAmountEqual() == null) ? null : new BigDecimal(filterParams.getAmountEqual());
 
         Pageable pageable = PageRequest.of(page, pageSize);
 
         if (this.isEmployee(request))
-            return new DtoUtils().convertListToDto(this.transactionRepo.filterTransactions(fromIban, filterDTO.getToIban(), frommDate, toDate, amountEqual,
+            return new DtoUtils().convertListToDto(this.transactionRepo.filterTransactions(fromIban, filterParams.getToIban(), fromDate, untilDate, amountEqual,
                     amountMin, amountMax, pageable), new TransactionGetDTO());
         else {
-            return new DtoUtils().convertListToDto(this.transactionRepo.filterTransactionsForCustomer(fromIban, filterDTO.getToIban(), frommDate, toDate, amountEqual,
+            return new DtoUtils().convertListToDto(this.transactionRepo.filterTransactionsForCustomer(fromIban, filterParams.getToIban(), fromDate, untilDate, amountEqual,
                     amountMin, amountMax, pageable), new TransactionGetDTO());
         }
     }

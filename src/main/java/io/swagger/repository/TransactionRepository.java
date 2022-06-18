@@ -13,6 +13,7 @@ import java.util.UUID;
 
 public interface TransactionRepository extends JpaRepository<Transaction, UUID> {
 
+    //Returns all transactions filtered by optional parameters.
     @Query("SELECT t FROM Transaction t WHERE (:fromAccount is null or t.fromAccount = :fromAccount) " +
             "and (:toAccount is null or t.toAccount = :toAccount)" +
             "and (:fromDate is null or t.timestamp > :fromDate)" +
@@ -28,6 +29,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
                                          @Param("asLt") BigDecimal asLt,
                                          @Param("asMt") BigDecimal asMt, Pageable pageable);
 
+    //Matches only if either the toIban or fromIban matches the given iban.
     @Query("SELECT t FROM Transaction t WHERE (t.fromAccount = :fromAccount or t.toAccount = :fromAccount) " +
             "and (:toAccount is null or t.toAccount = :toAccount)" +
             "and (:fromDate is null or t.timestamp > :fromDate)" +
@@ -42,8 +44,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
                                                     @Param("asEq") BigDecimal asEq,
                                                     @Param("asLt") BigDecimal asLt,
                                                     @Param("asMt") BigDecimal asMt, Pageable pageable);
-
-    List<Transaction> findByFromAccountOrToAccount(String iban, String iban2, Pageable pageable);
 
     //Returns sum of all the transactions that were made within the last 24 hours, with the provided IBAN.
     @Query("SELECT sum(transaction.amount) FROM Transaction  transaction WHERE (transaction.fromAccount = :fromAccount) and (transaction.timestamp > :oneDayAgo)")

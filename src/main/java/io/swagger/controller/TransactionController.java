@@ -1,8 +1,7 @@
 package io.swagger.controller;
 
 import io.swagger.annotations.Api;
-import io.swagger.annotations.Authorization;
-import io.swagger.model.transaction.FilterDTO;
+import io.swagger.model.transaction.FilterParams;
 import io.swagger.model.transaction.TransactionPostDTO;
 import io.swagger.model.utils.DTOEntity;
 import io.swagger.service.TransactionService;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.processing.Generated;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
 import java.util.List;
 
 @Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2022-05-05T18:12:07.854Z[GMT]")
@@ -36,7 +34,6 @@ public class TransactionController implements TransactionControllerInterface {
         this.transactionService = transactionService;
     }
 
-
     public ResponseEntity<DTOEntity> addTransaction(TransactionPostDTO body) {
         try {
             return new ResponseEntity<DTOEntity>(this.transactionService.createTransaction(body, request), HttpStatus.CREATED);
@@ -53,11 +50,11 @@ public class TransactionController implements TransactionControllerInterface {
         }
     }
 
-    public ResponseEntity<List<DTOEntity>> getTransactions(Integer page, Integer pageSize, FilterDTO filterDTO){
+    public ResponseEntity<List<DTOEntity>> getTransactions(Integer page, Integer pageSize, FilterParams filterParams){
         try {
-            this.transactionService.filterTransactions(page, pageSize, filterDTO, this.request);
+            this.transactionService.filterTransactions(page, pageSize, filterParams, this.request);
             return new ResponseEntity<List<DTOEntity>>(
-                    this.transactionService.filterTransactions(page, pageSize, filterDTO, this.request), HttpStatus.OK);
+                    this.transactionService.filterTransactions(page, pageSize, filterParams, this.request), HttpStatus.OK);
         } catch (Exception exception) {
             throw exception;
         }
