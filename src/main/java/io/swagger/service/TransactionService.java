@@ -133,6 +133,7 @@ public class TransactionService  {
     private void validateTransactionType(Account fromAccount, Account toAccount, Transaction transaction) {
         TransactionType transactionType = transaction.getTransactionType();
         String fromIban = fromAccount.getAccount_id();
+        Account fromUser = this.accountService.retrieveAccount(fromIban);
         String toIban = toAccount.getAccount_id();
 
         //Makes sure that you can't use same from and to iban in transaction unless it's a withdrawal or deposit.
