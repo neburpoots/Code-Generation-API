@@ -1,6 +1,6 @@
 Feature: account feature
 
-  @accounts
+  @getAccountsSuccessfully
   Scenario: A employee retrieves the accounts
     Given the following accounts
       |account_id       |balance|absoluteLimit |accountType |status|
@@ -10,8 +10,67 @@ Feature: account feature
     When the user requests all the accounts
     Then all the accounts are returned
 
-  @accounts
+  @getAccountsSuccessfullyForCustomerWithUserId
+  Scenario: A customer retrieves his own accounts with his user id as url parameter
+    Given the customers own accounts
+      |account_id       |balance   |absoluteLimit |accountType |status|
+      |NLINHO0000000003 |5000.00   |-340.00       |PRIMARY     |true  |
+      |NLINHO0000000004 |1000.00   |0.00          |SAVINGS     |true  |
+    When the customer requests all the accounts with his user id as url parameter
+    Then all the accounts are returned for the specific customer
+
+  @getAccountsSuccessfullyWithAllFilters
+  Scenario: A employee retrieves the accounts for a user with accountType PRIMARY and pagination
+    Given the account that the employee will retrieve with the filters
+      |account_id       |balance   |absoluteLimit |accountType |status|
+      |NLINHO0000000003 |2000.00   |-500.00       |PRIMARY     |true  |
+    When the employee requests the accounts for a user with accountType PRIMARY and pagination
+    Then the accounts that matches all the filters is returned
+
+  @getAccountsAsCustomerReturns403
+  Scenario: A customer retrieves the accounts and receives a 403
+    When a customer retrieves the accounts and receives a 403 and a message containing "You are not authorized to make this request.""
+    Then a customer receives a 403 statuscode and receives a message
+
+  @getAccountsNotLoggedInReturns403
+  Scenario: A not logged in user retrieves the accounts and receives a 403
+    When a not logged in user retrieves the accounts and receives a 403 and a message containing "Access Denied""
+    Then a not logged in user receives a 403 statuscode and receives a message
+
+  @getAccountsAsEmployeeWithNonExistentUserIdSteps
+  Scenario: A employee retrieves the accounts for a user which does not exist
+    When a employee retrieves the accounts with the id f3e7e0cb-6e21-40ff-878a-3ed56361bf6f
+    Then a 404 should be returned with the error message "User with id: 'f3e7e0cb-6e21-40ff-878a-3ed56361bf6f' not found"
+
+  @createAccountSuccessfully
   Scenario: A employee creates an account
-    When a employee posts a new account with absolute limit 0 for customer noaccount@student.inholland.nl
+    Given the account post dto for the account that will be created with email noaccount@student.inholland.nl
+      |absoluteLimit |accountType|
+      |-500.00       |PRIMARY|
+    When a employee posts a new account with the given data
     Then it is in the database
     And it has an id
+
+  @createAccountAsCustomerReturns403
+  Scenario: A customer tries to create an account
+    Given the valid account post dto with the email noaccount@student.inholland.nl
+      |absoluteLimit |accountType|
+      |-500.00       |PRIMARY|
+    When a customer posts a new account with post dto
+    Then the customer will receive a 403 with the error message "Forbidden"
+
+  @createAccountForUserThatHas2AccountsReturns409
+  Scenario: A employee tries to create an account for a user with two accounts
+    Given the valid account post dto for a new account and the email ruben@student.inholland.nl
+      |absoluteLimit |accountType|
+      |-500.00       |PRIMARY|
+    When a employee posts a new accounts with the given dto and uuid
+    Then the customer will receive a 409 conflict with the error message "Customer already has a primary and savings account"
+
+  @createAccountForUserWithWrongAbsoluteLimitReturns400
+  Scenario: A employee tries to create an account with invalid absolute limit
+    Given the invalid account post dto for a new account and the email ruben@student.inholland.nl
+      |absoluteLimit |accountType|
+      |-20000.00     |PRIMARY|
+    When a employee posts the invalid post data with the uuid
+    Then the customer will receive a 400 bad request with the error message "[moet groter dan -10000.01 zijn]"

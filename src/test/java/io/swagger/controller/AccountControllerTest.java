@@ -286,7 +286,6 @@ public class AccountControllerTest {
 
         HttpEntity request = new HttpEntity(customerHeaders);
 
-        String uuid = UUID.randomUUID().toString();
 
         ResponseEntity<String> account =
                 testRestTemplate.exchange("/api/accounts", HttpMethod.GET, request, String.class);

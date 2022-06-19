@@ -40,7 +40,7 @@ public class AccountPostDTO implements DTOEntity {
   private AccountType accountType = null;
 
   public AccountPostDTO user_id(UUID user_Id) {
-    this.user_id = user_id;
+    this.user_id = user_Id;
     return this;
   }
 
