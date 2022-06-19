@@ -6,11 +6,11 @@ import io.swagger.model.utils.DTOEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.NonNull;
 import org.springframework.validation.annotation.Validated;
-import org.threeten.bp.LocalDateTime;
 
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**

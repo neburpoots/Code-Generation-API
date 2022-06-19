@@ -13,6 +13,8 @@ import io.swagger.repository.TransactionRepository;
 import io.swagger.repository.UserRepository;
 import io.swagger.security.JwtTokenProvider;
 import io.swagger.utils.DtoUtils;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
@@ -25,20 +27,22 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
-public class TransactionService {
+public class TransactionService  {
     private final TransactionRepository transactionRepo;
     private final AccountService accountService;
     private final AccountRepository accountRepository;
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final ModelMapper modelMapper;
 
     public TransactionService(TransactionRepository transactionRepo, AccountService accountService,
-                              AccountRepository accountRepository, JwtTokenProvider jwtTokenProvider, UserRepository userRepository) {
+                              AccountRepository accountRepository, JwtTokenProvider jwtTokenProvider, UserRepository userRepository){
         this.transactionRepo = transactionRepo;
         this.accountService = accountService;
         this.accountRepository = accountRepository;
         this.userRepository = userRepository;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.modelMapper = new ModelMapper();
     }
 
     //Returns transaction with matching id.
@@ -90,10 +94,10 @@ public class TransactionService {
         UUID toAccountUserId = toAccount.getUser().getUser_id();
 
         if (fromAccountType == AccountType.SAVINGS && !fromAccountUserId.equals(toAccountUserId))
-            throw new BadRequestException("Can't perform this transaction, your savings account can only transfer money to your own primary account. ");
+            throw new UnauthorizedException("Can't perform this transaction, your savings account can only transfer money to your own primary account. ");
 
         if (toAccountType == AccountType.SAVINGS && !fromAccountUserId.equals(toAccountUserId))
-            throw new BadRequestException("You can't transfer money to this account. ");
+            throw new UnauthorizedException("You can't transfer money to this account. ");
     }
 
     //Checks if user is admin or the owner of the supplied account for transaction.
@@ -106,7 +110,7 @@ public class TransactionService {
         boolean isAdmin = auth.getAuthorities().stream().anyMatch(str -> str.getAuthority().equals("ROLE_EMPLOYEE"));
 
         if (!isAdmin && !loggedInUserId.equals(ownerOfIbanId)) {
-            throw new UnauthorizedException("You have no access to this account, you can only make or view transactions from your own account(s). ");
+            throw new UnauthorizedException("No access, you can only make/view transactions from your own account(s).");
         }
     }
 
@@ -131,19 +135,25 @@ public class TransactionService {
         String fromIban = fromAccount.getAccount_id();
         String toIban = toAccount.getAccount_id();
 
+        //Makes sure that you can't use same from and to iban in transaction unless it's a withdrawal or deposit.
+        if(fromIban.equals(toIban) && transactionType == TransactionType.regular_transaction){
+            throw new BadRequestException("The transaction type is invalid. ");
+        }
+
+        //Makes sure deposits and withdrawals are only valid between own accounts.
         if (transactionType != TransactionType.regular_transaction && !fromIban.equals(toIban)) {
-            throw new BadRequestException("The transaction type was incorrect. ");
+            throw new BadRequestException("The transaction type is incorrect. ");
         }
     }
 
     private void validateTransaction(Account fromAccount, Account toAccount, Transaction transaction, HttpServletRequest request) {
-        //validates transactions routes from savings to primary and visa versa, checks types
-        this.checkIfTransactionIsValid(fromAccount, toAccount);
-        this.validateTransactionType(fromAccount, toAccount, transaction);
-
         //Checks if user has rights over account to perform, and enough balance
         this.checkUserHasRightsToAccount(fromAccount, request);
         this.checkTransactionLimitsAndBalance(transaction, fromAccount);
+
+        //validates transactions routes from savings to primary and visa versa, checks types
+        this.checkIfTransactionIsValid(fromAccount, toAccount);
+        this.validateTransactionType(fromAccount, toAccount, transaction);
     }
 
     public DTOEntity createTransaction(TransactionPostDTO body, HttpServletRequest request) {
@@ -192,7 +202,7 @@ public class TransactionService {
     }
 
     //Filters transactions gets all for employee, gets own for customer.
-    public List<DTOEntity> filterTransactions(Integer page, Integer pageSize, FilterParams filterParams, HttpServletRequest request) {
+    public Page<Transaction> filterTransactions(Integer page, Integer pageSize, FilterParams filterParams, HttpServletRequest request) {
         String fromIban = filterParams.getFromIban();
         Account fromAccount = (fromIban == null) ? null : this.accountService.retrieveAccount(fromIban);
 
@@ -216,12 +226,13 @@ public class TransactionService {
 
         Pageable pageable = PageRequest.of(page, pageSize);
 
-        if (this.isEmployee(request))
-            return new DtoUtils().convertListToDto(this.transactionRepo.filterTransactions(fromIban, filterParams.getToIban(), fromDate, untilDate, amountEqual,
-                    amountMin, amountMax, pageable), new TransactionGetDTO());
+        if (this.isEmployee(request)) {
+            Page<Transaction> transactions = this.transactionRepo.filterTransactions(fromIban, filterParams.getToIban(), fromDate, untilDate, amountEqual, amountMin, amountMax, pageable);
+            return transactions.map(objectEntity -> modelMapper.map(objectEntity, Transaction.class));
+        }
         else {
-            return new DtoUtils().convertListToDto(this.transactionRepo.filterTransactionsForCustomer(fromIban, filterParams.getToIban(), fromDate, untilDate, amountEqual,
-                    amountMin, amountMax, pageable), new TransactionGetDTO());
+            Page<Transaction> transactions = this.transactionRepo.filterTransactionsForCustomer(fromIban, filterParams.getToIban(), fromDate, untilDate, amountEqual, amountMin, amountMax, pageable);
+            return transactions.map(objectEntity -> modelMapper.map(objectEntity, Transaction.class));
         }
     }
 }
