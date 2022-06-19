@@ -1,48 +1,22 @@
-package io.swagger.cucumber.glue.transactionTests;
+package io.swagger.cucumber.glue.transactionSteps;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import io.cucumber.messages.internal.com.google.gson.Gson;
-import io.swagger.exception.ErrorMessage;
-import io.swagger.model.entity.Transaction;
 import io.swagger.model.entity.TransactionType;
-import io.swagger.model.entity.User;
 import io.swagger.model.transaction.TransactionGetDTO;
 import io.swagger.model.transaction.TransactionPostDTO;
-import io.swagger.repository.UserRepository;
-import io.swagger.security.JwtTokenProvider;
 import org.json.JSONException;
-import org.json.JSONObject;
-import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.*;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.*;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-public class EmployeeMakesTransaction {
-    @Autowired
-    private TestRestTemplate restTemplate;
-
-    @Autowired
-    private JwtTokenProvider jwtTokenProvider;
-
+public class EmployeeMakesTransaction extends TransactionBaseSteps {
     private TransactionPostDTO transaction;
-
-    final String baseUrl = "http://localhost:";
-
-    @LocalServerPort
-    int serverPort;
-
     private ResponseEntity<TransactionGetDTO> response;
-
     private TransactionGetDTO createdTransaction;
 
     @Given("the employee enters the following transaction")
@@ -75,6 +49,6 @@ public class EmployeeMakesTransaction {
         Assertions.assertEquals(this.createdTransaction.getAmount(), transaction.getAmount());
         Assertions.assertEquals(this.createdTransaction.getFromAccount(), transaction.getFromAccount());
         Assertions.assertEquals(this.createdTransaction.getToAccount(), transaction.getToAccount());
-        Assertions.assertEquals(this.createdTransaction.getType(), TransactionType.regular_transaction);
+        Assertions.assertEquals(TransactionType.regular_transaction, this.createdTransaction.getType());
     }
 }
