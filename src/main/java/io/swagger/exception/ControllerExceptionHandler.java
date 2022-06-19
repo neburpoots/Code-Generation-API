@@ -3,6 +3,7 @@ package io.swagger.exception;
 import io.swagger.controller.ApiException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.BindException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,28 +13,32 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import javax.validation.ConstraintViolationException;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @RestControllerAdvice
-@SuppressWarnings({"unchecked","rawtypes"})
 public class ControllerExceptionHandler
 {
-    //Response for non-readable http messages, mostly thrown by invalid json objects in posts.
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public final ErrorMessage handleUnreadableHttpMessage(HttpMessageNotReadableException exception, WebRequest request){
-        return new ErrorMessage(
-                HttpStatus.BAD_REQUEST.value(),
-                new Date(),
-                exception.getMostSpecificCause().toString());
-    }
-
     //This exception is returned by the spring boot validator, and displays the validation messages concatenated as one string.
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public final ErrorMessage handleAllSpringBootExceptions(MethodArgumentNotValidException exception, WebRequest request) {
+        List<String> details = new ArrayList<>();
+        for(ObjectError error : exception.getBindingResult().getAllErrors()) {
+            details.add(error.getDefaultMessage());
+        }
+        return new ErrorMessage(
+                HttpStatus.BAD_REQUEST.value(),
+                new Date(),
+                details.toString());
+    }
+
+    //This exception is returned by the spring boot validator, and displays the validation messages concatenated as one string.
+    @ExceptionHandler(BindException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public final ErrorMessage handleAllSpringBootExceptions(BindException exception, WebRequest request) {
         List<String> details = new ArrayList<>();
         for(ObjectError error : exception.getBindingResult().getAllErrors()) {
             details.add(error.getDefaultMessage());
@@ -55,6 +60,16 @@ public class ControllerExceptionHandler
         );
     }
 
+    @ExceptionHandler(DateTimeParseException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ErrorMessage dateTimeParseExceptionHandler(DateTimeParseException exception, WebRequest request){
+        return new ErrorMessage(
+                HttpStatus.BAD_REQUEST.value(),
+                new Date(),
+                exception.getLocalizedMessage()
+        );
+    }
+
     //Catches the ApiException
     @ExceptionHandler(ApiException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
@@ -73,6 +88,16 @@ public class ControllerExceptionHandler
                 HttpStatus.BAD_REQUEST.value(),
                 new Date(),
                 exception.getMessage());
+    }
+
+    //Response for non-readable http messages, mostly thrown by invalid json objects in posts.
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public final ErrorMessage handleUnreadableHttpMessage(HttpMessageNotReadableException exception, WebRequest request){
+        return new ErrorMessage(
+                HttpStatus.BAD_REQUEST.value(),
+                new Date(),
+                "Provided json object was invalid. ");
     }
 
     //General exception handling for NullPointers.
