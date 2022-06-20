@@ -30,7 +30,7 @@ public class createAccountSuccessfullySteps  extends BaseAccountSteps {
     private AccountPostDTO accountPostDTO;
 
     @Given("^the account post dto for the account that will be created with email (.*)$")
-    public void givenTheAccountsForTheFilters(final String email, final List<Account> accounts)
+    public void givenAccountPostDtoForAccountWithEmail(final String email, final List<Account> accounts)
     {
         //Get the customer for testing
         User testUser = userRepository.findByEmail(email);

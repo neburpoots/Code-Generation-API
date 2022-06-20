@@ -74,3 +74,40 @@ Feature: account feature
       |-20000.00     |PRIMARY|
     When a employee posts the invalid post data with the uuid
     Then the customer will receive a 400 bad request with the error message "[moet groter dan -10000.01 zijn]"
+    And the account has not been added to the database
+
+  @editAccountSuccessfully
+  Scenario: A employee edits the account of an user with valid credentials
+    Given the valid account patch dto for the primary account of ruben@student.inholland.nl
+      |absoluteLimit |status|
+      |-5000.00      |false|
+    When a employee patches the valid patch dto for an account with the iban
+    Then the updated account is in the database
+    And it has the updated properties
+
+  @editAccountAsCustomerReturns403
+  Scenario: A customer tries to edit his own account and receives a error
+    Given the valid account patch dto for the savings account of ruben@student.inholland.nl
+      |absoluteLimit |status|
+      |-5000.00      |false|
+    When a customer tries to update the account with the given dto
+    Then a 403 should be returned and the following error message given "Access Denied"
+
+
+  @editAccountWithBadDTOReturns400
+  Scenario: A employee tries to edit an account to an invalid absolute limit
+    Given the invalid account patch dto for the savings account of ruben@student.inholland.nl
+      |absoluteLimit |status|
+      |1000.00     |false|
+    When a employee tries to update the account with the invalid patch dto
+    Then a 400 should be returned and the following error message given: "[moet kleiner dan 0.01 zijn]"
+    And the account has not been updated in the database
+
+  @editAccountWithWrongHttpMethodReturns405
+  Scenario: A employee tries to do a post request to the patch endpoint
+    Given the valid dto for the wrong http request
+      |absoluteLimit |status|
+      |1000.00     |false|
+    When a employee makes a post request to the patch endpoint
+    Then a 405 method not allowed should be returned and the following error message given: "Request method 'POST' not supported"
+    And the existing account has not been updated in the database

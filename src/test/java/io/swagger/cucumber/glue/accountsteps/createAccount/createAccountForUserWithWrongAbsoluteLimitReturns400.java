@@ -1,6 +1,7 @@
 package io.swagger.cucumber.glue.accountsteps.createAccount;
 
 import io.cucumber.java.Before;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -10,6 +11,7 @@ import io.swagger.model.account.AccountPostDTO;
 import io.swagger.model.entity.Account;
 import io.swagger.model.entity.AccountType;
 import io.swagger.model.entity.User;
+import org.junit.jupiter.api.Assertions;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -36,17 +38,13 @@ public class createAccountForUserWithWrongAbsoluteLimitReturns400 extends BaseAc
         //Get the customer for testing
         User testUser = userRepository.findByEmail(email);
 
-        //Create a full account to check
-        Account newAccount = new Account(new BigDecimal(0), accounts.get(0).getAbsoluteLimit(), accounts.get(0).getAccountType(), true);
-
-        expectedAccounts.add(newAccount);
-
-        expectedAccounts.forEach(c -> c.setUser(testUser));
+        //Get all accounts for checking
+        expectedAccounts.addAll(accountRepository.findAll());
 
         this.accountPostDTO = new AccountPostDTO()
                 .user_id(testUser.getUser_id())
-                .accountType(newAccount.getAccountType())
-                .absoluteLimit(newAccount.getAbsoluteLimit());
+                .accountType(accounts.get(0).getAccountType())
+                .absoluteLimit(accounts.get(0).getAbsoluteLimit());
 
     }
 
@@ -70,10 +68,18 @@ public class createAccountForUserWithWrongAbsoluteLimitReturns400 extends BaseAc
     }
 
     @Then("the customer will receive a {int} bad request with the error message {string}")
-    public void theCustomerWillReceiveAWithTheErrorMessage(final Integer code, final String message) {
+    public void thenTheCustomerWillReceiveAWithTheErrorMessage(final Integer code, final String message) {
         this.expectedCode = code;
         this.expectedErrorMessage = message;
 
         validateErrorMessageWithoutStatusCodeParam();
+    }
+
+    @And("the account has not been added to the database")
+    public void andTheAccountHasNotBeenAddedToTheDatabase() {
+
+        this.actualAccounts.addAll(accountRepository.findAll());
+
+        Assertions.assertEquals(actualAccounts.size(), expectedAccounts.size());
     }
 }
