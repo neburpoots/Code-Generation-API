@@ -1,4 +1,4 @@
-package io.swagger.cucumber.glue.transactionTests;
+package io.swagger.cucumber.glue.transactionSteps;
 
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -8,13 +8,10 @@ import io.swagger.exception.ErrorMessage;
 import io.swagger.model.entity.User;
 import io.swagger.model.transaction.TransactionPostDTO;
 import io.swagger.repository.UserRepository;
-import io.swagger.security.JwtTokenProvider;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.*;
 import org.springframework.test.annotation.DirtiesContext;
 
@@ -22,22 +19,11 @@ import java.util.*;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 
-public class BadTransactionOverLimit {
-    @Autowired
-    private TestRestTemplate restTemplate;
-
-    @Autowired
-    private JwtTokenProvider jwtTokenProvider;
-
+public class BadTransactionOverLimit extends TransactionBaseSteps{
     @Autowired
     private UserRepository userRepository;
 
     private TransactionPostDTO transaction;
-
-    final String baseUrl = "http://localhost:";
-
-    @LocalServerPort
-    int serverPort;
 
     private ResponseEntity<String> response;
 

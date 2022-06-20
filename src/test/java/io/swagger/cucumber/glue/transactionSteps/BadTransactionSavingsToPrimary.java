@@ -1,23 +1,14 @@
-package io.swagger.cucumber.glue.transactionTests;
+package io.swagger.cucumber.glue.transactionSteps;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.cucumber.messages.internal.com.google.gson.Gson;
 import io.swagger.exception.ErrorMessage;
-import io.swagger.model.entity.Transaction;
-import io.swagger.model.transaction.TransactionGetDTO;
 import io.swagger.model.transaction.TransactionPostDTO;
-import io.swagger.security.JwtTokenProvider;
-import lombok.Data;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.*;
 import org.springframework.test.annotation.DirtiesContext;
 
@@ -25,19 +16,8 @@ import java.io.IOException;
 import java.util.*;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-public class BadTransactionSavingsToPrimary {
-    @Autowired
-    private TestRestTemplate restTemplate;
-
-    @Autowired
-    private JwtTokenProvider jwtTokenProvider;
-
+public class BadTransactionSavingsToPrimary extends TransactionBaseSteps {
     private TransactionPostDTO transaction;
-
-    final String baseUrl = "http://localhost:";
-
-    @LocalServerPort
-    int serverPort;
 
     private ResponseEntity<String> response;
 

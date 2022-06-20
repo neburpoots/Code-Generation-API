@@ -1,15 +1,11 @@
-package io.swagger.cucumber.glue.transactionTests;
+package io.swagger.cucumber.glue.transactionSteps;
 
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.swagger.model.entity.Transaction;
-import io.swagger.security.JwtTokenProvider;
 import io.swagger.utils.RestPageImpl;
 import org.junit.jupiter.api.Assertions;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.test.annotation.DirtiesContext;
@@ -17,19 +13,8 @@ import org.springframework.test.annotation.DirtiesContext;
 import java.util.*;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-public class EmployeeGetsTransactions {
-    @Autowired
-    private TestRestTemplate restTemplate;
-
-    @Autowired
-    private JwtTokenProvider jwtTokenProvider;
-
+public class EmployeeGetsTransactions extends TransactionBaseSteps {
     private String fromIban;
-
-    final String baseUrl = "http://localhost:";
-    @LocalServerPort
-    int serverPort;
-
     private ResponseEntity<RestPageImpl<Transaction>> response;
     private List<Transaction> actualTransactions;
 
