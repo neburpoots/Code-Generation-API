@@ -13,6 +13,8 @@ import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import springfox.documentation.oas.annotations.EnableOpenApi;
 
+import java.util.Locale;
+
 @SpringBootApplication(exclude = SecurityAutoConfiguration.class) // disable authentication until it's implemented
 @EnableOpenApi
 @ComponentScan(basePackages = { "io.swagger", "io.swagger.controller", "io.swagger.configuration"})
@@ -26,6 +28,7 @@ public class Swagger2SpringBoot implements CommandLineRunner {
     }
 
     public static void main(String[] args) throws Exception {
+        Locale.setDefault(Locale.ENGLISH);
         new SpringApplication(Swagger2SpringBoot.class).run(args);
     }
 

@@ -73,7 +73,7 @@ Feature: account feature
       |absoluteLimit |accountType|
       |-20000.00     |PRIMARY|
     When a employee posts the invalid post data with the uuid
-    Then the customer will receive a 400 bad request with the error message "[moet groter dan -10000.01 zijn]"
+    Then the customer will receive a 400 bad request with the error message "[must be greater than -10000.01]"
     And the account has not been added to the database
 
   @editAccountSuccessfully
@@ -100,7 +100,7 @@ Feature: account feature
       |absoluteLimit |status|
       |1000.00     |false|
     When a employee tries to update the account with the invalid patch dto
-    Then a 400 should be returned and the following error message given: "[moet kleiner dan 0.01 zijn]"
+    Then a 400 should be returned and the following error message given: "[must be less than 0.01]"
     And the account has not been updated in the database
 
   @editAccountWithWrongHttpMethodReturns405

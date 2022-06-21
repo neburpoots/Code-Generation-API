@@ -1,8 +1,6 @@
 package io.swagger.cucumber.glue.accountsteps;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.cucumber.java.Before;
-import io.cucumber.java.en.Then;
 import io.swagger.exception.ErrorMessage;
 import io.swagger.model.entity.Account;
 import io.swagger.model.entity.Role;
@@ -12,12 +10,10 @@ import io.swagger.repository.UserRepository;
 import io.swagger.security.JwtTokenProvider;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assertions;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collections;
