@@ -111,3 +111,24 @@ Feature: account feature
     When a employee makes a post request to the patch endpoint
     Then a 405 method not allowed should be returned and the following error message given: "Request method 'POST' not supported"
     And the existing account has not been updated in the database
+
+  @getAccountByIdSuccessfully
+  Scenario: A employee retrieves an account
+    Given the following account with the email ruben@student.inholland.nl
+      |balance   |absoluteLimit |accountType |status|
+      |5000.00   |-340.00    |PRIMARY     |true  |
+    When the employee retrieves the account
+    Then the account is returned
+
+  @getAccountsByIdAsCustomerReturns403
+  Scenario: A customer tries to retrieve an account that does not belong to him
+    Given the following account to store in the database with user ruben@student.inholland.nl
+      |balance   |absoluteLimit |accountType |status|
+      |5000.00   |-340.00    |PRIMARY     |true  |
+    When a customer tries to retrieve an account which is not his own
+    Then a 403 code should be returned and the following error message given "You are not authorized to make this request."
+
+  @getAccountWithNonExistentIbanReturns404
+  Scenario: A employee retrieves the account which does not exist
+    When a employee retrieves the account with the id NLINH1000000001
+    Then a 404 not found should be returned with the error message "Could not find account"

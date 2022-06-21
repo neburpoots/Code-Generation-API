@@ -596,8 +596,7 @@ public class AccountControllerTest {
         ErrorMessage mappedToErrorMessage = objectMapper.readValue(account.getBody(), ErrorMessage.class);
 
         Assertions.assertNotNull(mappedToErrorMessage.getMessage());
-        Assertions.assertEquals(mappedToErrorMessage.getMessage(), "JSON parse error: Cannot deserialize value of type `io.swagger.model.entity.AccountType` from String \"WRONGTYPE\": value not one of declared Enum instance names: [SAVINGS, PRIMARY, BANK]; nested exception is com.fasterxml.jackson.databind.exc.InvalidFormatException: Cannot deserialize value of type `io.swagger.model.entity.AccountType` from String \"WRONGTYPE\": value not one of declared Enum instance names: [SAVINGS, PRIMARY, BANK]\n" +
-                " at [Source: (PushbackInputStream); line: 1, column: 17] (through reference chain: io.swagger.model.account.AccountPostDTO[\"account_type\"])");
+        Assertions.assertEquals(mappedToErrorMessage.getMessage(), "Provided json object was invalid. ");
         Assertions.assertNotNull(mappedToErrorMessage.getTimestamp());
 
         Assertions.assertEquals(account.getStatusCodeValue(),400);
@@ -789,8 +788,7 @@ public class AccountControllerTest {
 
         System.out.println(mappedToErrorMessage.getMessage());
         Assertions.assertNotNull(mappedToErrorMessage.getMessage());
-        Assertions.assertEquals(mappedToErrorMessage.getMessage(),"JSON parse error: Cannot deserialize value of type `java.lang.Boolean` from String \"notABoolean\": only \"true\" or \"false\" recognized; nested exception is com.fasterxml.jackson.databind.exc.InvalidFormatException: Cannot deserialize value of type `java.lang.Boolean` from String \"notABoolean\": only \"true\" or \"false\" recognized\n" +
-                " at [Source: (PushbackInputStream); line: 1, column: 34] (through reference chain: io.swagger.model.account.AccountPatchDTO[\"status\"])");
+        Assertions.assertEquals(mappedToErrorMessage.getMessage(),"Provided json object was invalid. ");
         Assertions.assertNotNull(mappedToErrorMessage.getTimestamp());
 
         Assertions.assertEquals(account.getStatusCodeValue(),400);
@@ -851,7 +849,7 @@ public class AccountControllerTest {
 
         System.out.println(mappedToErrorMessage.getMessage());
         Assertions.assertNotNull(mappedToErrorMessage.getMessage());
-        Assertions.assertEquals(mappedToErrorMessage.getMessage(),"Validation failed for object='accountPatchDTO'. Error count: 1");
+        Assertions.assertEquals(mappedToErrorMessage.getMessage(),"[must be less than 0.01]");
         Assertions.assertNotNull(mappedToErrorMessage.getTimestamp());
 
         Assertions.assertEquals(account.getStatusCodeValue(),400);

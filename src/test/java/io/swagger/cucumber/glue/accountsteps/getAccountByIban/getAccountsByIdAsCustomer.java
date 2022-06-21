@@ -1,37 +1,31 @@
 package io.swagger.cucumber.glue.accountsteps.getAccountByIban;
 
 import io.cucumber.java.Before;
-import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.swagger.cucumber.glue.accountsteps.BaseAccountSteps;
-import io.swagger.model.account.AccountPostDTO;
+import io.swagger.exception.ErrorMessage;
 import io.swagger.model.entity.Account;
 import io.swagger.model.entity.User;
-import io.swagger.utils.RestPageImpl;
-import org.junit.jupiter.api.Assertions;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-public class getAccountByIdSuccessfully extends BaseAccountSteps {
+public class getAccountsByIdAsCustomer extends BaseAccountSteps {
 
-    @Before("@getAccountByIdSuccessfully")
+    @Before("@getAccountsByIdAsCustomerReturns403")
     @Override
     public void setup() {
         super.setup();
     }
 
 
-    @Given("^the following account with the email (.*)$")
+    @Given("^the following account to store in the database with user (.*)$")
     public void givenTheFollowingAccounts(final String email, final List<Account> accounts)
     {
         Account expectedAccount = accounts.get(0);
@@ -45,21 +39,26 @@ public class getAccountByIdSuccessfully extends BaseAccountSteps {
 
     }
 
-    @When("^the employee retrieves the account")
+    @When("^a customer tries to retrieve an account which is not his own")
     public void whenTheUserRequestAllTheAccounts() throws IOException {
 
-        HttpEntity request = new HttpEntity(employeeHeaders);
+        HttpEntity request = new HttpEntity(customerHeaders);
 
-        ResponseEntity<Account> account =
+        ResponseEntity<String> error =
+                testRestTemplate.exchange("/api/accounts/" + expectedAccounts.get(0).getAccount_id(), HttpMethod.GET, request, String.class);
 
-                testRestTemplate.exchange("/api/accounts/" + expectedAccounts.get(0).getAccount_id(), HttpMethod.GET, request, new ParameterizedTypeReference<Account>() {
-                });
-
-        actualAccounts.add(account.getBody());
+        //Converts String to object
+        this.actualErrorMessage = objectMapper.readValue(error.getBody(), ErrorMessage.class);
+        System.out.println(expectedCode);
+        System.out.println(actualErrorMessage.getStatusCode());
     }
 
-    @Then("^the account is returned")
-    public void thenAllTheAccountsAreReturned() {
-        validateAccounts();
+    @Then("a {int} code should be returned and the following error message given {string}")
+    public void then403IsReturnedWithAErrorMessage(final Integer code, final String message) {
+
+        this.expectedCode = code;
+        this.expectedErrorMessage = message;
+
+        validateErrorMessageWithoutStatusCodeParam();
     }
 }
