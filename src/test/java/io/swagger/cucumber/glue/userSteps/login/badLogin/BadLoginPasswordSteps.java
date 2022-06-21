@@ -1,44 +1,29 @@
-package io.swagger.cucumber.glue.badLogin;
+package io.swagger.cucumber.glue.userSteps.login.badLogin;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import io.swagger.cucumber.glue.userSteps.login.LoginBaseSteps;
 import io.swagger.exception.ErrorMessage;
 import io.swagger.model.user.UserLoginDTO;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
-public class BadLoginPasswordSteps {
-    @Autowired
-    private TestRestTemplate restTemplate;
-
-    @Autowired
-    private ObjectMapper mapper;
-
-    final String baseUrl = "http://localhost:";
-    @LocalServerPort
-    int serverPort;
-
-    private UserLoginDTO loginUser;
-    private ResponseEntity<String> response;
-    private ErrorMessage output;
-
+public class BadLoginPasswordSteps extends LoginBaseSteps
+{
     @Given("^the following bad login password$")
-    public void givenTheFollowingBadPassword(final UserLoginDTO loginUser) {
+    public void givenTheFollowingBadPassword(final UserLoginDTO loginUser)
+    {
         this.loginUser = loginUser;
     }
 
     @When("^the customer logs in with the bad password")
-    public void aCustomerLogsInWithABadPassword() throws Exception {
+    public void aCustomerLogsInWithABadPassword() throws Exception
+    {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Content-Type",
                 "application/json");
@@ -49,16 +34,19 @@ public class BadLoginPasswordSteps {
         response = restTemplate.postForEntity(baseUrl + serverPort + "/api/users/login",
                 request, String.class);
         JSONObject jsonObject = new JSONObject(response.getBody());
-        output = mapper.readValue(String.valueOf(jsonObject), new TypeReference<ErrorMessage>() {
+        output = mapper.readValue(String.valueOf(jsonObject), new TypeReference<ErrorMessage>()
+        {
         });
     }
 
     @Then("^an unauthorized error is returned")
-    public void unauthorizedErrorIsReturned() {
+    public void unauthorizedErrorIsReturned()
+    {
         validateOutput();
     }
 
-    private void validateOutput() {
+    private void validateOutput()
+    {
         Assertions.assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCodeValue());
         Assertions.assertEquals("Invalid login credentials", output.getMessage());
     }
