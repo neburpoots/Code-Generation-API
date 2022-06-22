@@ -49,17 +49,21 @@ public class TransactionService  {
     public DTOEntity getTransactionById(String transactionId, HttpServletRequest request) {
         Optional<Transaction> transaction = this.transactionRepo.findById(UUID.fromString(transactionId));
 
+        //Check if the user is employee
+        if(transaction.isPresent() && isEmployee(request))
+            return new DtoUtils().convertToDto(transaction.get(), new TransactionGetDTO());
+
         //Check if the provided iban belongs to the logged-in user.
         if (transaction.isPresent() && !isEmployee(request)) {
 
-            boolean checkIfToAccountMatchesUser = !Objects.equals(this.getLoggedInUserIban(request), transaction.get().getFromAccount());
-            boolean checkIfFromAccountMatchesUser = !Objects.equals(this.getLoggedInUserIban(request), transaction.get().getToAccount());
+            boolean checkIfToAccountMatchesUser = Objects.equals(this.getLoggedInUserIban(request), transaction.get().getFromAccount());
+            boolean checkIfFromAccountMatchesUser = Objects.equals(this.getLoggedInUserIban(request), transaction.get().getToAccount());
 
             if (!checkIfFromAccountMatchesUser && !checkIfToAccountMatchesUser)
                 throw new ResourceNotFoundException("No Transaction found.");
-
             return new DtoUtils().convertToDto(transaction.get(), new TransactionGetDTO());
-        } else
+
+        }else
             throw new ResourceNotFoundException("No transaction found with matching ID. ");
     }
 

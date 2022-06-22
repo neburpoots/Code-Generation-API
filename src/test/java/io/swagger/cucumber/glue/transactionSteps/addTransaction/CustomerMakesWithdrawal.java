@@ -1,8 +1,9 @@
-package io.swagger.cucumber.glue.transactionSteps;
+package io.swagger.cucumber.glue.transactionSteps.addTransaction;
 
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import io.swagger.cucumber.glue.transactionSteps.TransactionBaseSteps;
 import io.swagger.model.entity.Account;
 import io.swagger.model.entity.TransactionType;
 import io.swagger.model.entity.User;

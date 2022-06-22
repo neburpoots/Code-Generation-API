@@ -12,8 +12,8 @@ public abstract class TransactionBaseSteps {
     @Autowired
     protected JwtTokenProvider jwtTokenProvider;
 
-    final String baseUrl = "http://localhost:";
+    protected final String baseUrl = "http://localhost:";
 
     @LocalServerPort
-    int serverPort;
+    protected int serverPort;
 }
