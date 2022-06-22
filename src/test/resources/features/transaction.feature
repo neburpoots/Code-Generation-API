@@ -78,12 +78,22 @@ Feature: Transactions
         When the employee makes the transaction that will go under the limit
         Then the employee will reaceive a 400 status and a message telling him his limit is reached
 
-        Scenario: A customer wants to look up an transaction by the id
-          Given the customer enters a matching id
-          When the customer request the getTransactionById endpoint
-          Then the customer will receive the transaction object and 200 status
+      Scenario: A customer wants to look up an transaction by the id
+        Given the customer enters a matching id
+        When the customer request the getTransactionById endpoint
+        Then the customer will receive the transaction object and 200 status
 
-          Scenario: A customer request a strangers transaction by entering that transaction id
-            Given the customer enters the matching id of a strangers transaction id
-            When the customer request the endpoint
-            Then the customer will receive an error message and a 404 not found error
+      Scenario: A customer request a strangers transaction by entering that transaction id
+        Given the customer enters the matching id of a strangers transaction id
+        When the customer request the endpoint
+        Then the customer will receive an error message and a 404 not found error
+
+      Scenario: A customer looks for a transactio by id with an invalid id
+        Given the customer uses the following string "64563453565436q534" as id
+        When the customer tries to request the transactio with the given id
+        Then the customer will receive a error message and a 400
+
+        Scenario: A customer enters a valid Id but it doesnt match any transaction
+          Given the custome enters the following transaction id "0084f562-cc16-4314-8d5f-ce8e70a8a252"
+          When the customer request the transaction endpoint with the given id
+          Then the customer will receive a error message and 404 response

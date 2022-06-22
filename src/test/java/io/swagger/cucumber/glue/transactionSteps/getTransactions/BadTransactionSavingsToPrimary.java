@@ -55,6 +55,4 @@ public class BadTransactionSavingsToPrimary extends TransactionBaseSteps {
         Assertions.assertEquals(this.output.getStatusCode(), httpResponseCode);
         Assertions.assertEquals("No access, you can only make/view transactions from your own account(s).", this.output.getMessage());
     }
-
-
 }
