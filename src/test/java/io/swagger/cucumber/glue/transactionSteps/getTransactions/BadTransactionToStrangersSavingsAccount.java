@@ -1,9 +1,10 @@
-package io.swagger.cucumber.glue.transactionSteps;
+package io.swagger.cucumber.glue.transactionSteps.getTransactions;
 
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.cucumber.messages.internal.com.google.gson.Gson;
+import io.swagger.cucumber.glue.transactionSteps.TransactionBaseSteps;
 import io.swagger.exception.ErrorMessage;
 import io.swagger.model.transaction.TransactionPostDTO;
 import org.json.JSONException;

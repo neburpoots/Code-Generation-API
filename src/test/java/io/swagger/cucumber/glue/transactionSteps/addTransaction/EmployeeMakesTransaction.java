@@ -1,13 +1,15 @@
-package io.swagger.cucumber.glue.transactionSteps;
+package io.swagger.cucumber.glue.transactionSteps.addTransaction;
 
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import io.swagger.cucumber.glue.transactionSteps.TransactionBaseSteps;
 import io.swagger.model.entity.TransactionType;
 import io.swagger.model.transaction.TransactionGetDTO;
 import io.swagger.model.transaction.TransactionPostDTO;
 import org.json.JSONException;
 import org.junit.jupiter.api.Assertions;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.*;
 import org.springframework.test.annotation.DirtiesContext;
 
